@@ -6,7 +6,7 @@ client = discord.Client()
 
 @client.event
 async def on_member_join(member):
-    await client.send_message(message.channel, "Welcome to the Bunk Butter discord 0! Type '!help' for my available commands".format(member.nick))
+    await client.send_message("general", "Welcome to the Bunk Butter discord 0! Type '!help' for my available commands".format(member.nick))
 
 @client.event
 async def on_message(message):
