@@ -1,23 +1,29 @@
-import discord
-import asyncio
 import json
+import asyncio
+import discord
+from discord.ext import commands
 
-client = discord.Client()
+bot = commands.Bot(command_prefix="!", description="The bunkest bot")
 
-@client.event
-async def on_member_join(member):
-    await client.send_message("general", "Welcome to the Bunk Butter discord 0! Type '!help' for my available commands".format(member.nick))
+exts = [
+    "cogs.remindme"
+]
 
-@client.event
+@bot.event
 async def on_message(message):
-    if message.content.startswith("!help"):
-        await client.send_message(message.channel, "This is a test bot, no fun commands yet")
+    if message.author.bot:
+        return
+
+    await bot.process_commands(message)
 
 def load_credentials():
     with open("credentials.json") as creds:
         return json.load(creds)
 
-
 if __name__ == "__main__":
     credentials = load_credentials();
-    client.run(credentials["token"])
+
+    for ext in exts:
+        bot.load_extension(ext)
+
+    bot.run(credentials["token"])
