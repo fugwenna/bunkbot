@@ -1,12 +1,9 @@
 import json
-import asyncio
-import discord
 from discord.ext import commands
 
 bot = commands.Bot(command_prefix="!", description="The bunkest bot")
 
 exts = [
-    "cogs.remindme",
     "cogs.youtube"
 ]
 
