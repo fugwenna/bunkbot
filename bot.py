@@ -1,13 +1,12 @@
-import json
+from os import walk
 from discord.ext import commands
-
+import json
 bot = commands.Bot(command_prefix="!", description="The bunkest bot")
 
-exts = [
-    "cogs.roll",
-    "cogs.youtube"
-]
-
+"""
+Simple root event handler
+that will process each cog command
+"""
 @bot.event
 async def on_message(message):
     if message.author.bot:
@@ -15,14 +14,34 @@ async def on_message(message):
 
     await bot.process_commands(message)
 
-def load_credentials():
-    with open("credentials.json") as creds:
-        return json.load(creds)
-
+"""
+Main loader - read over cogs/ directory
+and manually update the cogs array in 
+the config.json file
+"""
 if __name__ == "__main__":
-    credentials = load_credentials();
+    cog_arr = []
+    config_data = {}
 
-    for ext in exts:
-        bot.load_extension(ext)
+    with open("config.json", "r") as config:
+        conf = json.load(config)
 
-    bot.run(credentials["token"])
+        for (path, names, files) in walk("cogs"):
+            for f in files:
+                fn = f.split(".")
+                if fn[(len(fn)-1)] == "py":
+                    try:
+                        conf["cogs"].index(fn[0])
+                        bot.load_extension(fn[0])
+                    except:
+                        pass
+
+                    cog_arr.append(fn[0])
+
+        config_data["token"] = conf["token"]
+        config_data["cogs"] = cog_arr
+
+    with open("config.json", "w") as config:
+        json.dump(config_data, config, indent=4)
+
+    bot.run(config_data["token"])
