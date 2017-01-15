@@ -6,12 +6,12 @@ from bs4 import BeautifulSoup
 from discord.ext import commands
 
 HELP_DESCRIPTION = """
-    Search for a youtube video (alias: yt)
+    Search for a youtube video 
 
     example: !youtube heroes of the storm
 """
 
-class Youtube:
+class YouTube:
     def __init__(self, bot):
         self.bot = bot
         self.ids = []
@@ -39,21 +39,11 @@ class Youtube:
             if i == 5:
                 break
 
-
             href = result["href"]
             title = result.get("title")
             if re.match(r'\/watch\?v=(.{11})', href) and title is not None:
                 i+=1
                 self.ids.append(href.split("=")[1])
-
-                #if i > 0:
-                #    parent = result.find_parent()
-                #    sibs = parent.next_siblings("div")
-                #    for sib in sibs:
-                #        if sib.get("class") == "yt-lockup-byline":
-                #            anc = sib.find("a")
-                #            print(anc)
-
                 titles.append("{0}. {1}".format(i, title))
 
 
@@ -86,11 +76,11 @@ class Youtube:
     async def youtube(self, ctx):
         await self.cmd(ctx)
 
-    @commands.command(pass_context=True, cls=None, help=HELP_DESCRIPTION)
+    @commands.command(pass_context=True, cls=None, help="!youtube alias")
     async def yt(self, ctx):
         await self.cmd(ctx)
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, clas=None, help="link another youtube result from the last search")
     async def ytl(self, ctx):
         params = ctx.message.content.split()
         if len(params) == 1 or not params[1].isdigit() or int(params[1]) > len(self.ids) or int(params[1]) < 0:
@@ -101,4 +91,4 @@ class Youtube:
 
 
 def setup(bot):
-    bot.add_cog(Youtube(bot))
+    bot.add_cog(YouTube(bot))
