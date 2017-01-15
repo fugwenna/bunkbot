@@ -1,6 +1,5 @@
-from os import walk
 from discord.ext import commands
-import json
+import json, re, os, os.path
 bot = commands.Bot(command_prefix="!", description="The bunkest bot")
 
 """
@@ -25,18 +24,10 @@ if __name__ == "__main__":
 
     with open("config.json", "r") as config:
         conf = json.load(config)
-
-        for (path, names, files) in walk("cogs"):
-            for f in files:
-                fn = f.split(".")
-                if fn[(len(fn)-1)] == "py":
-                    try:
-                        conf["cogs"].index(fn[0])
-                        bot.load_extension(fn[0])
-                    except:
-                        pass
-
-                    cog_arr.append(fn[0])
+        for f in [f for f in os.listdir("cogs") if os.path.isfile(os.path.join("cogs", f))]:
+            fn = "cogs.{0}".format(f.split(".")[0])
+            bot.load_extension(fn)
+            cog_arr.append(fn)
 
         config_data["token"] = conf["token"]
         config_data["cogs"] = cog_arr
