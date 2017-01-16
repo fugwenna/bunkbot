@@ -15,20 +15,20 @@ class CogWheel:
     will be the default message type
     """
     async def send_message(self, title, msg):
-        await self.bot.say(embed=discord.Embed(title=title, description=msg))
+        return await self.bot.say(embed=discord.Embed(title=title, description=msg))
 
     """
     Send a plain non discord Embed message
     """
     async def send_message_plain(self, msg):
-        await self.bot.say(msg)
+        return await self.bot.say(msg)
 
     """
     Even more wrapping around editing
     a previous sent message from the bot
     """
     async def edit_message(self, msg, new_content=None):
-        await self.bot.edit_message(msg, new_content)
+        return await self.bot.edit_message(msg, new_content)
 
     """
     Retrieve the author of a command
