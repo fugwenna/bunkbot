@@ -1,27 +1,28 @@
-import urllib.request
-import urllib.parse
-import re
-import discord
+import urllib.request, urllib.parse
+import re, discord
 from bs4 import BeautifulSoup
 from discord.ext import commands
+from .util.cog_wheel import CogWheel
 
 HELP_DESCRIPTION = """
-    Search for a youtube video 
+    Search for a youtube video
 
     example: !youtube heroes of the storm
 """
 
 class YouTube:
     def __init__(self, bot):
-        self.bot = bot
+        CogWheel.__init__(self, bot)
         self.ids = []
-        self.message = None
+        self.titles = []
+        self.message = {}
 
     """
     Executable command method which will
     search and parse out the youtube html
     """
-    async def cmd(self, ctx):
+    @commands.command(pass_context=True, cls=None, help="!youtube alias")
+    async def yt(self, ctx):
         self.ids = []
         params = ctx.message.content.split()
         titles = []
@@ -54,6 +55,14 @@ class YouTube:
         await self.link_video(self.ids[0])
         await self.bot.say(embed=discord.Embed(title="\nNot the video you're looking for? type \"!ytl\" 1-5 to link another video\n", description="\n".join(titles)))
 
+    @commands.command(pass_context=True, clas=None, help="link another youtube result from the last search")
+    async def ytl(self, ctx):
+        params = ctx.message.content.split()
+        if len(params) == 1 or not params[1].isdigit() or int(params[1]) > len(self.ids) or int(params[1]) < 0:
+            await self.bot.say("Please enter a valid video number from 1 to 5")
+            return
+
+        self.message = await self.bot.edit_message(self.message, "https://www.youtube.com/watch?v=" + self.ids[(int(params[1])-1)])
 
     """
     Parse the given query string into a encoded url
@@ -71,24 +80,6 @@ class YouTube:
     """
     async def link_video(self, video):
         self.message = await self.bot.say("https://www.youtube.com/watch?v=" + video)
-
-    @commands.command(pass_context=True, cls=None, help=HELP_DESCRIPTION)
-    async def youtube(self, ctx):
-        await self.cmd(ctx)
-
-    @commands.command(pass_context=True, cls=None, help="!youtube alias")
-    async def yt(self, ctx):
-        await self.cmd(ctx)
-
-    @commands.command(pass_context=True, clas=None, help="link another youtube result from the last search")
-    async def ytl(self, ctx):
-        params = ctx.message.content.split()
-        if len(params) == 1 or not params[1].isdigit() or int(params[1]) > len(self.ids) or int(params[1]) < 0:
-            await self.bot.say("Please enter a valid video number from 1 to 5")
-            return
-
-        self.message = await self.bot.edit_message(self.message, "https://www.youtube.com/watch?v=" + self.ids[(int(params[1])-1)])
-
 
 def setup(bot):
     bot.add_cog(YouTube(bot))
