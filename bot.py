@@ -18,7 +18,7 @@ async def on_message(message):
     is_bunk_mention = len(message.mentions) > 0 and message.mentions[0].name == "BunkBot"
 
     if is_bunk_mention or "BUNKBOT" in content:
-        bot.send_typing(message.channel)
+        await bot.send_typing(message.channel)
 
         reply = clever_bot.ask(str(message.content))
 
