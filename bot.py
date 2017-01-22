@@ -1,6 +1,9 @@
+from cleverbot import Cleverbot
 from discord.ext import commands
 import json, re, os, os.path
+
 bot = commands.Bot(command_prefix="!", description="The bunkest bot")
+clever_bot = Cleverbot("Bunk Butter")
 
 """
 Simple root event handler
@@ -9,6 +12,17 @@ that will process each cog command
 @bot.event
 async def on_message(message):
     if message.author.bot:
+        return
+
+    content = str(message.content).upper().split(" ")
+    is_bunk_mention = len(message.mentions) > 0 and message.mentions[0].name == "BunkBot"
+
+    if is_bunk_mention or "BUNKBOT" in content:
+        bot.send_typing(message.channel)
+
+        reply = clever_bot.ask(str(message.content))
+
+        await bot.send_message(message.channel, reply)
         return
 
     await bot.process_commands(message)
