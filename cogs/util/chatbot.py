@@ -10,7 +10,6 @@ class Chatbot:
     def __init__(self, bot):
         self.bot = bot
         self.init = True
-        self.is_reset = False
         self.clever_bot = Cleverbot("Bunk Butter")
         self.chat_timer = 10 
         self.last_message_at = 0
@@ -19,15 +18,11 @@ class Chatbot:
     def is_chatting(self):
         if self.init:
             self.init = False
-            return True
-
-        if self.is_reset:
-            self.is_reset = False
-            self.last_message_at = 0
             return False
 
         new_time = time.time() - self.last_message_at 
         new_seconds = new_time % 60
+
         return new_seconds < self.chat_timer
 
     """
@@ -46,6 +41,3 @@ class Chatbot:
         content = str(message.content).upper().split(" ")
         is_bunk_mention = len(message.mentions) > 0 and message.mentions[0].name == "BunkBot"
         return is_bunk_mention or "BUNKBOT" in content
-
-    def reset(self):
-        self.is_reset = True

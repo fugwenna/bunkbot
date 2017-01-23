@@ -3,7 +3,7 @@ from cogs.util.chatbot import Chatbot
 import json, re, os, os.path
 
 bot = commands.Bot(command_prefix="!", description="The bunkest bot")
-chat_bot = Chatbot(bot)
+chatbot = Chatbot(bot)
 
 """
 Simple root event handler
@@ -15,10 +15,11 @@ async def on_message(message):
         return
 
     if str(message.content) == "!reset":
-        chat_bot.reset()
+        global chatbot
+        chatbot = Chatbot(bot)
     else:
-        if chat_bot.is_chatting or chat_bot.is_mention(message):
-            await chat_bot.reply(message)
+        if chatbot.is_chatting or chatbot.is_mention(message):
+            await chatbot.reply(message)
         else:
             await bot.process_commands(message)
 
