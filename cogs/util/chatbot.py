@@ -12,7 +12,7 @@ class Chatbot:
         self.init = True
         self.clever_bot = Cleverbot("Bunk Butter")
         self.chat_timer = 10 
-        self.last_message_at = 0
+        self.last_message_at = -1
 
     @property
     def is_chatting(self):
@@ -20,10 +20,18 @@ class Chatbot:
             self.init = False
             return False
 
+        if self.last_message_at == -1:
+            return False
+
         new_time = time.time() - self.last_message_at 
         new_seconds = new_time % 60
 
-        return new_seconds < self.chat_timer
+        still_chatting = new_seconds < self.chat_timer
+
+        if not still_chatting:
+            last_message_at = -1
+
+        return still_chatting
 
     """
     Manually call
