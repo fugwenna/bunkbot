@@ -1,9 +1,9 @@
-from cleverbot import Cleverbot
 from discord.ext import commands
+from cogs.util.chatbot import Chatbot
 import json, re, os, os.path
 
 bot = commands.Bot(command_prefix="!", description="The bunkest bot")
-clever_bot = Cleverbot("Bunk Butter")
+chat_bot = Chatbot(bot)
 
 """
 Simple root event handler
@@ -14,18 +14,13 @@ async def on_message(message):
     if message.author.bot:
         return
 
-    content = str(message.content).upper().split(" ")
-    is_bunk_mention = len(message.mentions) > 0 and message.mentions[0].name == "BunkBot"
-
-    if is_bunk_mention or "BUNKBOT" in content:
-        await bot.send_typing(message.channel)
-
-        reply = clever_bot.ask(str(message.content))
-
-        await bot.send_message(message.channel, reply)
-        return
-
-    await bot.process_commands(message)
+    if str(message.content) == "!reset":
+        chat_bot.reset()
+    else:
+        if chat_bot.is_chatting or chat_bot.is_mention(message):
+            await chat_bot.reply(message)
+        else:
+            await bot.process_commands(message)
 
 """
 Main loader - read over cogs/ directory
