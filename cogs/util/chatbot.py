@@ -1,18 +1,17 @@
-from cleverbot import Cleverbot
-from .cog_wheel import CogWheel
-import time
+from cleverwrap import CleverWrap
+import re, time
 
 """
 Slightly different bot that we do not register 
 under the commands.ext, but new up manually under bot.py
 """
 class Chatbot:
-    def __init__(self, bot):
+    def __init__(self, bot, token):
         self.bot = bot
         self.init = True
-        self.clever_bot = Cleverbot("Bunk Butter")
         self.chat_timer = 10 
         self.last_message_at = -1
+        self.clever_bot = CleverWrap(token)
 
     @property
     def is_chatting(self):
@@ -38,9 +37,14 @@ class Chatbot:
     the reply on messages
     """
     async def reply(self, message):
-        await self.bot.send_typing(message.channel)
-        await self.bot.send_message(message.channel, self.clever_bot.ask(str(message.content)))
-        self.last_message_at = time.time()
+        try:
+            await self.bot.send_typing(message.channel)
+            #await self.bot.send_message(message.channel, "Sorry, can't talk right now :(")
+            await self.bot.send_message(message.channel, self.clever_bot.say(str(message.content)))
+            self.last_message_at = time.time()
+        except Exception as ex:
+            print(ex)
+            pass
 
     """
     Check if the bot is engaged in a question
@@ -48,4 +52,4 @@ class Chatbot:
     def is_mention(self, message):
         content = str(message.content).upper().split(" ")
         is_bunk_mention = len(message.mentions) > 0 and message.mentions[0].name == "BunkBot"
-        return is_bunk_mention or "BUNKBOT" in content
+        return is_bunk_mention or "BUNKBOT" in re.findall("[a-zA-Z]+", str(message.content).upper())

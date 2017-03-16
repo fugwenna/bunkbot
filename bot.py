@@ -2,8 +2,9 @@ from discord.ext import commands
 from cogs.util.chatbot import Chatbot
 import json, re, os, os.path
 
-bot = commands.Bot(command_prefix="!", description="The bunkest bot")
-chatbot = Chatbot(bot)
+cbot_token = ""
+bot = commands.Bot(command_prefix="!", description="The bunkest bot - say my name to chat with me")
+chatbot = {}
 
 """
 Simple root event handler
@@ -14,14 +15,18 @@ async def on_message(message):
     if message.author.bot:
         return
 
-    if str(message.content) == "!reset":
-        global chatbot
-        chatbot = Chatbot(bot)
-    else:
-        if chatbot.is_chatting or chatbot.is_mention(message):
-            await chatbot.reply(message)
+    try:
+        if str(message.content) == "!reset":
+            global chatbot
+            chatbot = Chatbot(bot, cbot_token)
         else:
-            await bot.process_commands(message)
+            if chatbot.is_chatting or chatbot.is_mention(message):
+                await chatbot.reply(message)
+            else:
+                await bot.process_commands(message)
+    except Exception as ex:
+        print(ex)
+        pass
 
 """
 Main loader - read over cogs/ directory
@@ -39,8 +44,12 @@ if __name__ == "__main__":
             bot.load_extension(fn)
             cog_arr.append(fn)
 
+        config_data["cleverbot"] = conf["cleverbot"]
         config_data["token"] = conf["token"]
         config_data["cogs"] = cog_arr
+
+        cbot_token = config_data["cleverbot"]
+        chatbot = Chatbot(bot, cbot_token)
 
     with open("config.json", "w") as config:
         json.dump(config_data, config, indent=4)
