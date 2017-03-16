@@ -24,6 +24,8 @@ class YouTube(CogWheel):
     """
     @commands.command(pass_context=True, cls=None, help="!youtube alias")
     async def yt(self, ctx):
+        await self.bot.send_typing(ctx.message.channel)
+        
         self.ids = []
         self.titles = []
         params = self.get_cmd_params(ctx)

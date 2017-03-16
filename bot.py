@@ -45,6 +45,7 @@ if __name__ == "__main__":
             cog_arr.append(fn)
 
         config_data["cleverbot"] = conf["cleverbot"]
+        config_data["weather"] = conf["weather"]
         config_data["token"] = conf["token"]
         config_data["cogs"] = cog_arr
 
