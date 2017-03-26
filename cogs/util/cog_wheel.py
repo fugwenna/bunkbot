@@ -14,8 +14,16 @@ class CogWheel:
     discord Embed class message - this
     will be the default message type
     """
-    async def send_message(self, title, msg):
-        return await self.bot.say(embed=discord.Embed(title=title, description=msg))
+    async def send_message(self, title, msg, image=None, footer=None, footer_icon=None):
+        embed = discord.Embed(title=title, description=msg)
+
+        if footer is not None:
+            embed.set_footer(text=footer, icon_url=footer_icon)
+
+        if image is not None:
+            embed.set_thumbnail(url=image)
+            
+        return await self.bot.say(embed=embed)
 
     """
     Send a plain non discord Embed message
