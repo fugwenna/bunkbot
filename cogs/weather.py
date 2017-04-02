@@ -5,7 +5,7 @@ from datetime import datetime
 from .util.cog_wheel import CogWheel
 
 HELP_DESCRIPTION = """
-    Retrieve the forecast/weather for a given zip. Default=Baltimore
+    Retrieve the forecast/weather for a given zip. Default=21201
 """
 
 WEATHER_API = "http://api.wunderground.com/api/"
@@ -57,7 +57,6 @@ class Weather(CogWheel):
         except:
             await self.send_message_plain("Bad command!")
 
-
     @commands.command(pass_context=True, cls=None, help=HELP_DESCRIPTION)
     async def forecast(self, ctx):
         await self.bot.send_typing(ctx.message.channel)
@@ -88,14 +87,15 @@ class Weather(CogWheel):
 
             date = str(fs["date"]["month"]) + "/" + str(fs["date"]["day"])
 
-            forecast_message += date + "\n"
-            forecast_message += ft["title"] + " " + ft["fcttext"] + "\n"
-            forecast_message += ftt["title"] + " " + ftt["fcttext"]
-            forecast_message += "\n\n"
+            forecast_message += date + "\n-----\n"
+            forecast_message += ft["title"] + ": " + ft["fcttext"] + "\n\n"
+            forecast_message += ftt["title"] + ": " + ftt["fcttext"]
 
-        await self.send_message(forecast_title, forecast_message, None, "Data provided by http://www.wunderground.com", wu) 
+            if day < 2:
+                forecast_message += "\n\n\n"
 
-
+        await self.send_message(forecast_title, forecast_message, None, "Data provided by http://www.wunderground.com", wu)
+     
     async def get_daily_weather(self):
         print("hi")
         return
