@@ -39,8 +39,11 @@ class Chatbot:
     async def reply(self, message):
         try:
             await self.bot.send_typing(message.channel)
-            #await self.bot.send_message(message.channel, "Sorry, can't talk right now :(")
-            await self.bot.send_message(message.channel, self.clever_bot.say(str(message.content)))
+            content = str(message.content)
+            if content == "":
+                content = "hey"
+                
+            await self.bot.send_message(message.channel, self.clever_bot.say(content))
             self.last_message_at = time.time()
         except Exception as ex:
             print(ex)
