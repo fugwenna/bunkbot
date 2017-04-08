@@ -1,3 +1,4 @@
+import json, urllib.request
 import discord
 
 """
@@ -56,3 +57,18 @@ class CogWheel:
     """
     def get_cmd_params(self, ctx):
         return ctx.message.content.split()[1:]
+
+
+    """
+    Handle an error
+    """
+    async def handle_error(self, error):
+        await self.send_message_plain("Bad command!")
+        await self.send_message_plain(str(error))
+
+    """
+    Make an http get call
+    """
+    def http_get(self, url):
+        return json.loads(urllib.request.urlopen(url).read())
+    
