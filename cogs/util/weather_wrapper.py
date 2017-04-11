@@ -4,8 +4,9 @@ with dynamic properties that will parse
 weather underground json results for weather
 """
 class WeatherWrapper:
-    def __init__(self, weather, forecast):
+    def __init__(self, weather, forecast, full=False):
         self.credit = "Data provided by http://www.wunderground.com"
+        self.full = full
         self.set_meta_data(weather)
         self.set_weather(weather)
         self.set_forecast(forecast)
@@ -31,7 +32,8 @@ class WeatherWrapper:
         if self.precip > -1:
             message += "\nPrecip accumulated today: {} inches".format(self.precip)
 
-        message += "\n\n {}".format(self.forecast_message)
+        if self.full:
+            message += "\n\n {}".format(self.forecast_message)
         
         return message
 
@@ -61,7 +63,6 @@ class WeatherWrapper:
             fs = forecast_simple[day]
             ft = forecast_txt[day*2]
             ftt = forecast_txt[(day*2)+1]
-
                 
             if day == 0:
                 date = ""

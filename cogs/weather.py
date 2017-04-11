@@ -6,7 +6,7 @@ from .util.cog_wheel import CogWheel
 from .util.weather_wrapper import WeatherWrapper
 
 HELP_DESCRIPTION = """
-    Retrieve the forecast/weather for a given zip. Default=21201
+    Default Baltimore, use zip=12345 for zip, --full or -f for forecast
 """
 
 WEATHER_API = "http://api.wunderground.com/api/"
@@ -48,7 +48,7 @@ class Weather(CogWheel):
             curr_weather_result = self.http_get(self.weather_api)
             forecast_result = self.http_get(self.forecast_api)
 
-            weather = WeatherWrapper(curr_weather_result, forecast_result)
+            weather = WeatherWrapper(curr_weather_result, forecast_result, self.as_full(ctx))
             
             await self.send_message(weather.title, weather.conditions, weather.thumb, weather.credit, weather.wu_icon)
             await self.get_daily_weather()
@@ -73,6 +73,12 @@ class Weather(CogWheel):
         else:
             self.zip = "21201"
 
+    """
+    Print the full forecast weather
+    """
+    def as_full(self, ctx):
+        params = "".join(self.get_cmd_params(ctx))
+        return "--full" in params or "-f" in params
 
 
 def setup(bot):
