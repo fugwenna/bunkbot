@@ -56,7 +56,10 @@ class CogWheel:
     message command arguments
     """
     def get_cmd_params(self, ctx):
-        return ctx.message.content.split()[1:]
+        if ctx is not None:
+            return ctx.message.content.split()[1:]
+        else:
+            return ""
 
 
     """
@@ -65,6 +68,12 @@ class CogWheel:
     async def handle_error(self, error):
         await self.send_message_plain("Bad command!")
         await self.send_message_plain(str(error))
+
+    """
+    Display a coming soon message
+    """
+    async def coming_soon(self):
+        return await self.send_message_plain("Coming Soon™")
 
     """
     Make an http get call

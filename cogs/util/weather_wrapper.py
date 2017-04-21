@@ -29,7 +29,7 @@ class WeatherWrapper:
         message += "\nFeels like: {}".format(self.temp_feels)
         message += "\n\nCurrent winds {}".format(self.winds)
 
-        if self.precip > -1:
+        if self.precip != "-1":
             message += "\nPrecip accumulated today: {} inches".format(self.precip)
 
         if self.full:
@@ -43,10 +43,10 @@ class WeatherWrapper:
     def set_weather(self, weather):
         weather_obs = weather["current_observation"]
         self.thumb = weather_obs["icon_url"]
-        self.temp_actual = "{} (F)".format(weather_obs["temp_f"])
-        self.temp_feels = "{} (F)".format(weather_obs["feelslike_f"])
-        self.winds = "{} at {} mph".format(weather_obs["wind_dir"], str(weather_obs["wind_mph"]))
-        self.precip = -1
+        self.temp_actual = "{} (F)".format(str(weather_obs["temp_f"]))
+        self.temp_feels = "{} (F)".format(str(weather_obs["feelslike_f"]))
+        self.winds = "{} at {} mph".format(str(weather_obs["wind_dir"]), str(weather_obs["wind_mph"]))
+        self.precip = "-1"
 
         if weather_obs["precip_today_in"] != "0.00":
             self.precip = str(weather_obs["precip_today_in"])

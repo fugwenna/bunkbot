@@ -17,6 +17,7 @@ class Weather(CogWheel):
         self.token = token
         self.zip = "21201"
         self.daily_set = False
+        self.timer = None
 
     """
     Dynamic property that will be used to
@@ -56,12 +57,45 @@ class Weather(CogWheel):
             await self.handle_error(e)
 
     """
+    Link baltimore radar
+    """
+    @commands.command(pass_context=True, cls=None, help="View Maryland Radar")
+    async def radar(self, ctx):
+        rad = "http://images.intellicast.com/WxImages/RadarLoop/shd_None_anim.gif"
+        try:
+            await self.bot.send_typing(ctx.message.channel)
+            await self.send_message_plain(rad)
+        except Exception as e:
+            await self.handle_error(e)
+
+    """
     Display the current weather 3 times a day,
     with a forecast twice a day
     """
     async def get_daily_weather(self):
         if not self.daily_set:
             self.daily_set = True
+            x = datetime.today()
+            y = x.replace(day=x.day, hour=7, minute=0, second=0, microsecond=0)
+            delta_t=y-x
+            secs = delta_t.seconds+1
+            t = Timer(secs, self.say_daily_weather)
+            t.start()
+
+
+    """
+    Print the daily weather
+    """
+    async def say_daily_weather(self):
+        self.set_zip(ctx)
+        
+        curr_weather_result = self.http_get(self.weather_api)
+        forecast_result = self.http_get(self.forecast_api)
+
+        weather = WeatherWrapper(curr_weather_result, forecast_result, True)
+            
+        await self.send_message(weather.title, weather.conditions, weather.thumb, weather.credit, weather.wu_icon)
+        return
 
     """
     Set the zip code based on passed params

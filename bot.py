@@ -47,6 +47,7 @@ if __name__ == "__main__":
         config_data["cleverbot"] = conf["cleverbot"]
         config_data["weather"] = conf["weather"]
         config_data["token"] = conf["token"]
+        config_data["serverid"] = conf["serverid"]
         config_data["cogs"] = cog_arr
 
         cbot_token = config_data["cleverbot"]
