@@ -1,6 +1,6 @@
 from discord.ext import commands
 from cogs.util.chatbot import Chatbot
-import json, re, os, os.path, time
+import json, re, os, os.path
 
 cbot_token = ""
 bot = commands.Bot(command_prefix="!", description="The bunkest bot - say my name to chat with me")
@@ -34,7 +34,7 @@ Greet new users
 @bot.event
 async def on_member_join(member):
     server = member.server
-    fmt = 'Welcome {0.mention} to {1.name}!  Type !help for a list of my commands, or say my name to talk to me'
+    fmt = "Welcome {0.mention} to {1.name}!  Type !help for a list of my commands"
     await bot.send_message(server, fmt.format(member, server))
 
 """
