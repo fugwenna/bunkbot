@@ -57,7 +57,6 @@ class YouTube(CogWheel):
                 return
 
             self.message = await self.send_message_plain(YT_WATCH_URL + self.ids[0])
-            await self.send_message("Not the video you're looking for? \nType !ytl 1-5 to link another video\nType !ytl or !ytl 0 to relink the original result\n", "\n".join(self.titles))
         except Exception as e:
             await self.handle_error(e)
 
@@ -84,6 +83,14 @@ class YouTube(CogWheel):
         except Exception as e:
             await self.handle_error(e)
 
+    """
+    Get a list of related videos from the last
+    youtube search 
+    """
+    @commands.command(pass_context=True, clas=None, help=" Get a list of related videos from the last youtube search")
+    async def more(self, ctx):
+        await self.send_message("Type !ytl 1-5 to link another video\nType !ytl or !ytl 0 to relink the original result\n", "\n".join(self.titles))
+        
     """
     Parse the given query string into a encoded url
     and open the url to read the html contents
