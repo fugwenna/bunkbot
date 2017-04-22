@@ -1,4 +1,4 @@
-import json
+import json, uuid
 from discord.ext import commands
 from datetime import datetime
 from threading import Timer
@@ -61,7 +61,7 @@ class Weather(CogWheel):
     """
     @commands.command(pass_context=True, cls=None, help="View Maryland Radar")
     async def radar(self, ctx):
-        rad = "http://images.intellicast.com/WxImages/RadarLoop/shd_None_anim.gif"
+        rad = "http://images.intellicast.com/WxImages/RadarLoop/shd_None_anim.gif?{}".format(uuid.uuid4())
         try:
             await self.bot.send_typing(ctx.message.channel)
             await self.send_message_plain(rad)
