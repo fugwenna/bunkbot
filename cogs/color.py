@@ -3,13 +3,27 @@ from .util.cog_wheel import CogWheel
 import json, discord
 
 HELP_DESCRIPTION = """
-    COMING SOON!!! Change your color!!!! hex or named
+    Change your name's color with regular (red/blue) or hex (#DD218A)
 """
 class Color(CogWheel):
     def __init__(self, bot, token):
         CogWheel.__init__(self, bot)
         self.token = token
-        self.server = None
+
+    """
+    Get a list of default colors
+    """
+    @commands.command(pass_context=True, cls=None, help="Link to discord API color list")
+    async def colors(self, ctx):
+        try:
+            reg_colors = "Use the classmethod names for a default color (!color red, blue, dark_green, etc) \nhttp://discordpy.readthedocs.io/en/latest/api.html?#discord.Colour.teal"
+            hex_colors = "For hex codes, copy the value above the color picker (with the #) and use that value (!color #F70AE8)\nhttps://www.webpagefx.com/web-design/color-picker/"
+            await self.send_message_plain("\n{}\n\n{}".format(reg_colors, hex_colors))
+
+            
+        except Exception as e:
+            self.handle_exception(e)
+
             
     """
     Executable command method which will
@@ -57,7 +71,6 @@ class Color(CogWheel):
                     
                 await self.prune_color_roles()
         except Exception as e:
-            print("ERROR: " + str(e))
             await self.send_message_plain("Color '{}' is not recognized".format(color))
 
     """
@@ -73,14 +86,13 @@ class Color(CogWheel):
     Create a new color role
     """
     async def create_color_role(self, color):
-        color_method = [m for m,f in discord.Color.__dict__.items()]
-        
         if color.startswith("#"):
             dcolor = discord.Color(int(color[1:], 16))
             role = await self.bot.create_role(self.server)
             await self.bot.edit_role(self.server, role, name="color_{}".format(color), color=dcolor)
             return role
         else:
+            color_method = [m for m,f in discord.Color.__dict__.items()]
             for c in color_method:
                 if c == color:
                     dcolor = getattr(discord.Color, c)()

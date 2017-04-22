@@ -9,6 +9,8 @@ methods (i.e. bot.say, discord.Embed, etc)
 class CogWheel:
     def __init__(self, bot):
         self.bot = bot
+        self.server = None
+        self.bot_testing = None
 
     """
     Send a message as a basic
@@ -66,8 +68,8 @@ class CogWheel:
     Handle an error
     """
     async def handle_error(self, error):
-        await self.send_message_plain("Bad command!")
-        await self.send_message_plain(str(error))
+        await self.send_message_plain("Ahh Error!")
+        #await self.bot.send_message("bot-testing", str(error))
 
     """
     Display a coming soon message
