@@ -2,10 +2,9 @@ from random import randint
 from discord.ext import commands
 from .util.cog_wheel import CogWheel
 
-HELP_DESCRIPTION = """
-    Roll a random value between 0 and 100
-
-    optionally pass a value range (!roll 1-10)
+HELP_DESCRIPTION = """Roll a random value between 0 and 100.  Optionally, you may pass a value range.\n
+    Example: !roll
+    Example: !roll 1-10
 """
 
 class Roll(CogWheel):

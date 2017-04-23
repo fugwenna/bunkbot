@@ -5,8 +5,11 @@ from threading import Timer
 from .util.cog_wheel import CogWheel
 from .util.weather_wrapper import WeatherWrapper
 
-HELP_DESCRIPTION = """
-    Default Baltimore, use zip=12345 for zip, --full or -f for forecast
+WEATHER_DESCRIPTION = """Retrieve a current snapshot of todays weather based on zip code.\n
+    param: zip - optionally pass a zip code. Default is Baltimore (21201).
+        Example: !weather zip=90210
+    \n
+    param: --full (or -f) - display a 3 day forcast (day/night) for the provided zip code.
 """
 
 WEATHER_API = "http://api.wunderground.com/api/"
@@ -40,7 +43,7 @@ class Weather(CogWheel):
     display current weather conditions for
     a given zip code
     """
-    @commands.command(pass_context=True, cls=None, help=HELP_DESCRIPTION)
+    @commands.command(pass_context=True, cls=None, help=WEATHER_DESCRIPTION)
     async def weather(self, ctx):
         try:
             await self.bot.send_typing(ctx.message.channel)

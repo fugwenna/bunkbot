@@ -3,8 +3,12 @@ from bs4 import BeautifulSoup
 from discord.ext import commands
 from .util.cog_wheel import CogWheel
 
-HELP_DESCRIPTION = """
-    Search for a youtube video, example: !yt heroes of the storm
+YOUTUBE_DESCRIPTION = """
+    Search for a youtube video with a given query. Display related videos with !more and re-link a related video with !ytl
+
+    Example: !yt heroes of the storm
+    Example: !more
+    Example: !ytl 2
 """
 
 YT_SEARCH_URL = "https://www.youtube.com/results?search_query="
@@ -20,7 +24,7 @@ class YouTube(CogWheel):
     Executable command method which will
     search and parse out the youtube html
     """
-    @commands.command(pass_context=True, cls=None, help=HELP_DESCRIPTION)
+    @commands.command(pass_context=True, cls=None, help=YOUTUBE_DESCRIPTION)
     async def yt(self, ctx):
         try:
             await self.bot.send_typing(ctx.message.channel)
@@ -64,7 +68,7 @@ class YouTube(CogWheel):
     Relink a posted related video or
     the original by passing no param or the number 0
     """
-    @commands.command(pass_context=True, clas=None, help="Link another youtube result from the last search")
+    @commands.command(pass_context=True, clas=None, help="Link another youtube result from the last search using the number in the list")
     async def ytl(self, ctx):
         try:
             index = 0

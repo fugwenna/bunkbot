@@ -2,9 +2,14 @@ from discord.ext import commands
 from .util.cog_wheel import CogWheel
 import json, discord
 
-HELP_DESCRIPTION = """
-    Change your name's color with regular (red/blue) or hex (#DD218A)
+COLOR_DESCRIPTION = """Change the color of your name in the chat by using the command !color followed by either a basic
+    default color, or a hex code.  For assistance with available colors, type !colors \n
+
+    Example: !color red
+    Example: !color #FF0000
 """
+
+
 class Color(CogWheel):
     def __init__(self, bot, token):
         CogWheel.__init__(self, bot)
@@ -13,7 +18,7 @@ class Color(CogWheel):
     """
     Get a list of default colors
     """
-    @commands.command(pass_context=True, cls=None, help="Link to discord API color list")
+    @commands.command(pass_context=True, cls=None, help="Link to discord API color list and hex code editor")
     async def colors(self, ctx):
         try:
             reg_colors = "Use the classmethod names for a default color (!color red, blue, dark_green, etc) \nhttp://discordpy.readthedocs.io/en/latest/api.html?#discord.Colour.teal"
@@ -29,7 +34,7 @@ class Color(CogWheel):
     Executable command method which will
     search and parse out the youtube html
     """
-    @commands.command(pass_context=True, cls=None, help=HELP_DESCRIPTION)
+    @commands.command(pass_context=True, cls=None, help=COLOR_DESCRIPTION)
     async def color(self, ctx):
         try:
             await self.bot.send_typing(ctx.message.channel)

@@ -9,7 +9,7 @@ class Chatbot:
     def __init__(self, bot, token):
         self.bot = bot
         self.init = True
-        self.chat_timer = 7
+        self.chat_timer = 8.5
         self.last_message_at = -1
         self.clever_bot = CleverWrap(token)
 
