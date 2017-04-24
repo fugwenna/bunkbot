@@ -51,7 +51,7 @@ class Color(CogWheel):
                     color_roles.append(role.name)
 
             if len(params) == 0:
-                self.print_member_color(member, color_roles)
+                await self.print_member_color(member, color_roles)
             else:
                 if params[0].lower() == "none":
                     await self.remove_colors(member)
