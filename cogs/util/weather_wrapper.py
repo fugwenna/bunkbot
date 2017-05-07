@@ -1,15 +1,18 @@
+import re
+
 """
 Maintainable wrapper class
 with dynamic properties that will parse
 weather underground json results for weather
 """
 class WeatherWrapper:
-    def __init__(self, weather, forecast, full=False):
+    def __init__(self, weather, forecast, alerts, full=False):
         self.credit = "Data provided by http://www.wunderground.com"
         self.full = full
         self.set_meta_data(weather)
         self.set_weather(weather)
         self.set_forecast(forecast)
+        self.set_alerts(alerts)
 
     """
     Discord embedd title to dispaly
@@ -34,6 +37,9 @@ class WeatherWrapper:
 
         if self.full:
             message += "\n\n {}".format(self.forecast_message)
+
+        if len(self.alerts) > 0:
+            message += "\n\nWARNING: The following alerts are assigned for this area:\n{}".format(self.alert_message)
         
         return message
 
@@ -79,6 +85,19 @@ class WeatherWrapper:
 
             if day < 3:
                 self.forecast_message += "\n\n\n"
+
+    """
+    Parse the alert result into properties
+    """
+    def set_alerts(self, alerts):
+        self.alerts = []
+        #self.alert_message = ""
+        #self.alerts = alerts["alerts"]
+
+        #for alert in self.alerts:
+        #    self.alert_message += re.sub(r'[\ud800-\udfff]', "", alert["message"])
+
+        #print(self.alert_message)
 
     """
     Parse the meta data result into properties

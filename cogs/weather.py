@@ -21,6 +21,7 @@ class Weather(CogWheel):
         self.zip = "21201"
         self.daily_set = False
         self.timer = None
+        #human_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=time.seconds)
 
     """
     Dynamic property that will be used to
@@ -39,6 +40,14 @@ class Weather(CogWheel):
         return WEATHER_API + self.token + "/forecast10day/q/" + self.zip + "/format.json"
 
     """
+    Dynamic property that will be used
+    to find any alerts
+    """
+    @property
+    def alert_api(self):
+        return WEATHER_API + self.token + "/alerts/q/" + self.zip + "/format.json"
+
+    """
     Executable command which will
     display current weather conditions for
     a given zip code
@@ -51,12 +60,14 @@ class Weather(CogWheel):
 
             curr_weather_result = self.http_get(self.weather_api)
             forecast_result = self.http_get(self.forecast_api)
+            #alert_result = self.http_get(self.alert_api)
 
-            weather = WeatherWrapper(curr_weather_result, forecast_result, self.as_full(ctx))
+            weather = WeatherWrapper(curr_weather_result, forecast_result, [], self.as_full(ctx))
             
             await self.send_message(weather.title, weather.conditions, weather.thumb, weather.credit, weather.wu_icon)
             await self.get_daily_weather()
         except Exception as e:
+            print(e)
             await self.handle_error(e)
 
     """
@@ -84,7 +95,6 @@ class Weather(CogWheel):
             secs = delta_t.seconds+1
             t = Timer(secs, self.say_daily_weather)
             t.start()
-
 
     """
     Print the daily weather

@@ -9,7 +9,7 @@ class Chatbot:
     def __init__(self, bot, token):
         self.bot = bot
         self.init = True
-        self.chat_timer = 8.5
+        self.chat_timer = 9.5
         self.last_message_at = -1
         self.clever_bot = CleverWrap(token)
 
@@ -38,11 +38,12 @@ class Chatbot:
     """
     async def reply(self, message):
         try:
-            await self.bot.send_typing(message.channel)
-            content = str(message.content)
+            await self.bot.send_typing(message.channel)    
+            content = re.sub(r'bunkbot', "", str(message.content), flags=re.IGNORECASE).strip()
+            
             if content == "":
-                content = "hey"
-                
+                content = "Hello!"
+
             await self.bot.send_message(message.channel, self.clever_bot.say(content))
             self.last_message_at = time.time()
         except Exception as ex:

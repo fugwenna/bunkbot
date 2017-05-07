@@ -24,8 +24,6 @@ class Color(CogWheel):
             reg_colors = "Use the classmethod names for a default color (!color red, blue, dark_green, etc) \nhttp://discordpy.readthedocs.io/en/latest/api.html?#discord.Colour.teal"
             hex_colors = "For hex codes, copy the value above the color picker (with the #) and use that value (!color #F70AE8)\nhttps://www.webpagefx.com/web-design/color-picker/"
             await self.send_message_plain("\n{}\n\n{}".format(reg_colors, hex_colors))
-
-            
         except Exception as e:
             self.handle_exception(e)
 
@@ -76,7 +74,7 @@ class Color(CogWheel):
                     
                 await self.prune_color_roles()
         except Exception as e:
-            await self.send_message_plain("Color '{}' is not recognized".format(color))
+            await self.send_message_plain("Color '{}' is not recognized. Type !colors for help".format(color))
 
     """
     Print a users existing color
