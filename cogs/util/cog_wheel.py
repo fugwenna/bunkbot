@@ -20,8 +20,10 @@ class CogWheel:
     async def send_message(self, title, msg, image=None, footer=None, footer_icon=None):
         embed = discord.Embed(title=title, description=msg)
 
-        if footer is not None:
+        if footer is not None and footer_icon is not None:
             embed.set_footer(text=footer, icon_url=footer_icon)
+        elif footer is not None:
+            embed.set_footer(text=footer)
 
         if image is not None:
             embed.set_thumbnail(url=image)
