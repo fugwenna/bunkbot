@@ -70,7 +70,7 @@ class CogWheel:
     """
     async def handle_error(self, error):
         await self.send_message_plain("Ahh Error!")
-        #await self.bot.send_message("bot-testing", str(error))
+        await self.bot.send_message("bot-testing", str(error))
 
     """
     Display a coming soon message
