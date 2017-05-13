@@ -108,7 +108,6 @@ class Weather(CogWheel):
         weather = WeatherWrapper(curr_weather_result, forecast_result, True)
             
         await self.send_message(weather.title, weather.conditions, weather.thumb, weather.credit, weather.wu_icon)
-        return
 
     """
     Set the zip code based on passed params
