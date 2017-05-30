@@ -28,6 +28,8 @@ class YouTube(CogWheel):
     async def yt(self, ctx):
         try:
             await self.bot.send_typing(ctx.message.channel)
+
+            raise Exception()
             
             self.ids = []
             self.titles = []
@@ -60,7 +62,7 @@ class YouTube(CogWheel):
                 await self.send_message_plain("No ids found for " + query)
                 return
 
-            self.message = await self.send_message_plain(YT_WATCH_URL + self.ids[0])
+            self.message = await self.send_message_plain(YT_WATCH_URL + self.ids[0] + " (type !more for related videos)")
         except Exception as e:
             await self.handle_error(e)
 

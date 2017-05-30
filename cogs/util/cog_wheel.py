@@ -69,8 +69,11 @@ class CogWheel:
     Handle an error
     """
     async def handle_error(self, error):
-        await self.send_message_plain("Ahh Error!")
-        await self.bot.send_message("bot-testing", str(error))
+        try:
+            await self.send_message_plain("Ahh Error!")
+            #await self.bot.send_message(self.bot.get_channel(264465567182880769), str(error))
+        except Exception as e:
+            print(e)
 
     """
     Display a coming soon message
