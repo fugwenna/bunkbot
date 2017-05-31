@@ -25,7 +25,7 @@ class Color(CogWheel):
             hex_colors = "For hex codes, copy the value above the color picker (with the #) and use that value (!color #F70AE8)\nhttps://www.webpagefx.com/web-design/color-picker/"
             await self.send_message_plain("\n{}\n\n{}".format(reg_colors, hex_colors))
         except Exception as e:
-            self.handle_exception(e)
+            await self.handle_error(e, "colors")
 
             
     """
@@ -74,6 +74,7 @@ class Color(CogWheel):
                     
                 await self.prune_color_roles()
         except Exception as e:
+            await self.handle_error(e, "color", False)
             await self.send_message_plain("Color '{}' is not recognized. Type !colors for help".format(color))
 
     """

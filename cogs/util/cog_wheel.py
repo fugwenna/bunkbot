@@ -68,12 +68,34 @@ class CogWheel:
     """
     Handle an error
     """
-    async def handle_error(self, error):
+    async def handle_error(self, error, command, say_error=True):
         try:
-            await self.send_message_plain("Ahh Error!")
-            #await self.bot.send_message(self.bot.get_channel(264465567182880769), str(error))
+            if say_error:
+                await self.send_message_plain("Ahh Error!")
+
+            if self.server is None:
+                with open("config.json", "r") as config:
+                    conf = json.load(config)
+                    self.server = self.bot.get_server(conf["serverid"])
+
+            if self.bot_testing is None:
+                self.bot_testing = [ch for ch in self.server.channels if ch.name == "bot-testing"][0]
+
+            if str(error) == "":
+                error = "Unknown"
+
+            await self.bot.send_message(self.bot_testing, "Error occured from command '" + command + "': " + str(error))
         except Exception as e:
             print(e)
+
+    """
+    Send a message to a given channel
+    """
+    async def send_message_to_channel(self, channel, message):
+        try:
+            await self.bot.send_message(channel, message)
+        except Exception as e:
+            await self.handle_error(e, "send_message_to_channel")
 
     """
     Display a coming soon message

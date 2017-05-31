@@ -29,8 +29,6 @@ class YouTube(CogWheel):
         try:
             await self.bot.send_typing(ctx.message.channel)
 
-            raise Exception()
-            
             self.ids = []
             self.titles = []
             params = self.get_cmd_params(ctx)
@@ -64,7 +62,7 @@ class YouTube(CogWheel):
 
             self.message = await self.send_message_plain(YT_WATCH_URL + self.ids[0] + " (type !more for related videos)")
         except Exception as e:
-            await self.handle_error(e)
+            await self.handle_error(e, "yt")
 
     """
     Relink a posted related video or
@@ -87,7 +85,7 @@ class YouTube(CogWheel):
 
             self.message = await self.edit_message(self.message, YT_WATCH_URL + self.ids[index])
         except Exception as e:
-            await self.handle_error(e)
+            await self.handle_error(e, "ytl")
 
     """
     Get a list of related videos from the last

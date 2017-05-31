@@ -67,8 +67,7 @@ class Weather(CogWheel):
             await self.send_message(weather.title, weather.conditions, weather.thumb, weather.credit, weather.wu_icon)
             await self.get_daily_weather()
         except Exception as e:
-            print(e)
-            await self.handle_error(e)
+            await self.handle_error(e, "weather")
 
     """
     Link baltimore radar
@@ -80,7 +79,7 @@ class Weather(CogWheel):
             await self.bot.send_typing(ctx.message.channel)
             await self.send_message_plain(rad)
         except Exception as e:
-            await self.handle_error(e)
+            await self.handle_error(e, "radar")
 
     """
     Display the current weather 3 times a day,
