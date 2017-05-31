@@ -17,8 +17,8 @@ class CogWheel:
     discord Embed class message - this
     will be the default message type
     """
-    async def send_message(self, title, msg, image=None, footer=None, footer_icon=None):
-        embed = discord.Embed(title=title, description=msg)
+    async def send_message(self, title, msg, image=None, footer=None, footer_icon=None, color=discord.Embed.Empty):
+        embed = discord.Embed(title=title, description=msg, color=color)
 
         if footer is not None and footer_icon is not None:
             embed.set_footer(text=footer, icon_url=footer_icon)

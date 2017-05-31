@@ -45,6 +45,22 @@ async def on_member_join(member):
     await bot.send_message(server, fmt.format(member, server))
 
 """
+Update the streamerz
+"""
+@bot.event
+async def on_member_update(before, after):
+    stream_role = [r for r in after.server.roles if r.name == "streaming"][0]
+    member_streaming = [r for r in after.roles if r.name == "streaming"]
+
+    if after.game is not None and after.game.type == 1:
+        if len(member_streaming) == 0:
+            await bot.add_roles(after, stream_role)
+
+    elif before.game is not None and before.game.type == 1:
+        if len(member_streaming) > 0:
+            await bot.remove_roles(after, stream_role)
+
+"""
 Simple reusable function for
 resetting server config
 """
@@ -75,7 +91,6 @@ def reset_config(add_cb=True):
         json.dump(config_data, config, indent=4)
 
     return config_data
-
 
 """
 Main loader - read over cogs/ directory

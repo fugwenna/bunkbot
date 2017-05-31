@@ -69,7 +69,8 @@ class Color(CogWheel):
                         await self.replace_color(member, role)
                     else:
                         await self.replace_color(member, exists[0])
-
+                
+                    #await self.send_message("Color change", "{}'s color changed to {}".format(member.name, color), None, None, None, role.color)
                     await self.send_message_plain("{}'s color changed to {}".format(member.name, color))
                     
                 await self.prune_color_roles()
