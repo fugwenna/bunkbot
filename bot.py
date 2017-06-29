@@ -3,8 +3,8 @@ from cogs.util.chatbot import Chatbot
 import json, re, os, os.path, datetime
 
 cbot_token = ""
-bot = commands.Bot(command_prefix="!", description="The bunkest bot - say my name to chat with me\n My source code: https://github.com/fugwenna/bunkbot")
 chatbot = {}
+bot = commands.Bot(command_prefix="!", description="The bunkest bot - say my name to chat with me\n My source code: https://github.com/fugwenna/bunkbot")
 
 """
 Simple root event handler

@@ -131,7 +131,6 @@ class Color(CogWheel):
                 roles.append(role)
 
         await self.bot.replace_roles(member, *roles)
-        
 
     """
     Clean up any unused color roles
