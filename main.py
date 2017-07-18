@@ -8,8 +8,7 @@ the static database instance for all cogs to use
 """
 import discord
 from src.bunkbot import bunkbot
-from src.storage.db import database;
-
+from src.storage.db import database
 
 @bunkbot.event
 async def on_message(message: discord.Message):
@@ -18,12 +17,12 @@ async def on_message(message: discord.Message):
 
 @bunkbot.event
 async def on_member_join(member: discord.Member):
-    await bunkbot.on_member_join(member)
+    await bunkbot.member_join(member)
 
 
 @bunkbot.event
-async def on_member_update(member: discord.Member):
-    await bunkbot.on_member_update(member)
+async def on_member_update(before: discord.Member, after: discord.Member):
+    await bunkbot.member_update(before, after)
 
 
 if __name__ == "__main__":
