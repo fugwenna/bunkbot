@@ -78,7 +78,7 @@ class BunkBot(commands.Bot):
 
     # send an embedded message to the server
     # using known **kwargs in the ctor
-    async def send_embed_message(self, **kwargs):
+    async def say_embed(self, **kwargs):
         embed: discord.Embed = discord.Embed(**kwargs)
 
         #if footer is not None and footer_icon is not None:
