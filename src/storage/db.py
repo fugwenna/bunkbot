@@ -17,7 +17,7 @@ class BunkDB:
 
     # helper method that will query the requested table
     # and property name - default table as config
-    def get(self, attr: str, table: str = "config"):
+    def get(self, attr: str, table: str = "config") -> str:
         q: Query = Query()
         tab: Table = self.db.table(table)
         res = tab.get(q[attr] != "")

@@ -17,7 +17,7 @@ class Roll:
     # roll a random number
     # optionally specify a value range with default 0-100
     @commands.command(pass_context=True, cls=None, help=DESCRIPTION)
-    async def roll(self, ctx: commands.Context):
+    async def roll(self, ctx: commands.Context) -> None:
         try:
             self.bot.send_typing(ctx.message.channel)
 
@@ -27,10 +27,10 @@ class Roll:
 
             if len(params) > 0:
                 if "-" in params[0]:
-                    psplit = params[0].split("-")
-                    if psplit[0].isdigit() and psplit[1].isdigit():
-                        val_1 = int(psplit[0])
-                        val_2 = int(psplit[1])
+                    p_split = params[0].split("-")
+                    if p_split[0].isdigit() and p_split[1].isdigit():
+                        val_1 = int(p_split[0])
+                        val_2 = int(p_split[1])
                         min_val = val_1 if val_1 <= val_2 else val_2
                         max_val = val_1 if val_2 <= val_1 else val_2
 
