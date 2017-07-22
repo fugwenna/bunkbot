@@ -27,6 +27,11 @@ async def on_member_update(before: discord.Member, after: discord.Member) -> Non
 
 
 @bunkbot.event
+async def on_member_remove(member: discord.Member) -> None:
+    await bunkbot.member_remove(member)
+
+
+@bunkbot.event
 async def on_ready() -> None:
     await bunkbot.on_init()
 

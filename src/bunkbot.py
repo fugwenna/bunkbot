@@ -115,8 +115,8 @@ class BunkBot(commands.Bot):
             fmt = "Welcome {0.mention} to {1.name}!  Type !help for a list of my commands"
 
             database.check_user(member)
-            self.say_to_channel(self.bot_testing, "New member '{0}' has been added to the database".format(member.name))
-            self.say_to_channel(self.mod_chat, "New member '{0}' has been added to the database".format(member.name))
+            await self.say_to_channel(self.bot_testing, "New member '{0}' has been added to the database".format(member.name))
+            await self.say_to_channel(self.mod_chat, "New member '{0}' has been added to the database".format(member.name))
 
             await self.send_message(server, fmt.format(member, server))
         except Exception as e:
@@ -127,7 +127,17 @@ class BunkBot(commands.Bot):
     # been updated - i.e. apply custom/temporary roles
     async def member_update(self, before: discord.Member, after: discord.Member) -> None:
         try:
-            pass
+            print(before.name)
+            print(before.status, after.status)
+        except Exception as e:
+            self.handle_error(e, "member_update")
+
+
+    # alert when a member has been "removed" from the server
+    # no way to distinguish a kick or leave, only ban events
+    async def member_remove(self, member: discord.Member):
+        try:
+           await self.say_to_channel(self.mod_chat, "User '{0}' has left the server.")
         except Exception as e:
             self.handle_error(e, "member_update")
 
