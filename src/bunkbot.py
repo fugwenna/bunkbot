@@ -3,18 +3,17 @@ Discord.py wrapper class which inherits the
 Bot class as it's parent
 """
 import json, urllib.request, discord
-from tinydb import Query
 from os import walk
 from os.path import join, splitext, sep
 from discord.ext import commands
 from src.storage.db import database
 
-
 BOT_DESCRIPTION = """
-The bunkest bot - type '!help' for myt commands, or say my name to chat with me.\n
+The bunkest bot - type '!help' for myt commands, or say my name to chat with me. Type '!help [command] for more info
+on a command (i.e. !help color)\n
+
 My source code: https://github.com/fugwenna/bunkbot
 """
-
 class BunkBot(commands.Bot):
     def __init__(self):
         super().__init__("!", None, BOT_DESCRIPTION, False)
@@ -52,7 +51,7 @@ class BunkBot(commands.Bot):
                         sep_split[len(sep_split)-1] = splitext(sep_split[len(sep_split)-1])[0]
                         self.load_extension(".".join(sep_split))
         except Exception as e:
-            self.handle_error(e, "load_cogs")
+            print(e)
 
 
     # sync the current server users with
@@ -78,9 +77,8 @@ class BunkBot(commands.Bot):
 
     # send an embedded message to the server
     # using known **kwargs in the ctor
-    async def say_embed(self, **kwargs) -> None:
+    async def say_embed(self, embed: discord.Embed) -> None:
         try:
-            embed: discord.Embed = discord.Embed(**kwargs)
             return await self.say(embed=embed)
         except Exception as e:
             self.handle_error(e, "say_embed")
@@ -158,7 +156,7 @@ class BunkBot(commands.Bot):
         if ctx is not None:
             return ctx.message.content.split()[1:]
         else:
-            return ""
+            return []
 
 
     # retrieve the author of the
