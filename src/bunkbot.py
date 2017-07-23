@@ -122,11 +122,21 @@ class BunkBot(commands.Bot):
 
 
     # perform custom functions when a user has
-    # been updated - i.e. apply custom/temporary roles
+    # been updated - i.e. apply
+    #  custom/temporary roles
     async def member_update(self, before: discord.Member, after: discord.Member) -> None:
         try:
-            print(before.name)
-            print(before.status, after.status)
+            # todo - move this to another method?
+            stream_role = [r for r in after.server.roles if r.name == "streaming"][0]
+            member_streaming = [r for r in after.roles if r.name == "streaming"]
+
+            if after.game is not None and after.game.type == 1:
+                if len(member_streaming) == 0:
+                    await self.bot.add_roles(after, stream_role)
+
+            elif before.game is not None and before.game.type == 1:
+                if len(member_streaming) > 0:
+                    await self.bot.remove_roles(after, stream_role)
         except Exception as e:
             self.handle_error(e, "member_update")
 
@@ -135,7 +145,7 @@ class BunkBot(commands.Bot):
     # no way to distinguish a kick or leave, only ban events
     async def member_remove(self, member: discord.Member):
         try:
-           await self.say_to_channel(self.mod_chat, "User '{0}' has left the server.")
+           await self.say_to_channel(self.mod_chat, "User '{0}' has left the server.".format(member.name))
         except Exception as e:
             self.handle_error(e, "member_update")
 
