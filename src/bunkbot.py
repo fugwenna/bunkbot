@@ -11,9 +11,8 @@ from src.storage.db import database
 BOT_DESCRIPTION = """
 The bunkest bot - type '!help' for myt commands, or say my name to chat with me. Type '!help [command] for more info
 on a command (i.e. !help color)\n
-
-My source code: https://github.com/fugwenna/bunkbot
 """
+
 class BunkBot(commands.Bot):
     def __init__(self):
         super().__init__("!", None, BOT_DESCRIPTION, False)
@@ -22,6 +21,7 @@ class BunkBot(commands.Bot):
         self.bot_testing: discord.Channel = None
         self.mod_chat: discord.Channel = None
         self.vip_chat: discord.Channel = None
+        self.role_streaming = None
         self.load_cogs()
 
 
@@ -34,8 +34,10 @@ class BunkBot(commands.Bot):
             self.bot_testing = [ch for ch in self.server.channels if ch.name == "bot-testing"][0]
             self.mod_chat = [ch for ch in self.server.channels if ch.name == "mod-chat"][0]
             self.vip_chat = [ch for ch in self.server.channels if ch.name == "vip-chat"][0]
-            await self.say_to_channel(self.bot_testing, "Bot and database initialized. Syncing users...")
+            self.role_streaming = [r for r in self.server.roles if r.name == "streaming"][0]
+            await self.say_to_channel(self.bot_testing, "Bot and database initialized. Syncing users and channels...")
             await self.sync_users()
+            await self.sync_channels()
 
 
     # update the cogs database when
@@ -44,10 +46,10 @@ class BunkBot(commands.Bot):
         try:
             for path, dirs, files in walk(join("src", "cogs")):
                 for f in files:
-                    file_path = join(path, f)
-                    cog_split = file_path.split("_")
+                    file_path: str = join(path, f)
+                    cog_split: list = file_path.split("_")
                     if len(cog_split) > 1 and cog_split[1] == "cog.py":
-                        sep_split = file_path.split(sep)
+                        sep_split: list = file_path.split(sep)
                         sep_split[len(sep_split)-1] = splitext(sep_split[len(sep_split)-1])[0]
                         self.load_extension(".".join(sep_split))
         except Exception as e:
@@ -58,7 +60,7 @@ class BunkBot(commands.Bot):
     # those that already exist in the database
     async def sync_users(self) -> None:
         try:
-            new_users = []
+            new_users: list = []
             for member in self.server.members:
                 user_added: bool = database.check_user(member)
                 if user_added:
@@ -75,6 +77,15 @@ class BunkBot(commands.Bot):
             self.handle_error(e, "sync_users", False)
 
 
+    # update the channel references
+    # to
+    async def sync_channels(self) -> None:
+        try:
+            pass
+        except Exception as e:
+            self.handle_error(e, "sync_channels", False)
+
+
     # send an embedded message to the server
     # using known **kwargs in the ctor
     async def say_embed(self, embed: discord.Embed) -> None:
@@ -89,6 +100,7 @@ class BunkBot(commands.Bot):
     async def say_to_channel(self, channel: discord.Channel, message: str) -> None:
         try:
             self.send_typing(channel)
+            # todo test if await is needed
             await self.send_message(channel, message)
         except Exception as e:
             await self.handle_error(e, "say_to_channel")
@@ -109,8 +121,8 @@ class BunkBot(commands.Bot):
     # apply the "new" role, and update the database
     async def member_join(self, member: discord.Member) -> None:
         try:
-            server = member.server
-            fmt = "Welcome {0.mention} to {1.name}!  Type !help for a list of my commands"
+            server: discord.Server = member.server
+            fmt: str = "Welcome {0.mention} to {1.name}!  Type !help for a list of my commands"
 
             database.check_user(member)
             await self.say_to_channel(self.bot_testing, "New member '{0}' has been added to the database".format(member.name))
@@ -126,17 +138,7 @@ class BunkBot(commands.Bot):
     #  custom/temporary roles
     async def member_update(self, before: discord.Member, after: discord.Member) -> None:
         try:
-            # todo - move this to another method?
-            stream_role = [r for r in after.server.roles if r.name == "streaming"][0]
-            member_streaming = [r for r in after.roles if r.name == "streaming"]
-
-            if after.game is not None and after.game.type == 1:
-                if len(member_streaming) == 0:
-                    await self.bot.add_roles(after, stream_role)
-
-            elif before.game is not None and before.game.type == 1:
-                if len(member_streaming) > 0:
-                    await self.bot.remove_roles(after, stream_role)
+            self.check_user_streaming(before, after)
         except Exception as e:
             self.handle_error(e, "member_update")
 
@@ -159,6 +161,34 @@ class BunkBot(commands.Bot):
             self.handle_error(e, "http_get")
 
 
+    # update a member if they are streaming
+    # so they are more visible to other users
+    async def check_user_streaming(self, before: discord.Member, after: discord.Member) -> None:
+        member_streaming = [r for r in after.roles if r.name == "streaming"]
+
+        if after.game is not None and after.game.type == 1:
+            if len(member_streaming) == 0:
+                await self.bot.add_roles(after, self.role_streaming)
+
+        elif before.game is not None and before.game.type == 1:
+            if len(member_streaming) > 0:
+                await self.bot.remove_roles(after, self.role_streaming)
+
+
+    # default catch for handling any errors that
+    # occur when processing bot commands
+    async def handle_error(self, error, command: str, say_error: bool = True) -> None:
+        try:
+            if say_error:
+                await self.say("Ahh Error!")
+
+            error_message: str = "Error occurred from command '{0}': {1}".format(command, error)
+
+            await self.say_to_channel(self.bot_testing, error_message)
+        except Exception as e:
+            print(e)
+
+
     # retrieve an array of the passed
     # message command arguments
     @staticmethod
@@ -173,26 +203,12 @@ class BunkBot(commands.Bot):
     # given context
     @staticmethod
     def get_author(ctx, with_id=False) -> str:
-        author = str(ctx.message.author)
+        author: str = str(ctx.message.author)
 
         if not with_id:
             author = author.split("#")[0]
 
         return author
-
-
-    # default catch for handling any errors that
-    # occur when processing bot commands
-    async def handle_error(self, error: str, command: str, say_error: bool = True) -> None:
-        try:
-            if say_error:
-                await self.say("Ahh Error!")
-
-            error_message = "Error occurred from command '{0}': {1}".format(command, error)
-
-            await self.say_to_channel(self.bot_testing, error_message)
-        except Exception as e:
-            print(e)
 
 
 bunkbot = BunkBot()
