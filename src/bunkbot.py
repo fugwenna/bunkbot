@@ -2,14 +2,15 @@
 Discord.py wrapper class which inherits the
 Bot class as it's parent
 """
-import json, urllib.request, discord
+import json, urllib.request, discord, re, time, sys, traceback
+from cleverwrap import CleverWrap
 from os import walk
 from os.path import join, splitext, sep
 from discord.ext import commands
 from src.storage.db import database
 
 BOT_DESCRIPTION = """
-The bunkest bot - type '!help' for myt commands, or say my name to chat with me. Type '!help [command] for more info
+The bunkest bot - type '!help' for my commands, or say my name to chat with me. Type '!help [command] for more info
 on a command (i.e. !help color)\n
 """
 
@@ -17,6 +18,9 @@ class BunkBot(commands.Bot):
     def __init__(self):
         super().__init__("!", None, BOT_DESCRIPTION, False)
         self.init: bool = False
+        self.chat_timer = 9.5
+        self.last_message_at = -1
+        self.chat_bot: CleverWrap = None
         self.server: discord.Server = None
         self.bot_testing: discord.Channel = None
         self.mod_chat: discord.Channel = None
@@ -30,11 +34,18 @@ class BunkBot(commands.Bot):
     async def on_init(self):
         if self.init is False:
             self.init = True
-            self.server: discord.Server = self.get_server(database.get("serverid"))
-            self.bot_testing = [ch for ch in self.server.channels if ch.name == "bot-testing"][0]
-            self.mod_chat = [ch for ch in self.server.channels if ch.name == "mod-chat"][0]
-            self.vip_chat = [ch for ch in self.server.channels if ch.name == "vip-chat"][0]
+            self.server = self.get_server(database.get("serverid"))
             self.role_streaming = [r for r in self.server.roles if r.name == "streaming"][0]
+
+            for ch in self.server.channels:
+                if ch.name == "bot-testing":
+                    self.bot_testing = ch
+                elif ch.name == "mod-chat":
+                    self.mod_chat = ch
+                elif ch.name == "vip-chat":
+                    self.vip_chat = ch
+
+            self.chat_bot = CleverWrap(database.get("cleverbot"))
             await self.say_to_channel(self.bot_testing, "Bot and database initialized. Syncing users and channels...")
             await self.sync_users()
             await self.sync_channels()
@@ -42,6 +53,41 @@ class BunkBot(commands.Bot):
 
     # update the cogs database when
     # new cogs are added to the db
+    @staticmethod
+    def get_author(ctx: commands.Context, with_id=False) -> str:
+        author: str = str(ctx.message.author)
+
+        if not with_id:
+            author = author.split("#")[0]
+
+        return author
+
+
+    # retrieve an array of the passed
+    # message command arguments
+    @staticmethod
+    def get_cmd_params(ctx: commands.Context) -> list:
+        if ctx is not None:
+            return ctx.message.content.split()[1:]
+        else:
+            return []
+
+
+    # check if the bot is still
+    # having a conversation with someone
+    @property
+    def is_chatting(self):
+        new_time = time.time() - self.last_message_at
+        still_chatting = new_time < self.chat_timer
+
+        if not still_chatting:
+            self.last_message_at = -1
+
+        return still_chatting
+
+
+    # retrieve the author of the
+    # given context
     def load_cogs(self) -> None:
         try:
             for path, dirs, files in walk(join("src", "cogs")):
@@ -86,6 +132,29 @@ class BunkBot(commands.Bot):
             self.handle_error(e, "sync_channels", False)
 
 
+    # process each message that is sent
+    # to the server - if bunkbot is chatting, continue to chat
+    # otherwise, process the message as a command
+    async def process_message(self, message: discord.Message) -> None:
+        try:
+            if message.author.bot:
+                return
+
+            is_reset = message.content == "!reset"
+            is_bunk_mention = len(message.mentions) > 0 and message.mentions[0].name == "BunkBot"
+            content = re.findall("[a-zA-Z]+", str(message.content).upper())
+
+            if not is_reset and (self.is_chatting or (is_bunk_mention or "BUNKBOT" in content)):
+                await self.chat(message)
+            else:
+                await self.process_commands(message)
+
+            if is_reset:
+                await self.delete_message(message)
+        except Exception as e:
+            await self.handle_error(e, "process_message")
+
+
     # send an embedded message to the server
     # using known **kwargs in the ctor
     async def say_embed(self, embed: discord.Embed) -> None:
@@ -106,15 +175,19 @@ class BunkBot(commands.Bot):
             await self.handle_error(e, "say_to_channel")
 
 
-    # process each message that is sent
-    # to the server - if bunkbot is chatting, continue to chat
-    # otherwise, process the message as a command
-    async def process_message(self, message: discord.Message) -> None:
-        try:
-            # todo - rewire chat bot stuff
-            await self.process_commands(message)
-        except Exception as e:
-            self.handle_error(e, "process_message")
+    # have a cleverbot conversation with
+    # a user if they say the name 'bunkbot'
+    async def chat(self, message: discord.Message) -> None:
+        await self.send_typing(message.channel)
+        content = re.sub(r'bunkbot', "", str(message.content), flags=re.IGNORECASE).strip()
+
+        # if the user just says 'bunkbot'
+        # treat it as a greeting
+        if content == "":
+            content = "Hello!"
+
+        await self.send_message(message.channel, self.chat_bot.say(content))
+        self.last_message_at = time.time()
 
 
     # greet a new member with a simple message,
@@ -125,8 +198,7 @@ class BunkBot(commands.Bot):
             fmt: str = "Welcome {0.mention} to {1.name}!  Type !help for a list of my commands"
 
             database.check_user(member)
-            await self.say_to_channel(self.bot_testing, "New member '{0}' has been added to the database".format(member.name))
-            await self.say_to_channel(self.mod_chat, "New member '{0}' has been added to the database".format(member.name))
+            await self.say_to_channel(self.mod_chat, "New user '{0}' has joined the server and added to the database".format(member.name))
 
             await self.send_message(server, fmt.format(member, server))
         except Exception as e:
@@ -134,13 +206,12 @@ class BunkBot(commands.Bot):
 
 
     # perform custom functions when a user has
-    # been updated - i.e. apply
-    #  custom/temporary roles
+    # been updated - i.e. apply custom/temporary roles
     async def member_update(self, before: discord.Member, after: discord.Member) -> None:
         try:
-            self.check_user_streaming(before, after)
+            await self.check_user_streaming(before, after)
         except Exception as e:
-            self.handle_error(e, "member_update")
+            await self.handle_error(e, "member_update")
 
 
     # alert when a member has been "removed" from the server
@@ -150,15 +221,6 @@ class BunkBot(commands.Bot):
            await self.say_to_channel(self.mod_chat, "User '{0}' has left the server.".format(member.name))
         except Exception as e:
             self.handle_error(e, "member_update")
-
-
-    # make a basic http call
-    # with urllib
-    def http_get(self, url) -> json:
-        try:
-            return json.loads(urllib.request.urlopen(url).read())
-        except Exception as e:
-            self.handle_error(e, "http_get")
 
 
     # update a member if they are streaming
@@ -175,40 +237,29 @@ class BunkBot(commands.Bot):
                 await self.bot.remove_roles(after, self.role_streaming)
 
 
+    # make a basic http call
+    # with urllib
+    def http_get(self, url: str) -> json:
+        try:
+            return json.loads(urllib.request.urlopen(url).read())
+        except Exception as e:
+            self.handle_error(e, "http_get")
+
+
     # default catch for handling any errors that
     # occur when processing bot commands
     async def handle_error(self, error, command: str, say_error: bool = True) -> None:
         try:
-            if say_error:
-                await self.say("Ahh Error!")
+            #if say_error:
+                #await self.say("Ahh Error!")
 
             error_message: str = "Error occurred from command '{0}': {1}".format(command, error)
+            traceback.print_exc(file=sys.stdout)
 
             await self.say_to_channel(self.bot_testing, error_message)
         except Exception as e:
             print(e)
-
-
-    # retrieve an array of the passed
-    # message command arguments
-    @staticmethod
-    def get_cmd_params(ctx: commands.Context) -> list:
-        if ctx is not None:
-            return ctx.message.content.split()[1:]
-        else:
-            return []
-
-
-    # retrieve the author of the
-    # given context
-    @staticmethod
-    def get_author(ctx, with_id=False) -> str:
-        author: str = str(ctx.message.author)
-
-        if not with_id:
-            author = author.split("#")[0]
-
-        return author
+            traceback.print_exc(file=sys.stdout)
 
 
 bunkbot = BunkBot()

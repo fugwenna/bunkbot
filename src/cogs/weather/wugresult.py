@@ -72,7 +72,6 @@ class WeatherResult:
             ftt = forecast_txt[(day * 2) + 1]
 
             if day == 0:
-                date = ""
                 the_day = "Today:"
                 the_night = "Tonight:"
                 self.week_day = fs["date"]["weekday"]

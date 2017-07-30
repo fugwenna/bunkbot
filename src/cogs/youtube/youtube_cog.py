@@ -23,7 +23,7 @@ class Youtube:
 
     # perform a basic youtube search with a given
     # keyword - use beautiful soup to scrape HTML and return the result
-    @commands.command(pass_context=True, cls=None, help=YOUTUBE_DESCRIPTION)
+    @commands.command(pass_context=True, cls=None, help=YOUTUBE_DESCRIPTION, aliases=["youtube"])
     async def yt(self, ctx) -> None:
         try:
             params: list = self.bot.get_cmd_params(ctx)

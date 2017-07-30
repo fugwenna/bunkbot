@@ -33,7 +33,7 @@ class BunkDB:
         user: Table = self.users.search(Query().name == member.name)
 
         if len(user) == 0:
-            database.users.insert({"name": member.name})
+            self.users.insert({"name": member.name})
             return True
 
         return False
