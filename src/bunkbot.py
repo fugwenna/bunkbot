@@ -26,6 +26,7 @@ class BunkBot(commands.Bot):
         self.mod_chat: discord.Channel = None
         self.vip_chat: discord.Channel = None
         self.role_streaming = None
+        self.role_new = None
         self.load_cogs()
 
 
@@ -35,7 +36,12 @@ class BunkBot(commands.Bot):
         if self.init is False:
             self.init = True
             self.server = self.get_server(database.get("serverid"))
-            self.role_streaming = [r for r in self.server.roles if r.name == "streaming"][0]
+
+            for ro in self.server.roles:
+                if ro.name == "streaming":
+                    self.role_streaming = ro
+                elif ro.name == "new":
+                    self.role_new = ro
 
             for ch in self.server.channels:
                 if ch.name == "bot-testing":
@@ -110,6 +116,7 @@ class BunkBot(commands.Bot):
             for member in self.server.members:
                 user_added: bool = database.check_user(member)
                 if user_added:
+                    await self.add_roles(member, self.role_new)
                     new_users.append(member.name)
 
             if len(new_users) > 0:
@@ -198,8 +205,9 @@ class BunkBot(commands.Bot):
             fmt: str = "Welcome {0.mention} to {1.name}!  Type !help for a list of my commands"
 
             database.check_user(member)
-            await self.say_to_channel(self.mod_chat, "New user '{0}' has joined the server and added to the database".format(member.name))
+            await self.add_roles(member, self.role_new)
 
+            await self.say_to_channel(self.mod_chat, "New user '{0}' has joined the server and added to the database".format(member.name))
             await self.send_message(server, fmt.format(member, server))
         except Exception as e:
             self.handle_error(e, "member_join")
