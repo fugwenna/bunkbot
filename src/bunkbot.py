@@ -224,7 +224,7 @@ class BunkBot(commands.Bot):
 
     # alert when a member has been "removed" from the server
     # no way to distinguish a kick or leave, only ban events
-    async def member_remove(self, member: discord.Member):
+    async def member_remove(self, member: discord.Member) -> None:
         try:
            await self.say_to_channel(self.mod_chat, "User '{0}' has left the server.".format(member.name))
         except Exception as e:
@@ -238,11 +238,11 @@ class BunkBot(commands.Bot):
 
         if after.game is not None and after.game.type == 1:
             if len(member_streaming) == 0:
-                await self.bot.add_roles(after, self.role_streaming)
+                await self.add_roles(after, self.role_streaming)
 
         elif before.game is not None and before.game.type == 1:
             if len(member_streaming) > 0:
-                await self.bot.remove_roles(after, self.role_streaming)
+                await self.remove_roles(after, self.role_streaming)
 
 
     # make a basic http call
