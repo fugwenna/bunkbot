@@ -119,6 +119,8 @@ class BunkBot(commands.Bot):
                     await self.add_roles(member, self.role_new)
                     new_users.append(member.name)
 
+                await self.check_user_streaming(member, member)
+
             if len(new_users) > 0:
                 new_user_list: str = "\n".join(new_users)
                 new_user_msg: str = "Users synced. The following users have been added to the database: \n{0}".format(new_user_list)
