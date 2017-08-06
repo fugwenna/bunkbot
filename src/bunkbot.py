@@ -220,6 +220,7 @@ class BunkBot(commands.Bot):
     async def member_update(self, before: discord.Member, after: discord.Member) -> None:
         try:
             await self.check_user_streaming(before, after)
+            await self.check_user_last_online(before, after)
         except Exception as e:
             await self.handle_error(e, "member_update")
 
@@ -245,6 +246,23 @@ class BunkBot(commands.Bot):
         elif before.game is not None and before.game.type == 1:
             if len(member_streaming) > 0:
                 await self.remove_roles(after, self.role_streaming)
+
+
+    # update the users "last online"
+    # property in the database
+    @staticmethod
+    async def check_user_last_online(before: discord.Member, after: discord.Member) -> None:
+        pre_status = str(before.status)
+        post_status = str(after.status)
+        on_off = pre_status == "online" and post_status == "offline"
+        off_on = pre_status == "offline" and post_status == "online"
+
+        if on_off or off_on:
+            database.update_user_last_online(after)
+
+        if pre_status == "offline" and post_status == "idle":
+            # from 'invisible' ...
+            return
 
 
     # make a basic http call

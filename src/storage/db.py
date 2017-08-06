@@ -2,7 +2,7 @@
 Wrapper for the TinyDB database storage
 with helper methods and additional functions
 """
-import discord
+import discord, time, datetime, pytz
 from tinydb import TinyDB, Query
 from tinydb.database import Table
 
@@ -34,9 +34,21 @@ class BunkDB:
 
         if len(user) == 0:
             self.users.insert({"name": member.name})
+            if str(member.status) == "online":
+                self.update_user_last_online(member)
             return True
 
+        if str(member.status) == "online":
+            self.update_user_last_online(member)
         return False
+
+
+    # update the "last online" property for
+    # a user when a user appears online
+    def update_user_last_online(self, member: discord.Member) -> None:
+        now = datetime.datetime.now(tz=pytz.timezone("US/Eastern"))
+        last_on = "{0:%m/%d/%Y %I:%M:%S %p}".format(now)
+        self.users.update({"last_online": last_on}, Query().name == member.name)
 
 
 database = BunkDB()
