@@ -34,11 +34,11 @@ class BunkDB:
 
         if len(user) == 0:
             self.users.insert({"name": member.name})
-            if str(member.status) == "online":
+            if not str(member.status) == "offline":
                 self.update_user_last_online(member)
             return True
 
-        if str(member.status) == "online":
+        if not str(member.status) == "offline":
             self.update_user_last_online(member)
         return False
 

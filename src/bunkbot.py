@@ -254,8 +254,8 @@ class BunkBot(commands.Bot):
     async def check_user_last_online(before: discord.Member, after: discord.Member) -> None:
         pre_status = str(before.status)
         post_status = str(after.status)
-        on_off = pre_status == "online" and post_status == "offline"
-        off_on = pre_status == "offline" and post_status == "online"
+        on_off = pre_status != "offline"and post_status == "offline"
+        off_on = pre_status == "offline" and post_status != "offline"
 
         if on_off or off_on:
             database.update_user_last_online(after)
