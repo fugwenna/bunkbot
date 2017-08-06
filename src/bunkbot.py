@@ -2,11 +2,20 @@
 Discord.py wrapper class which inherits the
 Bot class as it's parent
 """
-import json, urllib.request, discord, re, time, sys, traceback
-from cleverwrap import CleverWrap
+import discord
+import json
+import re
+import sys
+import time
+import traceback
+import urllib.request
 from os import walk
 from os.path import join, splitext, sep
+
+from cleverwrap import CleverWrap
 from discord.ext import commands
+
+from src.cogs.rpg.rpg import rpg
 from src.storage.db import database
 
 BOT_DESCRIPTION = """
@@ -25,6 +34,7 @@ class BunkBot(commands.Bot):
         self.bot_testing: discord.Channel = None
         self.mod_chat: discord.Channel = None
         self.vip_chat: discord.Channel = None
+        self.general: discord.Channel = None
         self.role_streaming = None
         self.role_new = None
         self.load_cogs()
@@ -50,6 +60,8 @@ class BunkBot(commands.Bot):
                     self.mod_chat = ch
                 elif ch.name == "vip-chat":
                     self.vip_chat = ch
+                elif ch.name == "general":
+                    self.general = ch
 
             self.chat_bot = CleverWrap(database.get("cleverbot"))
             await self.say_to_channel(self.bot_testing, "Bot and database initialized. Syncing users and channels...")
@@ -155,8 +167,10 @@ class BunkBot(commands.Bot):
 
             if not is_reset and (self.is_chatting or (is_bunk_mention or "BUNKBOT" in content)):
                 await self.chat(message)
+                await rpg.update_user_level(message.author, 0.1)
             else:
                 await self.process_commands(message)
+                await rpg.update_user_level(message.author, 1.0)
 
             if is_reset:
                 await self.delete_message(message)
@@ -241,6 +255,7 @@ class BunkBot(commands.Bot):
 
         if after.game is not None and after.game.type == 1:
             if len(member_streaming) == 0:
+                rpg.update_user_level(after, 0.5)
                 await self.add_roles(after, self.role_streaming)
 
         elif before.game is not None and before.game.type == 1:
@@ -259,6 +274,7 @@ class BunkBot(commands.Bot):
 
         if on_off or off_on:
             database.update_user_last_online(after)
+            rpg.sync_user_level(after)
 
         if pre_status == "offline" and post_status == "idle":
             # from 'invisible' ...
@@ -281,7 +297,7 @@ class BunkBot(commands.Bot):
             #if say_error:
                 #await self.say("Ahh Error!")
 
-            error_message: str = "Error occurred from command '{0}': {1}".format(command, error)
+            error_message: str = ":exclamation: Error occurred from command '{0}': {1}".format(command, error)
             traceback.print_exc(file=sys.stdout)
 
             await self.say_to_channel(self.bot_testing, error_message)

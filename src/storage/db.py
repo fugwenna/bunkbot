@@ -5,6 +5,7 @@ with helper methods and additional functions
 import discord, time, datetime, pytz
 from tinydb import TinyDB, Query
 from tinydb.database import Table
+from ..cogs.rpg import rpg
 
 class BunkDB:
     # establish a 'connection' to the local
@@ -27,13 +28,26 @@ class BunkDB:
             return None
 
 
+    # get a user based on the passed
+    # discord member reference
+    def get_user(self, member: discord.Member) -> any:
+        return self.users.get(Query().name == member.name)
+
+
+    # save an updated user reference
+    # and return the updated user
+    def save_user(self, user: any, query: any) -> None:
+        self.users.update(query, Query().name == user.name)
+        return self.get_user(user.name)
+
+
     # check if a user exists in the database - if not,
     # add them with base roles and properties
     def check_user(self, member: discord.Member) -> bool:
         user: Table = self.users.search(Query().name == member.name)
 
         if len(user) == 0:
-            self.users.insert({"name": member.name})
+            self.users.insert({"name": member.name, "level_pct": 0, "level": 0})
             if not str(member.status) == "offline":
                 self.update_user_last_online(member)
             return True
@@ -49,6 +63,30 @@ class BunkDB:
         now = datetime.datetime.now(tz=pytz.timezone("US/Eastern"))
         last_on = "{0:%m/%d/%Y %I:%M:%S %p}".format(now)
         self.users.update({"last_online": last_on}, Query().name == member.name)
+
+
+    # update the users level percentage
+    # and return the user reference
+    def update_user_level_pct(self, member: discord.Member, value: float) -> any:
+        user = self.get_user(member)
+        cur_pct = float(user["level_pct"])
+
+        self.users.update({"level_pct": cur_pct + value}, Query().name == member.name)
+
+        user = self.get_user(member)
+        return user
+
+
+    # update the users level
+    # and return the user reference
+    def update_user_level(self, member: discord.Member) -> any:
+        user = self.get_user(member)
+        cur_lvl = int(user["level"])
+
+        self.users.update({"level": cur_lvl + 1, "level_pct":  0.0}, Query().name == member.name)
+
+        user = self.get_user(member)
+        return user
 
 
 database = BunkDB()
