@@ -11,7 +11,7 @@ from src.util.event_hook import EventHook
 # processing to a discrete value
 # to prevent channel spamming
 UPDATE_CAP = 150
-TIMER_MINUTES = 1#15
+TIMER_MINUTES = 15
 LEVEL_1 = 10
 LEVEL_2 = 100
 LEVEL_3 = 500

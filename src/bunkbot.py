@@ -274,7 +274,7 @@ class BunkBot(commands.Bot):
 
         if on_off or off_on:
             database.update_user_last_online(after)
-            rpg.sync_user_level(after)
+            await rpg.sync_user_level(after)
 
         if pre_status == "offline" and post_status == "idle":
             # from 'invisible' ...
