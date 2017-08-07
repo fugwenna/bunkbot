@@ -91,7 +91,7 @@ class RPG:
                 user["value"] = value
 
 
-        print(user)
+        #print(user)
 
 
 rpg = RPG()
