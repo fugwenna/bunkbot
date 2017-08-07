@@ -12,7 +12,9 @@ from src.util.event_hook import EventHook
 # to prevent channel spamming
 UPDATE_CAP = 150
 TIMER_MINUTES = 1#15
-LEVEL_BASE = 10
+LEVEL_1 = 10
+LEVEL_2 = 100
+LEVEL_3 = 500
 
 
 # calculate the percentage required
@@ -20,9 +22,13 @@ LEVEL_BASE = 10
 # todo - dynamic calculation of next lvl pct
 def calculate_level_pct(level: int) -> int:
     if level == 0:
-        return LEVEL_BASE
+        return LEVEL_1
+    elif level == 1:
+        return LEVEL_2
+    else:
+        return LEVEL_3
 
-    return LEVEL_BASE
+    #return LEVEL_BASE
 
 
 class RPG:
