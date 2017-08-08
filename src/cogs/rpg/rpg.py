@@ -17,11 +17,9 @@ TIMER_MINUTES = 1
 
 # calculate the xp required
 # to advance to the next level
-# X = 25 * L * L - 25 * L
 def level_up(xp: float, level: int) -> bool:
     req_xp = XP_CONST * level * level - XP_CONST * level
-
-    print("needs {0} for {1}, has {2}".format(req_xp, level, xp))
+    #print("needs {0} for {1}, has {2}".format(req_xp, level, xp))
     return xp >= req_xp
 
 
@@ -34,19 +32,25 @@ class RPG:
     # sync a users level with the
     # config if they log on or off
     async def sync_user_xp(self, member: Member) -> None:
+        new_user = None
+
         try:
             user = self.config[member.name]
             new_user = database.update_user_xp(member, user["value"])
-
-            if level_up(new_user["xp"], new_user["level"] + 1):
-                database.update_user_level(member)
-
-                if str(member.status) == "online":
-                    leveled_user = database.update_user_level(member)
-                    await self.on_user_level.fire(member, leveled_user["level"])
         except:
-            # no user to sync - just logged on
             pass
+        finally:
+            if new_user is None:
+                new_user = database.get_user(member)
+
+            if new_user is not None:
+                if str(member.status) == "online" and level_up(new_user["xp"], new_user["level"] + 1):
+                    database.update_user_level(member)
+
+                    if str(member.status) == "online":
+                        leveled_user = database.update_user_level(member)
+                        await self.on_user_level.fire(member, leveled_user["level"])
+
 
 
 
