@@ -167,10 +167,10 @@ class BunkBot(commands.Bot):
 
             if not is_reset and (self.is_chatting or (is_bunk_mention or "BUNKBOT" in content)):
                 await self.chat(message)
-                await rpg.update_user_level(message.author, 0.1)
+                await rpg.update_user_xp(message.author, 0.1)
             else:
                 await self.process_commands(message)
-                await rpg.update_user_level(message.author, 1.0)
+                await rpg.update_user_xp(message.author, 1.0)
 
             if is_reset:
                 await self.delete_message(message)
@@ -255,7 +255,7 @@ class BunkBot(commands.Bot):
 
         if after.game is not None and after.game.type == 1:
             if len(member_streaming) == 0:
-                rpg.update_user_level(after, 0.5)
+                rpg.update_user_xp(after, 0.5)
                 await self.add_roles(after, self.role_streaming)
 
         elif before.game is not None and before.game.type == 1:
@@ -274,7 +274,7 @@ class BunkBot(commands.Bot):
 
         if on_off or off_on:
             database.update_user_last_online(after)
-            await rpg.sync_user_level(after)
+            await rpg.sync_user_xp(after)
 
         if pre_status == "offline" and post_status == "idle":
             # from 'invisible' ...

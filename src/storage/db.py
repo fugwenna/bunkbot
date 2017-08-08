@@ -47,7 +47,7 @@ class BunkDB:
         user: Table = self.users.search(Query().name == member.name)
 
         if len(user) == 0:
-            self.users.insert({"name": member.name, "level_pct": 0, "level": 0})
+            self.users.insert({"name": member.name, "xp": 0, "level": 1})
             if not str(member.status) == "offline":
                 self.update_user_last_online(member)
             return True
@@ -67,11 +67,11 @@ class BunkDB:
 
     # update the users level percentage
     # and return the user reference
-    def update_user_level_pct(self, member: discord.Member, value: float) -> any:
+    def update_user_xp(self, member: discord.Member, value: float) -> any:
         user = self.get_user(member)
-        cur_pct = float(user["level_pct"])
+        cur_pct = float(user["xp"])
 
-        self.users.update({"level_pct": cur_pct + value}, Query().name == member.name)
+        self.users.update({"xp": cur_pct + value}, Query().name == member.name)
 
         user = self.get_user(member)
         return user
@@ -83,7 +83,7 @@ class BunkDB:
         user = self.get_user(member)
         cur_lvl = int(user["level"])
 
-        self.users.update({"level": cur_lvl + 1, "level_pct":  0.0}, Query().name == member.name)
+        self.users.update({"level": cur_lvl + 1}, Query().name == member.name)
 
         user = self.get_user(member)
         return user

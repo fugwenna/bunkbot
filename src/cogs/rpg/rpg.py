@@ -10,25 +10,19 @@ from src.util.event_hook import EventHook
 # hard cap the message
 # processing to a discrete value
 # to prevent channel spamming
-UPDATE_CAP = 150
+XP_CONST = 5
+UPDATE_CAP = 60
 TIMER_MINUTES = 1
-LEVEL_1 = 10
-LEVEL_2 = 100
-LEVEL_3 = 500
 
 
-# calculate the percentage required
+# calculate the xp required
 # to advance to the next level
-# todo - dynamic calculation of next lvl pct
-def calculate_level_pct(level: int) -> int:
-    if level == 0:
-        return LEVEL_1
-    elif level == 1:
-        return LEVEL_2
-    else:
-        return LEVEL_3
+# X = 25 * L * L - 25 * L
+def level_up(xp: float, level: int) -> bool:
+    req_xp = XP_CONST * level * level - XP_CONST * level
 
-    #return LEVEL_BASE
+    print("needs {0} for {1}, has {2}".format(req_xp, level, xp))
+    return xp >= req_xp
 
 
 class RPG:
@@ -39,12 +33,12 @@ class RPG:
 
     # sync a users level with the
     # config if they log on or off
-    async def sync_user_level(self, member: Member) -> None:
+    async def sync_user_xp(self, member: Member) -> None:
         try:
             user = self.config[member.name]
-            new_user = database.update_user_level_pct(member, user["value"])
+            new_user = database.update_user_xp(member, user["value"])
 
-            if new_user["level_pct"] >= calculate_level_pct(new_user["level"]):
+            if level_up(new_user["xp"], new_user["level"] + 1):
                 database.update_user_level(member)
 
                 if str(member.status) == "online":
@@ -58,7 +52,7 @@ class RPG:
 
     # every time a user sends a message
     # process it for "leveling" logic
-    async def update_user_level(self, member: Member, value: float) -> None:
+    async def update_user_xp(self, member: Member, value: float) -> None:
         try:
             user = self.config[member.name]
         except:
@@ -81,17 +75,14 @@ class RPG:
             # increase the user level percentage and
             # check if they have leveled up
             else:
-                new_user = database.update_user_level_pct(member, user["value"])
+                new_user = database.update_user_xp(member, user["value"])
 
-                if new_user["level_pct"] >= calculate_level_pct(new_user["level"]):
+                if level_up(new_user["xp"], new_user["level"] + 1):
                     leveled_user = database.update_user_level(member)
                     await self.on_user_level.fire(member, leveled_user["level"])
 
                 user["last_update"] = time.time()
                 user["value"] = value
-
-
-        #print(user)
 
 
 rpg = RPG()

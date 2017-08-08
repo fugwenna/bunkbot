@@ -16,7 +16,6 @@ class BunkRPG:
     # DING - user has leveled up
     # inform them and update their server permissions
     async def ding(self, member, value):
-        # TODO - send to general when this is stable
         if member.name != "fugwenna":
             await self.bot.say_to_channel(self.bot.general, ":bell: DING! {0.mention} has advanced to level {1}!"
                                       .format(member, value))
