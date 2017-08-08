@@ -10,6 +10,7 @@ from .rpg import rpg
 class BunkRPG:
     def __init__(self, bot: BunkBot):
         self.bot = bot
+        self.duels = {}
         rpg.on_user_level += self.ding
 
 
@@ -25,12 +26,15 @@ class BunkRPG:
     # out their current level
     @commands.command(pass_context=True, cls=None, help="Print your current level", aliases=["rank"])
     async def level(self, ctx):
-        await self.bot.send_typing(ctx)
+        try:
+            await self.bot.send_typing(ctx.message.channel)
 
-        user = database.get_user(ctx.message.author)
+            user = database.get_user(ctx.message.author)
 
-        #todo embed with pct
-        await self.bot.say("You are currently level {0}".format(user["level"]))
+            #todo embed with pct
+            await self.bot.send_message(ctx.message.channel, "You are currently level {0} with  {1} xp".format(user["level"], user["xp"]))
+        except Exception as e:
+            await self.bot.handle_error(e, "level")
 
 
 
