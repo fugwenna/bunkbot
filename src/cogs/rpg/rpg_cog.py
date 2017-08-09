@@ -148,7 +148,7 @@ class BunkRPG:
             name = str(ctx.message.author).split("#")[0]
 
             for d in self.duels:
-                if d.challenger == name:
+                if d.challenger == ctx.message.author:
                     self.duels.remove(d)
                     await self.bot.send_message(ctx.message.channel, "Duel with {0.mention} cancelled".format(d.opponent))
                     return
