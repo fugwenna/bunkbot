@@ -15,14 +15,6 @@ UPDATE_CAP = 60
 TIMER_MINUTES = 1
 
 
-# calculate the xp required
-# to advance to the next level
-def level_up(xp: float, level: int) -> bool:
-    req_xp = XP_CONST * level * level - XP_CONST * level
-    #print("needs {0} for {1}, has {2}".format(req_xp, level, xp))
-    return xp >= req_xp
-
-
 class RPG:
     def __init__(self):
         self.config = {}
@@ -44,7 +36,7 @@ class RPG:
                 new_user = database.get_user(member)
 
             if new_user is not None:
-                if str(member.status) == "online" and level_up(new_user["xp"], new_user["level"] + 1):
+                if str(member.status) == "online" and self.level_up(new_user["xp"], new_user["level"] + 1):
                     database.update_user_level(member)
 
                     if str(member.status) == "online":
@@ -81,12 +73,24 @@ class RPG:
             else:
                 new_user = database.update_user_xp(member, user["value"])
 
-                if level_up(new_user["xp"], new_user["level"] + 1):
+                if self.level_up(new_user["xp"], new_user["level"] + 1):
                     leveled_user = database.update_user_level(member)
                     await self.on_user_level.fire(member, leveled_user["level"])
 
                 user["last_update"] = time.time()
                 user["value"] = value
+
+
+    # calculate the required xp for a given level
+    @staticmethod
+    def calc_req_xp(level: int) -> float:
+        return XP_CONST * level * level - XP_CONST * level
+
+
+    # calculate the xp required
+    # to advance to the next level
+    def level_up(self, xp: float, level: int) -> bool:
+        return xp >= self.calc_req_xp(level)
 
 
 rpg = RPG()

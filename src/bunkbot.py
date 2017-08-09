@@ -131,7 +131,7 @@ class BunkBot(commands.Bot):
                     await self.add_roles(member, self.role_new)
                     new_users.append(member.name)
 
-                await self.check_user_streaming(member, member)
+                await self.check_member_streaming(member, member)
 
             if len(new_users) > 0:
                 new_user_list: str = "\n".join(new_users)
@@ -141,7 +141,7 @@ class BunkBot(commands.Bot):
             else:
                 await self.say_to_channel(self.bot_testing, "Users synced. No new users added to database.")
         except Exception as e:
-            self.handle_error(e, "sync_users", False)
+            await self.handle_error(e, "sync_users", False)
 
 
     # update the channel references
@@ -167,7 +167,7 @@ class BunkBot(commands.Bot):
 
             if not is_reset and (self.is_chatting or (is_bunk_mention or "BUNKBOT" in content)):
                 await self.chat(message)
-                await rpg.update_user_xp(message.author, 0.1)
+                await rpg.update_user_xp(message.author, 0.5)
             else:
                 await self.process_commands(message)
                 await rpg.update_user_xp(message.author, 1.0)
@@ -233,8 +233,8 @@ class BunkBot(commands.Bot):
     # been updated - i.e. apply custom/temporary roles
     async def member_update(self, before: discord.Member, after: discord.Member) -> None:
         try:
-            await self.check_user_streaming(before, after)
-            await self.check_user_last_online(before, after)
+            await self.check_member_streaming(before, after)
+            await self.check_member_last_online(before, after)
         except Exception as e:
             await self.handle_error(e, "member_update")
 
@@ -250,12 +250,12 @@ class BunkBot(commands.Bot):
 
     # update a member if they are streaming
     # so they are more visible to other users
-    async def check_user_streaming(self, before: discord.Member, after: discord.Member) -> None:
+    async def check_member_streaming(self, before: discord.Member, after: discord.Member) -> None:
         member_streaming = [r for r in after.roles if r.name == "streaming"]
 
         if after.game is not None and after.game.type == 1:
             if len(member_streaming) == 0:
-                rpg.update_user_xp(after, 0.5)
+                await rpg.update_user_xp(after, 0.2)
                 await self.add_roles(after, self.role_streaming)
 
         elif before.game is not None and before.game.type == 1:
@@ -266,7 +266,7 @@ class BunkBot(commands.Bot):
     # update the users "last online"
     # property in the database
     @staticmethod
-    async def check_user_last_online(before: discord.Member, after: discord.Member) -> None:
+    async def check_member_last_online(before: discord.Member, after: discord.Member) -> None:
         pre_status = str(before.status)
         post_status = str(after.status)
         on_off = pre_status != "offline"and post_status == "offline"
@@ -279,6 +279,21 @@ class BunkBot(commands.Bot):
         if pre_status == "offline" and post_status == "idle":
             # from 'invisible' ...
             return
+
+
+    # retrieve a member reference from the server
+    # this does not include the database user
+    async def get_member(self, name: str) -> discord.Member:
+        mem = None
+        for m in self.server.members:
+            if m.name.lower() == name.lower():
+                return m
+            elif m.display_name and m.display_name.lower() == name.lower():
+                return m
+            elif m.nick and m.nick.lower() == name.lower():
+                return m
+
+        return mem
 
 
     # make a basic http call
