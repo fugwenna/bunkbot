@@ -44,8 +44,6 @@ class RPG:
                         await self.on_user_level.fire(member, leveled_user["level"])
 
 
-
-
     # every time a user sends a message
     # process it for "leveling" logic
     async def update_user_xp(self, member: Member, value: float) -> None:
@@ -84,7 +82,7 @@ class RPG:
     # calculate the required xp for a given level
     @staticmethod
     def calc_req_xp(level: int) -> float:
-        return XP_CONST * level * level - XP_CONST * level
+        return (XP_CONST * level * level) - (XP_CONST * level) + level
 
 
     # calculate the xp required

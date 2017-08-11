@@ -38,8 +38,11 @@ class BunkRPG:
 
             user = database.get_user(ctx.message.author)
 
+            now_xp = user["xp"]
+            prev_xp = rpg.calc_req_xp(user["level"])
             req_xp = rpg.calc_req_xp(user["level"] + 1)
-            pct = user["xp"] / req_xp
+
+            pct = (now_xp - prev_xp) / (req_xp - prev_xp)
             pct_rounded = int(round(pct, 1) * 10) * 3
             pct_left = 30 - pct_rounded
 
@@ -48,7 +51,7 @@ class BunkRPG:
                 progress_bar.append("#")
 
             for l in range(0, pct_left):
-                progress_bar.append("-")
+                progress_bar.append("--")
 
             member_name = str(ctx.message.author).split("#")[0]
             desc = "[{0}]".format("".join(progress_bar))
