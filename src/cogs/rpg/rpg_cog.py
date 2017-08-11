@@ -1,8 +1,10 @@
 """
 RPG commands based on a user level
 """
+from re import sub
 from discord import Embed
 from discord.ext import commands
+from tinydb import Query
 from src.bunkbot import BunkBot
 from src.storage.db import database
 from .rpg import rpg
@@ -62,6 +64,29 @@ class BunkRPG:
             await self.bot.send_message(ctx.message.channel, embed=embed)
         except Exception as e:
             await self.bot.handle_error(e, "level")
+
+
+    # get the top 10 leader board
+    # sorting by level and xp
+    @commands.command(pass_context=True, cls=None, help="Get the current leader board", aliases=["leaders", "ranks", "levels", "leaderboard"])
+    async def leader(self, ctx):
+        try:
+            self.bot.send_typing(ctx.message.channel)
+
+            players = sorted(filter(lambda u: u["name"] != "fugwenna", database.users.search(Query().xp > 1 or Query().xp > 0)),
+                             key=lambda x: (x["level"], x["xp"]), reverse=True)[:9]
+
+            board = ""
+            for p in players:
+                board += "{0}   level: {1}   xp: {2}/{3}\n".format(p["name"], p["level"],
+                                                                round(p["xp"], 2),
+                                                                rpg.calc_req_xp(p["level"]+1))
+
+            embed = Embed(title="Leader board", description=board)
+
+            await self.bot.send_message(ctx.message.channel, embed=embed)
+        except Exception as e:
+            await self.bot.handle_error(e, "leaders")
 
 
     # challenge another user
@@ -153,7 +178,7 @@ class BunkRPG:
             for d in self.duels:
                 if d.challenger == ctx.message.author:
                     self.duels.remove(d)
-                    await self.bot.send_message(ctx.message.channel, "Duel with {0.mention} cancelled".format(d.opponent))
+                    await self.bot.send_message(ctx.message.channel, "{0} has cancelled their duel with {0.mention}".format(name, d.opponent))
                     return
 
             await self.bot.send_message(ctx.message.channel, "You have no duels to cancel")

@@ -7,6 +7,7 @@ from tinydb import TinyDB, Query
 from tinydb.database import Table
 from ..cogs.rpg import rpg
 
+
 class BunkDB:
     # establish a 'connection' to the local
     # database and read in the primary tables
@@ -71,7 +72,7 @@ class BunkDB:
         user = self.get_user(member)
         cur_pct = float(user["xp"])
 
-        self.users.update({"xp": cur_pct + value}, Query().name == member.name)
+        self.users.update({"xp": round(cur_pct + value, 2)}, Query().name == member.name)
 
         user = self.get_user(member)
         return user
