@@ -15,6 +15,26 @@ class Mod:
         self.bot = bot
 
 
+    # clear a role for ALL users ...
+    # be careful with this, basically an rm -rf
+    @commands.has_any_role("admin")
+    @commands.command(pass_context=True, cls=None, help="Clear a role from all users")
+    async def clear(self, ctx):
+        try:
+            param = self.bot.get_cmd_params(ctx)[0]
+            role = [r for r in self.bot.server.roles if r.name == param][0]
+
+            await self.bot.send_message(self.bot.mod_chat, "Clearing {0}...".format(param))
+            for m in self.bot.server.members:
+                await self.bot.remove_roles(m, role)
+
+            await self.bot.send_message(self.bot.mod_chat, "Role {0} cleared from all users... good job idiot".format(param))
+
+        except Exception as e:
+            self.bot.handle_error(e, "clear")
+
+
+
     # get info on a particular user
     # preferably their role(s) - otherwise
     # check names, nicks secondary - in channel?

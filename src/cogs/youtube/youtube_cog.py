@@ -1,6 +1,6 @@
 from discord import Message, Embed
 from discord.ext import commands
-from src.cogs.youtube.ytresult import YoutubeResult
+from src.cogs.youtube.youtube_result import YoutubeResult
 from src.bunkbot import BunkBot
 
 YOUTUBE_DESCRIPTION = """

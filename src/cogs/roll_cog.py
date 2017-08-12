@@ -11,11 +11,6 @@ DESCRIPTION = """Roll a random value between 0 and 100.  Optionally, you may pas
     Example: !roll 1-10
 """
 
-
-def roll(min: int = 0, max: int = 100) -> int:
-    return
-
-
 class Roll:
     def __init__(self, bot: BunkBot):
         self.bot = bot

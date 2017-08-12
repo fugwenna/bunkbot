@@ -2,10 +2,9 @@
 Wrapper for the TinyDB database storage
 with helper methods and additional functions
 """
-import discord, time, datetime, pytz
+import discord, datetime, pytz
 from tinydb import TinyDB, Query
 from tinydb.database import Table
-from ..cogs.rpg import rpg
 
 
 class BunkDB:
@@ -15,6 +14,17 @@ class BunkDB:
         self.db = TinyDB("src/storage/db.json")
         self.config: Table = self.db.table("config")
         self.users: Table = self.db.table("users")
+        self.rpg: Table = self.db.table("rpg")
+        self.check_defaults()
+
+
+    # set default database and config values
+    def check_defaults(self):
+        if len(self.config.all()) == 0:
+            self.config.insert_multiple([{"token": ""}, {"serverid": ""}, {"cleverbot": ""}, {"weather":""}])
+
+        if len(self.rpg.all()) == 0:
+            self.rpg.insert_multiple([{"xp_const": 5}, {"update_cap": 60}, {"timer_minutes": 1}])
 
 
     # helper method that will query the requested table
@@ -33,6 +43,11 @@ class BunkDB:
     # discord member reference
     def get_user(self, member: discord.Member) -> any:
         return self.users.get(Query().name == member.name)
+
+    # get a user based on the passed
+    # discord member reference
+    def get_user2(self, name: str) -> any:
+        return self.users.get(Query().name == name)
 
 
     # save an updated user reference

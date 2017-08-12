@@ -6,7 +6,7 @@ import uuid
 from discord import Message, Embed
 from discord.ext import commands
 from src.bunkbot import BunkBot
-from src.cogs.weather.wugresult import WeatherResult
+from src.cogs.weather.weather_result import WeatherResult
 from src.storage.db import database
 
 WEATHER_DESCRIPTION = """Retrieve a current snapshot of todays weather based on zip code.\n

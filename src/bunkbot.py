@@ -17,6 +17,7 @@ from discord.ext import commands
 
 from src.cogs.rpg.rpg import rpg
 from src.storage.db import database
+from src.util.bunk_user import BunkUser
 
 BOT_DESCRIPTION = """
 The bunkest bot - type '!help' for my commands, or say my name to chat with me. Type '!help [command] for more info
@@ -27,7 +28,7 @@ class BunkBot(commands.Bot):
     def __init__(self):
         super().__init__("!", None, BOT_DESCRIPTION, False)
         self.init: bool = False
-        self.chat_timer = 9.5
+        self.chat_timer = 9
         self.last_message_at = -1
         self.chat_bot: CleverWrap = None
         self.server: discord.Server = None
@@ -37,6 +38,7 @@ class BunkBot(commands.Bot):
         self.general: discord.Channel = None
         self.role_streaming = None
         self.role_new = None
+        self.users = []
         self.load_cogs()
 
 
@@ -66,11 +68,11 @@ class BunkBot(commands.Bot):
             self.chat_bot = CleverWrap(database.get("cleverbot"))
             await self.say_to_channel(self.bot_testing, "Bot and database initialized. Syncing users and channels...")
             await self.sync_users()
-            await self.sync_channels()
 
 
     # update the cogs database when
     # new cogs are added to the db
+    # todo - used once in roll, rm
     @staticmethod
     def get_author(ctx: commands.Context, with_id=False) -> str:
         author: str = str(ctx.message.author)
@@ -131,6 +133,7 @@ class BunkBot(commands.Bot):
                     await self.add_roles(member, self.role_new)
                     new_users.append(member.name)
 
+                self.users.append(BunkUser(member))
                 await self.check_member_streaming(member, member)
 
             if len(new_users) > 0:
@@ -144,15 +147,6 @@ class BunkBot(commands.Bot):
             await self.handle_error(e, "sync_users", False)
 
 
-    # update the channel references
-    # to
-    async def sync_channels(self) -> None:
-        try:
-            pass
-        except Exception as e:
-            self.handle_error(e, "sync_channels", False)
-
-
     # process each message that is sent
     # to the server - if bunkbot is chatting, continue to chat
     # otherwise, process the message as a command
@@ -161,16 +155,20 @@ class BunkBot(commands.Bot):
             if message.author.bot:
                 return
 
+            bunk_user = BunkUser(message.author)
+
             is_reset = message.content == "!reset"
             is_bunk_mention = len(message.mentions) > 0 and message.mentions[0].name == "BunkBot"
             content = re.findall("[a-zA-Z]+", str(message.content).upper())
 
             if not is_reset and (self.is_chatting or (is_bunk_mention or "BUNKBOT" in content)):
                 await self.chat(message)
-                await rpg.update_user_xp(message.author, 0.5)
+                await bunk_user.update_xp(0.5)
+                await rpg.update_user_xp(bunk_user, 0.5) # todo - rm
             else:
                 await self.process_commands(message)
-                await rpg.update_user_xp(message.author, 1.0)
+                await bunk_user.update_xp(1.0)
+                await rpg.update_user_xp(bunk_user, 1.0) # todo - rm
 
             if is_reset:
                 await self.delete_message(message)
@@ -252,15 +250,26 @@ class BunkBot(commands.Bot):
     # so they are more visible to other users
     async def check_member_streaming(self, before: discord.Member, after: discord.Member) -> None:
         member_streaming = [r for r in after.roles if r.name == "streaming"]
+        is_mod = len([r for r in before.roles if r.name == "moderator_perms"]) > 0
+        mod_role = [r for r in before.roles if r.name == "moderator"]
 
+        # todo update with datamodel (BunkUser)
         if after.game is not None and after.game.type == 1:
             if len(member_streaming) == 0:
                 await rpg.update_user_xp(after, 0.2)
                 await self.add_roles(after, self.role_streaming)
 
+                # todo clean up
+                if is_mod:
+                    await self.remove_roles(after, mod_role)
+
         elif before.game is not None and before.game.type == 1:
             if len(member_streaming) > 0:
                 await self.remove_roles(after, self.role_streaming)
+
+                # todo clean up
+                if is_mod:
+                    await self.add_roles(after, mod_role)
 
 
     # update the users "last online"

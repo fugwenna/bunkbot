@@ -44,16 +44,22 @@ class BunkRPG:
             prev_xp = rpg.calc_req_xp(user["level"])
             req_xp = rpg.calc_req_xp(user["level"] + 1)
 
-            pct = (now_xp - prev_xp) / (req_xp - prev_xp)
+            from_xp = round(now_xp - prev_xp, 2)
+            to_xp = round(req_xp - prev_xp, 2)
+
+            pct = from_xp / to_xp
             pct_rounded = int(round(pct, 1) * 10) * 3
-            pct_left = 30 - pct_rounded
+
+            debug = "{0}, lvl {1} ({2}),   from:{3}-{4} ({5}/{6})"
+            debug_msg = debug.format(user["name"], user["level"], now_xp, prev_xp, req_xp, from_xp, to_xp)
+            await self.bot.send_message(self.bot.bot_testing, debug_msg)
 
             progress_bar = []
-            for p in range(1, pct_rounded):
-                progress_bar.append("#")
-
-            for l in range(0, pct_left):
+            for i in range(0, 29):
                 progress_bar.append("--")
+
+            for p in range(0, pct_rounded+1):
+                progress_bar[p] = "#"
 
             member_name = str(ctx.message.author).split("#")[0]
             desc = "[{0}]".format("".join(progress_bar))

@@ -10,6 +10,7 @@ from src.util.event_hook import EventHook
 # hard cap the message
 # processing to a discrete value
 # to prevent channel spamming
+# todo - database
 XP_CONST = 5
 UPDATE_CAP = 60
 TIMER_MINUTES = 1
