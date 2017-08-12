@@ -133,7 +133,7 @@ class BunkBot(commands.Bot):
                     await self.add_roles(member, self.role_new)
                     new_users.append(member.name)
 
-                self.users.append(BunkUser(member))
+                #self.users.append(BunkUser(member))
                 await self.check_member_streaming(member, member)
 
             if len(new_users) > 0:
