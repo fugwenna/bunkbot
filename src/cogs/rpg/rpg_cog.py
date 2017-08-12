@@ -60,7 +60,7 @@ class BunkRPG:
             member_name = str(ctx.message.author).split("#")[0]
             desc = "{0}".format("".join(progress_bar))
 
-            embed = Embed(title="{0}: Level {1}".format(member_name, user["level"]), description=desc)
+            embed = Embed(title="{0}: Level {1}".format(member_name, user["level"]), description=desc, color=ctx.message.author.color)
             embed.set_footer(text="You are currently {0}% to level {1}".format(round(pct * 100, 2), user["level"]+1))
 
             await self.bot.send_message(ctx.message.channel, embed=embed)
