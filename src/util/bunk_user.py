@@ -106,4 +106,4 @@ class BunkUser:
     # todo - from database
     async def update_xp(self, value) -> None:
         req_xp = calc_req_xp(self.next_level)
-        print(req_xp)
+        #print(req_xp)
