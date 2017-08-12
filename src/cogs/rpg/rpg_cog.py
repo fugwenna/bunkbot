@@ -48,21 +48,21 @@ class BunkRPG:
             to_xp = round(req_xp - prev_xp, 2)
 
             pct = from_xp / to_xp
-            pct_rounded = int(round(pct, 1) * 10) * 3
+            pct_rounded = int(round(pct, 1) * 10) * 2
 
             debug = "{0}, lvl {1} ({2}),   from:{3}-{4} ({5}/{6})"
             debug_msg = debug.format(user["name"], user["level"], now_xp, prev_xp, req_xp, from_xp, to_xp)
             await self.bot.send_message(self.bot.bot_testing, debug_msg)
 
             progress_bar = []
-            for i in range(0, 29):
-                progress_bar.append("--")
+            for i in range(0, 20):
+                progress_bar.append("▯")
 
-            for p in range(0, pct_rounded+1):
-                progress_bar[p] = "#"
+            for p in range(0, pct_rounded-1):
+                progress_bar[p] = "▮"
 
             member_name = str(ctx.message.author).split("#")[0]
-            desc = "[{0}]".format("".join(progress_bar))
+            desc = "{0}".format("".join(progress_bar))
 
             embed = Embed(title="{0}: Level {1}".format(member_name, user["level"]), description=desc)
             embed.set_footer(text="You are currently {0}% to level {1}".format(round(pct * 100, 2), user["level"]+1))
