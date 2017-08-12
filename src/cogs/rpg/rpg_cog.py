@@ -78,13 +78,19 @@ class BunkRPG:
             players = sorted(filter(lambda u: u["name"] != "fugwenna", database.users.search(Query().xp > 1 or Query().xp > 0)),
                              key=lambda x: (x["level"], x["xp"]), reverse=True)[:9]
 
-            board = ""
-            for p in players:
-                board += "{0}   level: {1}   xp: {2}/{3}\n".format(p["name"], p["level"],
-                                                                round(p["xp"], 2),
-                                                                rpg.calc_req_xp(p["level"]+1))
+            names = []
+            levels = []
+            xps = []
 
-            embed = Embed(title="Leader board", description=board)
+            for p in players:
+                names.append(p["name"])
+                levels.append(str(p["level"]))
+                xps.append("{0} / {1}".format(str(p["xp"]), str(rpg.calc_req_xp(p["level"]+1))))
+
+            embed = Embed(title="Leader board", color=int("19CF3A", 16))
+            embed.add_field(name="Name", value="\n".join(names), inline=True)
+            embed.add_field(name="Level", value="\n".join(levels), inline=True)
+            embed.add_field(name="XP", value="\n".join(xps), inline=True)
 
             await self.bot.send_message(ctx.message.channel, embed=embed)
         except Exception as e:
@@ -163,7 +169,7 @@ class BunkRPG:
             for d in self.duels:
                 if d.opponent.name == name:
                     self.duels.remove(d)
-                    await self.bot.send_message(ctx.message.channel, ":exclamation: {0.mention} has rejected a duel with {1.mention}".format(d.opponent, d.challenger))
+                    await self.bot.send_message(ctx.message.channel, ":exclamation: {0} has rejected a duel with {1.mention}".format(d.opponent, d.challenger))
                     return
 
             await self.bot.send_message(ctx.message.channel, "You have no duels to reject")
@@ -180,7 +186,7 @@ class BunkRPG:
             for d in self.duels:
                 if d.challenger == ctx.message.author:
                     self.duels.remove(d)
-                    await self.bot.send_message(ctx.message.channel, "{0} has cancelled their duel with {0.mention}".format(name, d.opponent))
+                    await self.bot.send_message(ctx.message.channel, "{0} has cancelled their duel with {1.mention}".format(name, d.opponent))
                     return
 
             await self.bot.send_message(ctx.message.channel, "You have no duels to cancel")

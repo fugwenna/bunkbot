@@ -53,7 +53,7 @@ class Weather:
 
             weather = WeatherResult(curr_weather_result, forecast_result, self.as_full(ctx))
 
-            embed = Embed(title=weather.title, description=weather.conditions)
+            embed = Embed(title=weather.title, description=weather.conditions, color=int("008cba", 16))
             embed.set_footer(text=weather.credit, icon_url=weather.wu_icon)
             embed.set_thumbnail(url=weather.thumb)
 

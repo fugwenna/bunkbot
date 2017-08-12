@@ -9,6 +9,7 @@ import sys
 import time
 import traceback
 import urllib.request
+from re import sub
 from os import walk
 from os.path import join, splitext, sep
 
@@ -294,13 +295,21 @@ class BunkBot(commands.Bot):
     # this does not include the database user
     async def get_member(self, name: str) -> discord.Member:
         mem = None
+        nlower = name.lower()
+
         for m in self.server.members:
-            if m.name.lower() == name.lower():
+            mname = sub(r"[^A-Za-z]+", "", m.name.lower())
+
+            if mname == nlower:
                 return m
-            elif m.display_name and m.display_name.lower() == name.lower():
-                return m
-            elif m.nick and m.nick.lower() == name.lower():
-                return m
+            elif m.display_name is not None:
+                dname = sub(r"[^A-Za-z]+", "", m.display_name.lower())
+                if dname == nlower:
+                    return m
+            elif m.nick is not None:
+                nick = sub(r"[^A-Za-z]+", "", m.nick.lower())
+                if nick == nlower:
+                    return m
 
         return mem
 
