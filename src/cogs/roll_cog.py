@@ -38,7 +38,7 @@ class Roll:
             title = "Rolling ({0}-{1})".format(min_val, max_val)
             message = "{0} rolls {1}".format(self.bot.get_author(ctx), str(randint(min_val, max_val)))
 
-            await self.bot.say_embed(Embed(title=title, description=message))
+            await self.bot.say_embed(Embed(title=title, description=message, color=ctx.message.author.color))
         except Exception as e:
             await self.bot.handle_error(e, "roll")
 
