@@ -50,10 +50,6 @@ class BunkRPG:
             pct = from_xp / to_xp
             pct_rounded = int(round(pct, 1) * 10) * 2
 
-            debug = "{0}, lvl {1} ({2}),   from:{3}-{4} ({5}/{6})"
-            debug_msg = debug.format(user["name"], user["level"], now_xp, prev_xp, req_xp, from_xp, to_xp)
-            await self.bot.send_message(self.bot.bot_testing, debug_msg)
-
             progress_bar = []
             for i in range(0, 20):
                 progress_bar.append("▯")
