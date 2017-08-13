@@ -11,7 +11,7 @@ YOUTUBE_DESCRIPTION = """
     Example: !ytl 2
 """
 
-MORE_TITLE = "Type !ytl 1-5 to link another video\nType !ytl or !ytl 0 to relink the original result\n"
+MORE_TITLE = "Type !ytl 1-5 to link another video\nType !link or !link 0 to relink the original result\n"
 
 class Youtube:
     def __init__(self, bot: BunkBot):
@@ -43,8 +43,8 @@ class Youtube:
 
     # replace the video from the previous search based
     # on the value entered (1-5)
-    @commands.command(pass_context=True, clas=None, help="Link another youtube result from the last search")
-    async def ytl(self, ctx) -> None:
+    @commands.command(pass_context=True, clas=None, help="Link another youtube result from the last search", aliases=["ytl"])
+    async def link(self, ctx) -> None:
         try:
             params = self.bot.get_cmd_params(ctx)
 
@@ -64,9 +64,9 @@ class Youtube:
     async def more(self, ctx):
         e_title = "Type !ytl 1-5 to link another video\nType !ytl or !ytl 0 to relink the original result\n";
         e_message = "\n".join(self.yt_result.titles)
-        embed = Embed(title=e_title, description=e_message)
+        embed = Embed(title=e_title, description=e_message, color=int("CC181E", 16))
 
-        await self.bot.say_embed(embed)
+        await self.bot.say(embed=embed)
         await self.bot.delete_message(ctx.message)
 
 

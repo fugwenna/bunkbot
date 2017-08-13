@@ -20,7 +20,7 @@ class BunkUser:
         self.on_level_up = EventHook()
         self.on_level_down = EventHook()
 
-        self.member = None
+        self.member: Member = None
         self.id = -1
         self.name = ""
 
@@ -68,8 +68,42 @@ class BunkUser:
 
     # previous level value
     @property
-    def next_level(self) -> int:
+    def previous_level(self) -> int:
         return self.level - 1
+
+
+    # wrap the mention property
+    @property
+    def mention(self) -> str:
+        if self.member is None:
+            return ""
+
+        return self.member.mention
+
+
+    # get the users color_
+    # role if it is set
+    @property
+    def color(self) -> str or None:
+        if self.color_role is None:
+            return None
+
+        return self.color_role.name.split("_")[1]
+
+
+    # return the color role
+    # including the 'color_' prefix
+    @property
+    def color_role(self) -> str or None:
+        if self.member is None:
+            return None
+
+        colors = [r for r in self.member.roles if "color_" in r.name]
+
+        if len(colors) > 0:
+            return colors[0]
+
+        return None
 
 
     # update properties from a discord
@@ -82,7 +116,10 @@ class BunkUser:
         db_user = database.get_user2(member.name)
         if db_user is not None:
             self.xp_holder = db_user["xp"]
-            self.last_online = db_user["last_online"]
+            try:
+                self.last_online = db_user["last_online"]
+            except KeyError:
+                pass #user never online
         else:
             print("User '{0}' not in database...", self.name)
 

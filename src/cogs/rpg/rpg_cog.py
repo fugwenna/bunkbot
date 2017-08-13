@@ -73,7 +73,7 @@ class BunkRPG:
     @commands.command(pass_context=True, cls=None, help="Get the current leader board", aliases=["leaders", "ranks", "levels", "leaderboard"])
     async def leader(self, ctx):
         try:
-            self.bot.send_typing(ctx.message.channel)
+            await self.bot.send_typing(ctx.message.channel)
 
             players = sorted(filter(lambda u: u["name"] != "fugwenna", database.users.search(Query().xp > 1 or Query().xp > 0)),
                              key=lambda x: (x["level"], x["xp"]), reverse=True)[:9]
@@ -87,7 +87,7 @@ class BunkRPG:
                 levels.append(str(p["level"]))
                 xps.append("{0} / {1}".format(str(p["xp"]), str(rpg.calc_req_xp(p["level"]+1))))
 
-            embed = Embed(title="Leader board", color=int("19CF3A", 16))
+            embed = Embed(title="", color=int("19CF3A", 16))
             embed.add_field(name="Name", value="\n".join(names), inline=True)
             embed.add_field(name="Level", value="\n".join(levels), inline=True)
             embed.add_field(name="XP", value="\n".join(xps), inline=True)

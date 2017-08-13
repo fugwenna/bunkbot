@@ -12,8 +12,8 @@ from src.storage.db import database
 
 
 @bunkbot.event
-async def on_message(message: discord.Message) -> None:
-    await bunkbot.process_message(message)
+async def on_ready() -> None:
+    await bunkbot.on_init()
 
 
 @bunkbot.event
@@ -32,8 +32,18 @@ async def on_member_remove(member: discord.Member) -> None:
 
 
 @bunkbot.event
-async def on_ready() -> None:
-    await bunkbot.on_init()
+async def on_message(message: discord.Message) -> None:
+    await bunkbot.process_message(message)
+
+
+@bunkbot.event
+async def on_reaction_add(reaction: discord.Reaction, user: discord.Member) -> None:
+    await bunkbot.member_reaction_add(reaction, user)
+
+
+@bunkbot.event
+async def on_voice_state_update(before: discord.Member, after: discord.Member) -> None:
+    await bunkbot.member_voice_update(before, after)
 
 
 if __name__ == "__main__":

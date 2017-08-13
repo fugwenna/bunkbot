@@ -15,6 +15,18 @@ class Mod:
         self.bot = bot
 
 
+    # link bunkbot source code
+    @commands.has_any_role("admin")
+    @commands.command(pass_context=True, cls=None, help="Link source code url", aliases=["src"])
+    async def source(self, ctx):
+        try:
+            await self.bot.send_typing(ctx)
+            await self.bot.send_message(ctx.message.channel, "https://github.com/fugwenna/bunkbot/")
+        except Exception as e:
+            self.bot.handle_error(e, "source")
+
+
+
     # clear a role for ALL users ...
     # be careful with this, basically an rm -rf
     @commands.has_any_role("admin")

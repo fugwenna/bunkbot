@@ -4,7 +4,8 @@ Roll a random number
 from discord import Embed
 from random import randint
 from discord.ext import commands
-from ..bunkbot import BunkBot
+from src.bunkbot import BunkBot
+from src.util.bunk_user import BunkUser
 
 DESCRIPTION = """Roll a random value between 0 and 100.  Optionally, you may pass a value range.\n
     Example: !roll
@@ -25,6 +26,7 @@ class Roll:
             min_val = 0
             max_val = 100
             params = self.bot.get_cmd_params(ctx)
+            user: BunkUser = self.bot.get_user(ctx.message.author)
 
             if len(params) > 0:
                 if "-" in params[0]:
@@ -36,9 +38,9 @@ class Roll:
                         max_val = val_1 if val_2 <= val_1 else val_2
 
             title = "Rolling ({0}-{1})".format(min_val, max_val)
-            message = "{0} rolls {1}".format(self.bot.get_author(ctx), str(randint(min_val, max_val)))
+            message = "{0} rolls {1}".format(user.name, str(randint(min_val, max_val)))
 
-            await self.bot.say_embed(Embed(title=title, description=message, color=ctx.message.author.color))
+            await self.bot.say(embed=Embed(title=title, description=message, color=ctx.message.author.color))
         except Exception as e:
             await self.bot.handle_error(e, "roll")
 

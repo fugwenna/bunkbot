@@ -71,19 +71,6 @@ class BunkBot(commands.Bot):
             await self.sync_users()
 
 
-    # update the cogs database when
-    # new cogs are added to the db
-    # todo - used once in roll, rm
-    @staticmethod
-    def get_author(ctx: commands.Context, with_id=False) -> str:
-        author: str = str(ctx.message.author)
-
-        if not with_id:
-            author = author.split("#")[0]
-
-        return author
-
-
     # retrieve an array of the passed
     # message command arguments
     @staticmethod
@@ -134,29 +121,32 @@ class BunkBot(commands.Bot):
                     await self.add_roles(member, self.role_new)
                     new_users.append(member.name)
 
-                #self.users.append(BunkUser(member))
+                self.users.append(BunkUser(member))
                 await self.check_member_streaming(member, member)
 
             if len(new_users) > 0:
                 new_user_list: str = "\n".join(new_users)
                 new_user_msg: str = "Users synced. The following users have been added to the database: \n{0}".format(new_user_list)
-                await self.say_to_channel(self.bot_testing, new_user_msg)
                 await self.say_to_channel(self.mod_chat, new_user_msg)
             else:
                 await self.say_to_channel(self.bot_testing, "Users synced. No new users added to database.")
         except Exception as e:
-            await self.handle_error(e, "sync_users", False)
+            await self.handle_error(e, "sync_users")
 
 
     # process each message that is sent
     # to the server - if bunkbot is chatting, continue to chat
     # otherwise, process the message as a command
+    # todo - rm rpg update xp
     async def process_message(self, message: discord.Message) -> None:
         try:
             if message.author.bot:
                 return
 
-            bunk_user = BunkUser(message.author)
+            bunk_user = self.get_user(message.author)
+            if bunk_user is None:
+                bunk_user = BunkUser(message.author)
+                self.users.append(bunk_user)
 
             is_reset = message.content == "!reset"
             is_bunk_mention = len(message.mentions) > 0 and message.mentions[0].name == "BunkBot"
@@ -165,25 +155,16 @@ class BunkBot(commands.Bot):
             if not is_reset and (self.is_chatting or (is_bunk_mention or "BUNKBOT" in content)):
                 await self.chat(message)
                 await bunk_user.update_xp(0.5)
-                await rpg.update_user_xp(bunk_user, 0.5) # todo - rm
+                await rpg.update_user_xp(bunk_user, 0.5)
             else:
                 await self.process_commands(message)
                 await bunk_user.update_xp(1.0)
-                await rpg.update_user_xp(bunk_user, 1.0) # todo - rm
+                await rpg.update_user_xp(bunk_user, 1.0)
 
             if is_reset:
                 await self.delete_message(message)
         except Exception as e:
             await self.handle_error(e, "process_message")
-
-
-    # send an embedded message to the server
-    # using known **kwargs in the ctor
-    async def say_embed(self, embed: discord.Embed) -> None:
-        try:
-            return await self.say(embed=embed)
-        except Exception as e:
-            self.handle_error(e, "say_embed")
 
 
     # send a message to a specific channel instead
@@ -220,6 +201,7 @@ class BunkBot(commands.Bot):
             fmt: str = "Welcome {0.mention} to {1.name}!  Type !help for a list of my commands"
 
             database.check_user(member)
+            self.users.append(BunkUser(member))
             await self.add_roles(member, self.role_new)
 
             await self.say_to_channel(self.mod_chat, "New user '{0}' has joined the server and added to the database".format(member.name))
@@ -232,6 +214,9 @@ class BunkBot(commands.Bot):
     # been updated - i.e. apply custom/temporary roles
     async def member_update(self, before: discord.Member, after: discord.Member) -> None:
         try:
+            if self.get_user(after) is None:
+                self.users.append(BunkUser(after))
+
             await self.check_member_streaming(before, after)
             await self.check_member_last_online(before, after)
         except Exception as e:
@@ -245,6 +230,30 @@ class BunkBot(commands.Bot):
            await self.say_to_channel(self.mod_chat, "User '{0}' has left the server.".format(member.name))
         except Exception as e:
             self.handle_error(e, "member_update")
+
+
+    # basic xp gains for various
+    # events handled in main.py
+    async def member_reaction_add(self, member: discord.Member) -> None:
+        try:
+            # todo - from self.users[]
+            bunk_user = BunkUser(member)
+            await rpg.update_user_xp(bunk_user, 0.2)  # todo - rm
+        except Exception as e:
+            await self.handle_error(e, "member_reaction_add")
+
+
+    # give a slight xp increase
+    # when a user joins a voice channel
+    async def member_voice_update(self, before: discord.Member, after: discord.Member) -> None:
+        try:
+            before_voice: discord.VoiceState = before.voice.voice_channel
+            after_voice: discord.VoiceState = after.voice.voice_channel
+
+            if before_voice is None and after_voice is not None:
+                await rpg.update_user_xp(after, 0.5)
+        except Exception as e:
+            await self.handle_error(e, "member_voice_update")
 
 
     # update a member if they are streaming
@@ -275,6 +284,7 @@ class BunkBot(commands.Bot):
 
     # update the users "last online"
     # property in the database
+    # todo - as BunkUser set_last_online(value) method
     @staticmethod
     async def check_member_last_online(before: discord.Member, after: discord.Member) -> None:
         pre_status = str(before.status)
@@ -291,9 +301,28 @@ class BunkBot(commands.Bot):
             return
 
 
+    # get a member from the
+    # collection of current members
+    def get_user(self, member: discord.Member) -> BunkUser or None:
+        try:
+            return [u for u in self.users if u.name.lower() == member.name.lower()][0]
+        except:
+            return None
+
+
+    # get a member from the
+    # collection of current members
+    def get_user_by_name(self, name: str) -> BunkUser or None:
+        try:
+            return [u for u in self.users if u.name.lower() == name.lower()][0]
+        except:
+            return None
+
+
     # retrieve a member reference from the server
     # this does not include the database user
-    async def get_member(self, name: str) -> discord.Member:
+    # todo - used once in duel
+    async def get_member(self, name: str) -> discord.Member or None:
         mem = None
         nlower = name.lower()
 
@@ -325,11 +354,8 @@ class BunkBot(commands.Bot):
 
     # default catch for handling any errors that
     # occur when processing bot commands
-    async def handle_error(self, error, command: str, say_error: bool = True) -> None:
+    async def handle_error(self, error, command: str) -> None:
         try:
-            #if say_error:
-                #await self.say("Ahh Error!")
-
             error_message: str = ":exclamation: Error occurred from command '{0}': {1}".format(command, error)
             traceback.print_exc(file=sys.stdout)
 

@@ -3,7 +3,7 @@ Zip-code driven weather forecast and current conditions
 based on data retrieved from weather underground
 """
 import uuid
-from discord import Message, Embed
+from discord import Embed
 from discord.ext import commands
 from src.bunkbot import BunkBot
 from src.cogs.weather.weather_result import WeatherResult
@@ -57,7 +57,7 @@ class Weather:
             embed.set_footer(text=weather.credit, icon_url=weather.wu_icon)
             embed.set_thumbnail(url=weather.thumb)
 
-            await self.bot.say_embed(embed)
+            await self.bot.say(embed=embed)
         except Exception as e:
             await self.bot.handle_error(e, "weather")
 

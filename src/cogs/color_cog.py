@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
-from ..bunkbot import BunkBot
+from src.bunkbot import BunkBot
+from src.util.bunk_user import BunkUser
 
 COLOR_DESCRIPTION = """Change the color of your name in the chat by using the command !color followed by either a basic
     default color, or a hex code.  '!color none' will remove your color.  For assistance with available colors, type !colors \n
@@ -28,21 +29,20 @@ class Color:
 
     # executable command method which will
     # search and parse out the youtube html
-    @commands.command(pass_context=True, cls=None, help=COLOR_DESCRIPTION)
+    @commands.command(pass_context=True, cls=None, help=COLOR_DESCRIPTION, aliases=["c"])
     async def color(self, ctx):
         try:
             await self.bot.send_typing(ctx.message.channel)
 
             params = self.bot.get_cmd_params(ctx)
             member = self.bot.server.get_member_named(str(ctx.message.author))
-
-            color_roles = []
-            for role in member.roles:
-                if "color_" in role.name:
-                    color_roles.append(role.name)
+            user = self.bot.get_user(ctx.message.author)
 
             if len(params) == 0:
-                await self.print_member_color(member, color_roles)
+                if user.color is None:
+                    await self.bot.say("You do not have a color role assigned to you")
+                else:
+                    await self.bot.say("Your current color is '{0}'".format(user.color))
             else:
                 if params[0].lower() == "none":
                     await self.remove_colors(member)
@@ -68,17 +68,8 @@ class Color:
 
                 await self.prune_color_roles()
         except Exception as e:
-            await self.bot.handle_error(e, "color", False)
+            await self.bot.handle_error(e, "color")
             await self.bot.say("Color '{}' is not recognized. Type !colors for help".format(color))
-
-
-    # print a users existing color
-    async def print_member_color(self, member, color_roles):
-        if len(color_roles) == 0:
-            await self.bot.say(
-                "You do not have a color role assigned to you. Ex: Type !color red to change your color to red")
-        else:
-            await self.bot.say("Your current color is {}".format(color_roles[0].split("_")[1]))
 
 
     # create a new color role
