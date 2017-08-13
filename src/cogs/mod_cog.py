@@ -23,7 +23,7 @@ class Mod:
             await self.bot.send_typing(ctx)
             await self.bot.send_message(ctx.message.channel, "https://github.com/fugwenna/bunkbot/")
         except Exception as e:
-            self.bot.handle_error(e, "source")
+            await self.bot.handle_error(e, "source")
 
 
 
@@ -43,7 +43,7 @@ class Mod:
             await self.bot.send_message(self.bot.mod_chat, "Role {0} cleared from all users... good job idiot".format(param))
 
         except Exception as e:
-            self.bot.handle_error(e, "clear")
+            await self.bot.handle_error(e, "clear")
 
 
 
