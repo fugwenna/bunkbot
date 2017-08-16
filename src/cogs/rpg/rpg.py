@@ -83,7 +83,7 @@ class RPG:
     # calculate the required xp for a given level
     @staticmethod
     def calc_req_xp(level: int) -> float:
-        return (XP_CONST * level * level) - (XP_CONST * level) + level
+        return (XP_CONST * level * level) - (XP_CONST * level) + round(level / 2, 2)
 
 
     # calculate the xp required

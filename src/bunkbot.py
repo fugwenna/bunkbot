@@ -234,17 +234,18 @@ class BunkBot(commands.Bot):
 
     # basic xp gains for various
     # events handled in main.py
+    # todo - rpg rm
     async def member_reaction_add(self, member: discord.Member) -> None:
         try:
-            # todo - from self.users[]
-            bunk_user = BunkUser(member)
-            await rpg.update_user_xp(bunk_user, 0.2)  # todo - rm
+            bunk_user = self.get_user(member)
+            await rpg.update_user_xp(bunk_user, 0.1)
         except Exception as e:
             await self.handle_error(e, "member_reaction_add")
 
 
     # give a slight xp increase
     # when a user joins a voice channel
+    # todo - rpg rm
     async def member_voice_update(self, before: discord.Member, after: discord.Member) -> None:
         try:
             before_voice: discord.VoiceState = before.voice.voice_channel
@@ -258,12 +259,13 @@ class BunkBot(commands.Bot):
 
     # update a member if they are streaming
     # so they are more visible to other users
+    # todo - update with datamodel (BunkUser)
+    # todo - rpg rm
     async def check_member_streaming(self, before: discord.Member, after: discord.Member) -> None:
         member_streaming = [r for r in after.roles if r.name == "streaming"]
         is_mod = len([r for r in before.roles if r.name == "moderator_perms"]) > 0
         mod_role = [r for r in before.roles if r.name == "moderator"]
 
-        # todo update with datamodel (BunkUser)
         if after.game is not None and after.game.type == 1:
             if len(member_streaming) == 0:
                 await rpg.update_user_xp(after, 0.2)
@@ -285,6 +287,7 @@ class BunkBot(commands.Bot):
     # update the users "last online"
     # property in the database
     # todo - as BunkUser set_last_online(value) method
+    # todo - rpg rm?
     @staticmethod
     async def check_member_last_online(before: discord.Member, after: discord.Member) -> None:
         pre_status = str(before.status)

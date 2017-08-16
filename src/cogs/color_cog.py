@@ -35,80 +35,73 @@ class Color:
             await self.bot.send_typing(ctx.message.channel)
 
             params = self.bot.get_cmd_params(ctx)
-            member = self.bot.server.get_member_named(str(ctx.message.author))
-            user = self.bot.get_user(ctx.message.author)
+            user: BunkUser = self.bot.get_user(ctx.message.author)
 
             if len(params) == 0:
-                if user.color is None:
-                    await self.bot.say("You do not have a color role assigned to you")
-                else:
-                    await self.bot.say("Your current color is '{0}'".format(user.color))
+                if user.color is None: await self.bot.say("You do not have a color role assigned to you")
+                else: await self.bot.say("Your current color is '{0}'".format(user.color))
             else:
-                if params[0].lower() == "none":
-                    await self.remove_colors(member)
-                    await self.bot.say("Color removed from {}".format(member.name))
-                else:
-                    color = params[0]
-                    color_role = "color_{}".format(params[0])
+                color = params[0].lower()
 
-                    if len([r for r in member.roles if color_role in r.name]) > 0:
-                        await self.bot.say("You already have the color {}".format(color))
+                if color == "none":
+                    await self.remove_color_from(user.member)
+                    await self.bot.say("Color removed from {0}".format(user.name))
+                else:
+                    color_role = "color-{0}".format(color)
+
+                    if color == user.color:
+                        await self.bot.say("You already have the color {0}".format(color))
                         return
 
-                    exists = [r for r in self.bot.server.roles if color_role in r.name]
-
+                    exists = [r for r in self.bot.server.roles if color_role == r.name.lower()]
                     if len(exists) == 0:
                         role = await self.create_color_role(color)
-                        await self.replace_color(member, role)
+                        await self.replace_color(user, role)
                     else:
-                        await self.replace_color(member, exists[0])
+                        await self.replace_color(user, exists[0])
 
-                    # await self.send_message("Color change", "{}'s color changed to {}".format(member.name, color), None, None, None, role.color)
-                    await self.bot.say("{}'s color changed to {}".format(member.name, color))
+                    await self.bot.say("{0}'s color changed to {1}".format(user.name, color))
 
                 await self.prune_color_roles()
         except Exception as e:
             await self.bot.handle_error(e, "color")
-            await self.bot.say("Color '{}' is not recognized. Type !colors for help".format(color))
+            await self.bot.say("Color '{0}' is not recognized. Type !colors for help".format(color))
 
 
     # create a new color role
     async def create_color_role(self, color):
         if color.startswith("#"):
-            dcolor = discord.Color(int(color[1:], 16))
-            role = await self.bot.create_role(self.bot.server)
-            await self.bot.edit_role(self.bot.server, role, name="color_{}".format(color), color=dcolor)
-            return role
-        else:
-            color_method = [m for m, f in discord.Color.__dict__.items()]
-            for c in color_method:
-                if c == color:
-                    dcolor = getattr(discord.Color, c)()
-                    role = await self.bot.create_role(self.bot.server)
-                    await self.bot.edit_role(self.bot.server, role, name="color_{}".format(color), color=dcolor)
-                    return role
+            color = color[1:]
 
-            dcolor = discord.Color(int(color, 16))
-            role = await self.bot.create_role(self.bot.server)
-            await self.bot.edit_role(self.bot.server, role, name="color_#{}".format(color), color=dcolor)
-            return role
+        color_method = [m for m, f in discord.Color.__dict__.items()]
+        for c in color_method:
+            if c == color:
+                dcolor = getattr(discord.Color, c)()
+                role = await self.bot.create_role(self.bot.server)
+                await self.bot.edit_role(self.bot.server, role, name="color-{0}".format(color), color=dcolor)
+                return role
+
+        dcolor = discord.Color(int(color, 16))
+        role = await self.bot.create_role(self.bot.server)
+        await self.bot.edit_role(self.bot.server, role, name="color-{0}".format(color), color=dcolor)
+        return role
 
 
     # only allow a single color for a member
-    async def replace_color(self, member, new_color):
+    async def replace_color(self, user: BunkUser, new_color):
         roles = [new_color]
-        for role in member.roles:
-            if role.name == new_color or "color_" not in role.name:
+        for role in user.roles:
+            if role.name == new_color or "color-" not in role.name:
                 roles.append(role)
 
-        await self.bot.replace_roles(member, *roles)
+        await self.bot.replace_roles(user.member, *roles)
 
 
     # remove all colors from a member
-    async def remove_colors(self, member):
+    async def remove_color_from(self, member):
         roles = []
         for role in member.roles:
-            if "color_" not in role.name:
+            if "color-" not in role.name:
                 roles.append(role)
 
         await self.bot.replace_roles(member, *roles)
@@ -117,11 +110,11 @@ class Color:
     # clean up any unused color roles
     async def prune_color_roles(self):
         for role in self.bot.server.roles:
-            if "color_" in role.name:
+            if "color-" in role.name:
                 role_found = False
 
                 for member in self.bot.server.members:
-                    has_role = len([r for r in member.roles if role.name == r.name]) > 0
+                    has_role = len([r for r in member.roles if role.name.lower() == r.name.lower()]) > 0
                     if has_role:
                         role_found = True
                         break

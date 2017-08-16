@@ -81,6 +81,15 @@ class BunkUser:
         return self.member.mention
 
 
+    # wrap the user roles
+    @property
+    def roles(self) -> list:
+        if self.member is None:
+            return []
+
+        return self.member.roles
+
+
     # get the users color_
     # role if it is set
     @property
@@ -88,7 +97,7 @@ class BunkUser:
         if self.color_role is None:
             return None
 
-        return self.color_role.name.split("_")[1]
+        return self.color_role.name.split("-")[1].lower()
 
 
     # return the color role
@@ -98,7 +107,7 @@ class BunkUser:
         if self.member is None:
             return None
 
-        colors = [r for r in self.member.roles if "color_" in r.name]
+        colors = [r for r in self.member.roles if "color-" in r.name.lower()]
 
         if len(colors) > 0:
             return colors[0]
