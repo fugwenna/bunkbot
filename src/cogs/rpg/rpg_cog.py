@@ -45,9 +45,9 @@ class BunkRPG:
 
             params = self.bot.get_cmd_params(ctx)
             if len(params) > 0:
-                param_user: BunkUser = self.bot.get_user_by_name(params[0])
+                param_user: BunkUser = self.bot.get_user_by_name(" ".join(params[0:]))
                 if param_user is None:
-                    await self.bot.say("Cannot locate user '{0}'".format(params[0]))
+                    await self.bot.say("Cannot locate user '{0}'".format(" ".join(params[0:])))
                     return
 
                 user = param_user
