@@ -51,6 +51,16 @@ class BunkUser:
         return len([m for m in self.member.roles if m.name == "vip" or m.name == "vip_perms"]) > 0
 
 
+    # current database user xp
+    @property
+    def xp(self) -> float:
+        if self.member is None:
+            return 1
+
+        db_user = database.get_user2(self.member.name)
+        return db_user["xp"]
+
+
     @property
     def level(self) -> int:
         if self.member is None:

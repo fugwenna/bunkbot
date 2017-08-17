@@ -18,7 +18,7 @@ class Color:
     # get a list of colors as well as
     # a link to hex color codes
     @commands.command(pass_context=False, cls=None, help="Link to discord API color list and hex code editor")
-    async def colors(self):
+    async def colors(self) -> None:
         try:
             reg_colors = "Use the classmethod names for a default color (!color red, blue, dark_green, etc) \nhttp://discordpy.readthedocs.io/en/latest/api.html?#discord.Colour.teal"
             hex_colors = "For hex codes, copy the value above the color picker (with the #) and use that value (!color #F70AE8)\nhttps://www.webpagefx.com/web-design/color-picker/"
@@ -30,7 +30,7 @@ class Color:
     # executable command method which will
     # search and parse out the youtube html
     @commands.command(pass_context=True, cls=None, help=COLOR_DESCRIPTION, aliases=["c"])
-    async def color(self, ctx):
+    async def color(self, ctx) -> None:
         try:
             await self.bot.send_typing(ctx.message.channel)
 
@@ -46,19 +46,17 @@ class Color:
                 if color == "none":
                     await self.remove_color_from(user.member)
                     await self.bot.say("Color removed from {0}".format(user.name))
+                elif color == user.color:
+                    await self.bot.say("You already have the color {0}".format(color))
                 else:
                     color_role = "color-{0}".format(color)
+                    color_search = [r for r in self.bot.server.roles if color_role == r.name.lower()]
 
-                    if color == user.color:
-                        await self.bot.say("You already have the color {0}".format(color))
-                        return
-
-                    exists = [r for r in self.bot.server.roles if color_role == r.name.lower()]
-                    if len(exists) == 0:
+                    if len(color_search) == 0:
                         role = await self.create_color_role(color)
                         await self.replace_color(user, role)
                     else:
-                        await self.replace_color(user, exists[0])
+                        await self.replace_color(user, color_search[0])
 
                     await self.bot.say("{0}'s color changed to {1}".format(user.name, color))
 
@@ -69,26 +67,28 @@ class Color:
 
 
     # create a new color role
-    async def create_color_role(self, color):
+    async def create_color_role(self, color) -> discord.Role:
+        discord_color: None or discord.Color = None
+
         if color.startswith("#"):
             color = color[1:]
 
         color_method = [m for m, f in discord.Color.__dict__.items()]
         for c in color_method:
             if c == color:
-                dcolor = getattr(discord.Color, c)()
-                role = await self.bot.create_role(self.bot.server)
-                await self.bot.edit_role(self.bot.server, role, name="color-{0}".format(color), color=dcolor)
-                return role
+                discord_color = getattr(discord.Color, c)()
+                break
 
-        dcolor = discord.Color(int(color, 16))
+        if discord_color is None:
+            discord_color = discord.Color(int(color, 16))
+
         role = await self.bot.create_role(self.bot.server)
-        await self.bot.edit_role(self.bot.server, role, name="color-{0}".format(color), color=dcolor)
+        await self.bot.edit_role(self.bot.server, role, name="color-{0}".format(color), color=discord_color)
         return role
 
 
     # only allow a single color for a member
-    async def replace_color(self, user: BunkUser, new_color):
+    async def replace_color(self, user: BunkUser, new_color) -> None:
         roles = [new_color]
         for role in user.roles:
             if role.name == new_color or "color-" not in role.name:
@@ -98,7 +98,7 @@ class Color:
 
 
     # remove all colors from a member
-    async def remove_color_from(self, member):
+    async def remove_color_from(self, member) -> None:
         roles = []
         for role in member.roles:
             if "color-" not in role.name:
@@ -108,7 +108,7 @@ class Color:
 
 
     # clean up any unused color roles
-    async def prune_color_roles(self):
+    async def prune_color_roles(self) -> None:
         for role in self.bot.server.roles:
             if "color-" in role.name:
                 role_found = False

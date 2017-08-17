@@ -322,30 +322,6 @@ class BunkBot(commands.Bot):
             return None
 
 
-    # retrieve a member reference from the server
-    # this does not include the database user
-    # todo - used once in duel
-    async def get_member(self, name: str) -> discord.Member or None:
-        mem = None
-        nlower = name.lower()
-
-        for m in self.server.members:
-            mname = sub(r"[^A-Za-z]+", "", m.name.lower())
-
-            if mname == nlower:
-                return m
-            elif m.display_name is not None:
-                dname = sub(r"[^A-Za-z]+", "", m.display_name.lower())
-                if dname == nlower:
-                    return m
-            elif m.nick is not None:
-                nick = sub(r"[^A-Za-z]+", "", m.nick.lower())
-                if nick == nlower:
-                    return m
-
-        return mem
-
-
     # make a basic http call
     # with urllib
     def http_get(self, url: str) -> json:
@@ -366,6 +342,30 @@ class BunkBot(commands.Bot):
         except Exception as e:
             print(e)
             traceback.print_exc(file=sys.stdout)
+
+
+    # retrieve a member reference from the server
+    # this does not include the database user
+    # todo - rm
+    async def get_member(self, name: str) -> discord.Member or None:
+        mem = None
+        nlower = name.lower()
+
+        for m in self.server.members:
+            mname = sub(r"[^A-Za-z]+", "", m.name.lower())
+
+            if mname == nlower:
+                return m
+            elif m.display_name is not None:
+                dname = sub(r"[^A-Za-z]+", "", m.display_name.lower())
+                if dname == nlower:
+                    return m
+            elif m.nick is not None:
+                nick = sub(r"[^A-Za-z]+", "", m.nick.lower())
+                if nick == nlower:
+                    return m
+
+        return mem
 
 
 bunkbot = BunkBot()

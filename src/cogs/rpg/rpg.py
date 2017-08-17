@@ -61,12 +61,12 @@ class RPG:
 
             # continue to increase the message
             # count until the user has reached a cap
-            # during a 30 minute window
+            # during an n minute window
             if min_diff <= TIMER_MINUTES:
                 if user["value"] < UPDATE_CAP:
                     user["value"] += value
 
-            # the 30 minute window is up, therefore
+            # the window is up, therefore
             # increase the user level percentage and
             # check if they have leveled up
             else:

@@ -6,6 +6,7 @@ from discord import Embed
 from discord.ext import commands
 from tinydb import Query
 from src.bunkbot import BunkBot
+from src.util.bunk_user import BunkUser
 from src.storage.db import database
 from .rpg import rpg
 from .duel import Duel
@@ -25,7 +26,7 @@ class BunkRPG:
 
     # DING - user has leveled up
     # inform them and update their server permissions
-    async def ding(self, member, value):
+    async def ding(self, member, value) -> None:
         if member.name != "fugwenna":
             await self.bot.say_to_channel(self.bot.general, ":bell: DING! {0.mention} has advanced to level {1}!"
                                       .format(member, value))
@@ -33,8 +34,9 @@ class BunkRPG:
 
     # allow users to print
     # out their current level
+    # todo - use BunkUser
     @commands.command(pass_context=True, cls=None, help="Print your current level", aliases=["rank"])
-    async def level(self, ctx):
+    async def level(self, ctx) -> None:
         try:
             await self.bot.send_typing(ctx.message.channel)
 
@@ -70,8 +72,9 @@ class BunkRPG:
 
     # get the top 10 leader board
     # sorting by level and xp
+    # todo - use bot.users ?
     @commands.command(pass_context=True, cls=None, help="Get the current leader board", aliases=["leaders", "ranks", "levels", "leaderboard"])
-    async def leader(self, ctx):
+    async def leader(self, ctx) -> None:
         try:
             await self.bot.send_typing(ctx.message.channel)
 
@@ -83,14 +86,14 @@ class BunkRPG:
             xps = []
 
             for p in players:
-                names.append(p["name"])
+                names.append(sub(r"[^A-Za-z]+", "", p["name"]))
                 levels.append(str(p["level"]))
-                xps.append("{0} / {1}".format(str(p["xp"]), str(rpg.calc_req_xp(p["level"]+1))))
+                xps.append(str(p["xp"]))
 
             embed = Embed(title="", color=int("19CF3A", 16))
             embed.add_field(name="Name", value="\n".join(names), inline=True)
             embed.add_field(name="Level", value="\n".join(levels), inline=True)
-            embed.add_field(name="XP", value="\n".join(xps), inline=True)
+            embed.add_field(name="Total XP", value="\n".join(xps), inline=True)
 
             await self.bot.send_message(ctx.message.channel, embed=embed)
         except Exception as e:
@@ -100,7 +103,7 @@ class BunkRPG:
     # challenge another user
     # to an XP duel!
     @commands.command(pass_context=True, cls=None, help=DUEL_DESCRIPTION, aliases=["challenge"])
-    async def duel(self, ctx):
+    async def duel(self, ctx) -> None:
         try:
             challenger = ctx.message.author
             challenger_name = str(ctx.message.author).split("#")[0]
@@ -110,15 +113,15 @@ class BunkRPG:
                 await self.bot.send_message(ctx.message.channel, "You must supply a challenger!")
                 return
 
-            opponent = " ".join(param[0:])
+            opponent: str = " ".join(param[0:])
 
             if challenger_name == opponent:
                 await self.bot.send_message(ctx.message.channel, "You can't challenge yourself to a duel, loser")
                 return
 
-            member = await self.bot.get_member(opponent)
+            user: BunkUser = self.bot.get_user_by_name(opponent)
 
-            if member is None:
+            if user is None:
                 await self.bot.send_message(ctx.message.channel, "User {0} not found".format(opponent))
                 return
 
@@ -133,18 +136,18 @@ class BunkRPG:
                 await self.bot.send_message(ctx.message.channel, "{0} is currently dueling".format(opponent))
                 return
 
-            self.duels.append(Duel(challenger, member))
+            self.duels.append(Duel(challenger, user))
 
             await self.bot.send_message(ctx.message.channel,
                                         ":triangular_flag_on_post: {0.mention} is challenging {1.mention} to a duel! Type !accept to duel, or !reject to run away like a little biiiiiiiiiiiiitch"
-                                        .format(ctx.message.author, member))
+                                        .format(ctx.message.author, user))
         except Exception as e:
             await self.bot.handle_error(e, "challenge")
 
 
     # accept a duel!
     @commands.command(pass_context=True, cls=None, help="Accept a duel")
-    async def accept(self, ctx):
+    async def accept(self, ctx) -> None:
         try:
             name = str(ctx.message.author).split("#")[0]
 
@@ -162,7 +165,7 @@ class BunkRPG:
 
     # reject a duel
     @commands.command(pass_context=True, cls=None, help="Reject a duel")
-    async def reject(self, ctx):
+    async def reject(self, ctx) -> None:
         try:
             name = str(ctx.message.author).split("#")[0]
 
@@ -179,7 +182,7 @@ class BunkRPG:
 
     # cancel a duel
     @commands.command(pass_context=True, cls=None, help="Cancel a duel")
-    async def cancel(self, ctx):
+    async def cancel(self, ctx) -> None:
         try:
             name = str(ctx.message.author).split("#")[0]
 

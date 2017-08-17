@@ -18,7 +18,7 @@ class Mod:
     # link bunkbot source code
     @commands.has_any_role("admin")
     @commands.command(pass_context=True, cls=None, help="Link source code url", aliases=["src"])
-    async def source(self, ctx):
+    async def source(self, ctx) -> None:
         try:
             await self.bot.send_typing(ctx)
             await self.bot.send_message(ctx.message.channel, "https://github.com/fugwenna/bunkbot/")
@@ -31,7 +31,7 @@ class Mod:
     # be careful with this, basically an rm -rf
     @commands.has_any_role("admin")
     @commands.command(pass_context=True, cls=None, help="Clear a role from all users")
-    async def clear(self, ctx):
+    async def clear(self, ctx) -> None:
         try:
             param = self.bot.get_cmd_params(ctx)[0]
             role = [r for r in self.bot.server.roles if r.name == param][0]
@@ -52,7 +52,7 @@ class Mod:
     # check names, nicks secondary - in channel?
     @commands.has_any_role("admin", "moderator")
     @commands.command(pass_context=True, cls=None, help="Retrieve user information")
-    async def who(self, ctx):
+    async def who(self, ctx) -> None:
         try:
             self.bot.send_typing(ctx)
 
