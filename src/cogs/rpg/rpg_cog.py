@@ -40,11 +40,22 @@ class BunkRPG:
         try:
             await self.bot.send_typing(ctx.message.channel)
 
-            user = database.get_user(ctx.message.author)
+            user: BunkUser = self.bot.get_user_by_name(ctx.message.author.name)
+            color = ctx.message.author.color
 
-            now_xp = user["xp"]
-            prev_xp = rpg.calc_req_xp(user["level"])
-            req_xp = rpg.calc_req_xp(user["level"] + 1)
+            params = self.bot.get_cmd_params(ctx)
+            if len(params) > 0:
+                param_user: BunkUser = self.bot.get_user_by_name(params[0])
+                if param_user is None:
+                    await self.bot.say("Cannot locate user '{0}'".format(params[0]))
+                    return
+
+                user = param_user
+                color = param_user.member.color
+
+            now_xp = user.xp
+            prev_xp = rpg.calc_req_xp(user.level)
+            req_xp = rpg.calc_req_xp(user.next_level)
 
             from_xp = round(now_xp - prev_xp, 2)
             to_xp = round(req_xp - prev_xp, 2)
@@ -59,11 +70,16 @@ class BunkRPG:
             for p in range(0, pct_rounded-1):
                 progress_bar[p] = "▮"
 
-            member_name = str(ctx.message.author).split("#")[0]
             desc = "{0}".format("".join(progress_bar))
 
-            embed = Embed(title="{0}: Level {1}".format(member_name, user["level"]), description=desc, color=ctx.message.author.color)
-            embed.set_footer(text="You are currently {0}% to level {1}".format(round(pct * 100, 2), user["level"]+1))
+            embed = Embed(title="{0}: Level {1}".format(user.name, user.level), description=desc, color=color)
+
+            if len(params) > 0:
+                embed.set_footer(
+                    text="{0} is currently {1}% to level {2}"
+                        .format(user.name, round(pct * 100, 2), user.next_level))
+            else:
+                embed.set_footer(text="You are currently {0}% to level {1}".format(round(pct * 100, 2), user.next_level))
 
             await self.bot.send_message(ctx.message.channel, embed=embed)
         except Exception as e:
