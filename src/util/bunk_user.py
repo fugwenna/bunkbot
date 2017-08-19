@@ -131,7 +131,7 @@ class BunkUser:
     def from_server(self, member: Member) -> None:
         self.member = member
         self.id = self.member.id
-        self.name = sub(r"[^A-Za-z]\s+", "", self.member.name.lower())
+        self.name = sub(r"[^A-Za-z]+", "", self.member.name.lower())
 
         db_user = database.get_user2(member.name)
         if db_user is not None:
@@ -146,7 +146,7 @@ class BunkUser:
 
     # update properties from a database user
     # and remap with the server equivalent
-    def from_database(self, db_user: any, server: Server=  None) -> None:
+    def from_database(self, db_user: any, server: Server = None) -> None:
         self.xp_holder = db_user["xp"]
         self.last_online = db_user["last_online"]
 
