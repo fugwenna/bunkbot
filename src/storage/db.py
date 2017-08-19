@@ -85,9 +85,13 @@ class BunkDB:
     # and return the user reference
     def update_user_xp(self, member: discord.Member, value: float) -> any:
         user = self.get_user(member)
-        cur_pct = float(user["xp"])
+        cur_xp = float(user["xp"])
 
-        self.users.update({"xp": round(cur_pct + value, 2)}, Query().name == member.name)
+        new_xp = 0
+        if cur_xp + value > 0:
+            new_xp = round(cur_xp + value, 2)
+
+        self.users.update({"xp": new_xp}, Query().name == member.name)
 
         user = self.get_user(member)
         return user
@@ -95,11 +99,11 @@ class BunkDB:
 
     # update the users level
     # and return the user reference
-    def update_user_level(self, member: discord.Member) -> any:
+    def update_user_level(self, member: discord.Member, value: int = 1) -> any:
         user = self.get_user(member)
         cur_lvl = int(user["level"])
 
-        self.users.update({"level": cur_lvl + 1}, Query().name == member.name)
+        self.users.update({"level": cur_lvl + value}, Query().name == member.name)
 
         user = self.get_user(member)
         return user

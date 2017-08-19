@@ -7,9 +7,10 @@ from discord.ext import commands
 from tinydb import Query
 from src.bunkbot import BunkBot
 from src.util.bunk_user import BunkUser
+from src.util.helpers import roll
 from src.storage.db import database
-from .rpg import rpg
-from .duel import Duel
+from src.cogs.rpg.rpg import rpg
+from src.cogs.rpg.duel import Duel
 
 
 DUEL_DESCRIPTION = """Challenge a user to a duel. Type !duel <name> to challenge someone (i.e. !challenge fugwenna)
@@ -21,7 +22,7 @@ class BunkRPG:
     def __init__(self, bot: BunkBot):
         self.bot = bot
         self.duels = []
-        rpg.on_user_level += self.ding
+        rpg.on_user_level_up += self.ding
 
 
     # DING - user has leveled up
@@ -75,9 +76,10 @@ class BunkRPG:
             embed = Embed(title="{0}: Level {1}".format(user.name, user.level), description=desc, color=color)
 
             if len(params) > 0:
+                xp = user.xp if user.xp == 0 else round(pct * 100, 2)
                 embed.set_footer(
                     text="{0} is currently {1}% to level {2}"
-                        .format(user.name, round(pct * 100, 2), user.next_level))
+                        .format(user.name, xp, user.next_level))
             else:
                 embed.set_footer(text="You are currently {0}% to level {1}".format(round(pct * 100, 2), user.next_level))
 
@@ -121,8 +123,7 @@ class BunkRPG:
     @commands.command(pass_context=True, cls=None, help=DUEL_DESCRIPTION, aliases=["challenge"])
     async def duel(self, ctx) -> None:
         try:
-            challenger = ctx.message.author
-            challenger_name = str(ctx.message.author).split("#")[0]
+            challenger: BunkUser = self.bot.get_user(ctx.message.author)
             param = self.bot.get_cmd_params(ctx)
 
             if len(param) == 0:
@@ -131,7 +132,7 @@ class BunkRPG:
 
             opponent: str = " ".join(param[0:])
 
-            if challenger_name == opponent:
+            if challenger.name == opponent:
                 await self.bot.send_message(ctx.message.channel, "You can't challenge yourself to a duel, loser")
                 return
 
@@ -141,11 +142,11 @@ class BunkRPG:
                 await self.bot.send_message(ctx.message.channel, "User {0} not found".format(opponent))
                 return
 
-            c_dueling = [d for d in self.duels if d.challenger == challenger_name or d.challenger == opponent]
-            o_dueling = [d for d in self.duels if d.opponent == opponent or d.opponent == challenger_name]
+            c_dueling = [d for d in self.duels if d.challenger == challenger.name or d.challenger == opponent]
+            o_dueling = [d for d in self.duels if d.opponent == opponent or d.opponent == challenger.name]
 
             if c_dueling:
-                await self.bot.send_message(ctx.message.channel, "{0} is currently dueling".format(challenger_name))
+                await self.bot.send_message(ctx.message.channel, "{0} is currently dueling".format(challenger.name))
                 return
 
             if o_dueling:
@@ -170,8 +171,45 @@ class BunkRPG:
             for d in self.duels:
                 if d.opponent.name == name:
                     #todo TMP
+                    duel: Duel = d;
+                    challenger_roll = roll()
+                    opponent_roll = roll()
+
+                    embed = Embed(title=":crossed_swords: {0} vs {1}".format(duel.challenger.name, duel.opponent.name), color=int("FF0000", 16))
+                    embed.add_field(name="Name", value="\n".join([duel.challenger.name, duel.opponent.name]), inline=True)
+                    embed.add_field(name="Damage", value="\n".join([challenger_roll, opponent_roll]), inline=True)
+
+                    if challenger_roll == opponent_roll:
+                        await self.bot.say("{0.mention} {1.mention} - TIE!".format(duel.challenger.name, duel.opponent.name))
+                        return
+
+                    winner: BunkUser = duel.challenger if challenger_roll > opponent_roll else duel.opponent
+                    loser: BunkUser = duel.challenger if challenger_roll < opponent_roll else duel.opponent
+                    #winner: BunkUser = duel.challenger if duel.challenger.name == "fuguser" else duel.opponent
+                    #loser: BunkUser = duel.challenger if duel.challenger.name == "fugwenna" else duel.opponent
+
+                    xp_lost = 5
+                    await self.bot.say(embed=embed)
+
+                    if loser.xp > 5.0:
+                        await self.bot.say("{0.mention} wins 5 xp from {1}!".format(winner, loser.name))
+                    elif 5.0 > loser.xp > 0.0 :
+                        xp_lost = loser.xp
+                        await self.bot.say("{0.mention} wins {1}'s remaining xp!".format(winner, loser.name))
+                    elif loser.xp == 0:
+                        await self.bot.say("{0.mention} wins, but {1} has no more xp to give!".format(winner, loser.name))
+
+                    if loser.xp > 0: database.update_user_xp(loser, -xp_lost)
+                    loser_level_xp = rpg.calc_req_xp(loser.level)
+
+                    if loser.level > 1 and loser.xp - xp_lost < loser_level_xp:
+                        database.update_user_level(loser, -1)
+                        await self.bot.say("{0.mention} has lost a level!".format(loser))
+
+                    if xp_lost > 0:
+                        await rpg.update_user_xp(winner, xp_lost, True)
+
                     self.duels.remove(d)
-                    await self.bot.send_message(ctx.message.channel, ":crossed_swords: Coming Soon! Fugwenna is a lazy bastard.")
                     return
 
             await self.bot.send_message(ctx.message.channel, "You have no duels to accept")
