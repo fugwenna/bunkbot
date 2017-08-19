@@ -67,7 +67,7 @@ class Weather:
 
     # link local maryland radar from
     # the intellicast updated gif - cache bust with uuid
-    @commands.command(pass_context=True, cls=None, help="View Maryland Radar")
+    @commands.command(pass_context=True, cls=None, help="View Radar based on zip")
     async def radar(self, ctx):
         try:
             await self.bot.send_typing(ctx.message.channel)
@@ -97,8 +97,11 @@ class Weather:
     # based on passed params
     def set_zip(self, ctx):
         params = "".join(self.bot.get_cmd_params(ctx))
+
         if "zip" in params:
             self.zip = params.split("zip")[1].split("=")[1]
+        elif int(params):
+            self.zip = params
         else:
             self.zip = "21201"
 
