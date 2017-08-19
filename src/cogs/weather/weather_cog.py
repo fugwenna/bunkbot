@@ -80,7 +80,7 @@ class Weather:
                 return
 
             loc = us_locs[0]["id"]
-            url = "http://www.intellicast.com/National/Radar/Current.aspx?location={0}&animate=true&b={1}".format(loc, uuid.uuid4())
+            url = "http://www.intellicast.com/National/Radar/Current.aspx?location={0}&animate=true".format(loc)
 
             response = request.urlopen(url)
             html = response.read().decode()
@@ -88,7 +88,7 @@ class Weather:
 
             img = BeautifulSoup(html, "html.parser").find("img", id="map")["src"]
 
-            await self.bot.say(img)
+            await self.bot.say("{0}?{1}".format(img, uuid.uuid4()))
         except Exception as e:
             await self.bot.handle_error(e, "radar")
 
