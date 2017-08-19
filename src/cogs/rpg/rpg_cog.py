@@ -226,7 +226,7 @@ class BunkRPG:
             for d in self.duels:
                 if d.opponent.name == name:
                     self.duels.remove(d)
-                    await self.bot.send_message(ctx.message.channel, ":exclamation: {0} has rejected a duel with {1.mention}".format(d.opponent, d.challenger))
+                    await self.bot.send_message(ctx.message.channel, ":exclamation: {0.mention} has rejected a duel with {1.mention}".format(d.opponent, d.challenger))
                     return
 
             await self.bot.send_message(ctx.message.channel, "You have no duels to reject")
@@ -241,9 +241,9 @@ class BunkRPG:
             name = str(ctx.message.author).split("#")[0]
 
             for d in self.duels:
-                if d.challenger == ctx.message.author:
+                if d.challenger.name == name:
                     self.duels.remove(d)
-                    await self.bot.send_message(ctx.message.channel, "{0} has cancelled their duel with {1.mention}".format(name, d.opponent))
+                    await self.bot.send_message(ctx.message.channel, "{0.mention} has cancelled their duel with {1.mention}".format(d.challenger, d.opponent))
                     return
 
             await self.bot.send_message(ctx.message.channel, "You have no duels to cancel")
