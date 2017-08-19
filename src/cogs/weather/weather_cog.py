@@ -2,7 +2,9 @@
 Zip-code driven weather forecast and current conditions
 based on data retrieved from weather underground
 """
-import uuid
+import uuid, re
+from bs4 import BeautifulSoup
+from urllib import request, parse
 from discord import Embed
 from discord.ext import commands
 from src.bunkbot import BunkBot
@@ -17,6 +19,7 @@ WEATHER_DESCRIPTION = """Retrieve a current snapshot of todays weather based on 
 """
 
 WEATHER_API = "http://api.wunderground.com/api/"
+RADAR_QUERY = "http://www.intellicast.com/Search.axd?q="
 
 class Weather:
     def __init__(self, bot: BunkBot):
@@ -66,10 +69,26 @@ class Weather:
     # the intellicast updated gif - cache bust with uuid
     @commands.command(pass_context=True, cls=None, help="View Maryland Radar")
     async def radar(self, ctx):
-        rad = "http://images.intellicast.com/WxImages/RadarLoop/shd_None_anim.gif?{}".format(uuid.uuid4())
         try:
             await self.bot.send_typing(ctx.message.channel)
-            await self.bot.say(rad)
+            self.set_zip(ctx)
+
+            # todo - radar result
+            us_locs = self.bot.http_get("{0}{1}".format(RADAR_QUERY, self.zip))["results"]["locations"]["location"]
+            if len(us_locs) == 0:
+                await self.bot.say("Cannot locate radar for location '{0}'".format(self.zip))
+                return
+
+            loc = us_locs[0]["id"]
+            url = "http://www.intellicast.com/National/Radar/Current.aspx?location={0}&animate=true&b={1}".format(loc, uuid.uuid4())
+
+            response = request.urlopen(url)
+            html = response.read().decode()
+            response.close()
+
+            img = BeautifulSoup(html, "html.parser").find("img", id="map")["src"]
+
+            await self.bot.say(img)
         except Exception as e:
             await self.bot.handle_error(e, "radar")
 
