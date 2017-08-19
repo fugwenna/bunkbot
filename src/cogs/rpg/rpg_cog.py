@@ -169,7 +169,7 @@ class BunkRPG:
             name = str(ctx.message.author).split("#")[0]
 
             for d in self.duels:
-                if d.opponent.name == name:
+                if d.opponent.name.lower() == name.lower():
                     #todo TMP
                     duel: Duel = d;
                     challenger_roll = roll()
@@ -224,7 +224,7 @@ class BunkRPG:
             name = str(ctx.message.author).split("#")[0]
 
             for d in self.duels:
-                if d.opponent.name == name.lower():
+                if d.opponent.name.lower() == name.lower():
                     self.duels.remove(d)
                     await self.bot.send_message(ctx.message.channel, ":exclamation: {0.mention} has rejected a duel with {1.mention}".format(d.opponent, d.challenger))
                     return
@@ -241,7 +241,7 @@ class BunkRPG:
             name = str(ctx.message.author).split("#")[0]
 
             for d in self.duels:
-                if d.challenger.name == name.lower():
+                if d.challenger.name.lower() == name.lower():
                     self.duels.remove(d)
                     await self.bot.send_message(ctx.message.channel, "{0.mention} has cancelled their duel with {1.mention}".format(d.challenger, d.opponent))
                     return
