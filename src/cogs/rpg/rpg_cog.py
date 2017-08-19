@@ -96,7 +96,7 @@ class BunkRPG:
         try:
             await self.bot.send_typing(ctx.message.channel)
 
-            players = sorted(filter(lambda u: u["name"] != "fugwenna", database.users.search(Query().xp > 1 or Query().xp > 0)),
+            players = sorted(database.users.search(Query().xp > 1 or Query().xp > 0),
                              key=lambda x: (x["level"], x["xp"]), reverse=True)[:9]
 
             names = []
@@ -185,8 +185,6 @@ class BunkRPG:
 
                     winner: BunkUser = duel.challenger if challenger_roll > opponent_roll else duel.opponent
                     loser: BunkUser = duel.challenger if challenger_roll < opponent_roll else duel.opponent
-                    #winner: BunkUser = duel.challenger if duel.challenger.name == "fuguser" else duel.opponent
-                    #loser: BunkUser = duel.challenger if duel.challenger.name == "fugwenna" else duel.opponent
 
                     xp_lost = 5
                     await self.bot.say(embed=embed)
@@ -207,7 +205,7 @@ class BunkRPG:
                         await self.bot.say("{0.mention} has lost a level!".format(loser))
 
                     if xp_lost > 0:
-                        await rpg.update_user_xp(winner, xp_lost, True)
+                        await rpg.update_user_xp_force(winner, xp_lost)
 
                     self.duels.remove(d)
                     return

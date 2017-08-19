@@ -154,11 +154,11 @@ class BunkBot(commands.Bot):
 
             if not is_reset and (self.is_chatting or (is_bunk_mention or "BUNKBOT" in content)):
                 await self.chat(message)
-                await bunk_user.update_xp(0.5)
+                #await bunk_user.update_xp(0.5)
                 await rpg.update_user_xp(bunk_user, 0.5)
             else:
                 await self.process_commands(message)
-                await bunk_user.update_xp(1.0)
+                #await bunk_user.update_xp(1.0)
                 await rpg.update_user_xp(bunk_user, 1.0)
 
             if is_reset:

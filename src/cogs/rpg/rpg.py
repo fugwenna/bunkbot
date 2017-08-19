@@ -3,6 +3,7 @@ Base RPG class used for leveling users
 """
 import time
 from discord import Member
+from src.util.bunk_user import BunkUser
 from src.storage.db import database
 from src.util.event_hook import EventHook
 
@@ -47,7 +48,7 @@ class RPG:
 
     # every time a user sends a message
     # process it for "leveling" logic
-    async def update_user_xp(self, member: Member, value: float, duel: bool = False) -> None:
+    async def update_user_xp(self, member: Member, value: float) -> None:
         try:
             user = self.config[member.name]
         except:
@@ -56,13 +57,13 @@ class RPG:
 
         diff = time.time() - user["last_update"]
 
-        if duel or diff > 0:
+        if diff > 0:
             min_diff = diff / 60
 
             # continue to increase the message
             # count until the user has reached a cap
             # during an n minute window
-            if not duel and min_diff <= TIMER_MINUTES:
+            if min_diff <= TIMER_MINUTES:
                 if user["value"] < UPDATE_CAP:
                     user["value"] += value
 
@@ -78,6 +79,25 @@ class RPG:
 
                 user["last_update"] = time.time()
                 user["value"] = value
+
+
+     # every time a user sends a message
+     # process it for "leveling" logic
+    async def update_user_xp_force(self, member: BunkUser, value: float) -> None:
+        try:
+            user = self.config[member.name]
+        except:
+            self.config[member.name] = {"value": value, "last_update": time.time()}
+            user = self.config[member.name]
+
+        new_user = database.update_user_xp(member, user["value"] + value)
+
+        if self.level_up(new_user["xp"], new_user["level"] + 1):
+            leveled_user = database.update_user_level(member)
+            await self.on_user_level_up.fire(member, leveled_user["level"])
+
+        user["last_update"] = time.time()
+        return
 
 
     # calculate the required xp for a given level
