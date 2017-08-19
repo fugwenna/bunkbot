@@ -166,12 +166,12 @@ class BunkRPG:
     @commands.command(pass_context=True, cls=None, help="Accept a duel")
     async def accept(self, ctx) -> None:
         try:
-            name = str(ctx.message.author).split("#")[0]
+            user: BunkUser = self.bot.get_user(ctx.message.author)
 
             for d in self.duels:
-                if d.opponent.name.lower() == name.lower():
+                if d.opponent.name == user.name:
                     #todo TMP
-                    duel: Duel = d;
+                    duel: Duel = d
                     challenger_roll = roll()
                     opponent_roll = roll()
 
@@ -221,10 +221,10 @@ class BunkRPG:
     @commands.command(pass_context=True, cls=None, help="Reject a duel")
     async def reject(self, ctx) -> None:
         try:
-            name = str(ctx.message.author).split("#")[0]
+            user: BunkUser = self.bot.get_user(ctx.message.author)
 
             for d in self.duels:
-                if d.opponent.name.lower() == name.lower():
+                if d.opponent.name == user.name:
                     self.duels.remove(d)
                     await self.bot.send_message(ctx.message.channel, ":exclamation: {0.mention} has rejected a duel with {1.mention}".format(d.opponent, d.challenger))
                     return
@@ -238,10 +238,10 @@ class BunkRPG:
     @commands.command(pass_context=True, cls=None, help="Cancel a duel")
     async def cancel(self, ctx) -> None:
         try:
-            name = str(ctx.message.author).split("#")[0]
+            user: BunkUser = self.bot.get_user(ctx.message.author)
 
             for d in self.duels:
-                if d.challenger.name.lower() == name.lower():
+                if d.challenger.name == user.name:
                     self.duels.remove(d)
                     await self.bot.send_message(ctx.message.channel, "{0.mention} has cancelled their duel with {1.mention}".format(d.challenger, d.opponent))
                     return
