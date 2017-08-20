@@ -26,14 +26,14 @@ class WeatherResult:
     # discord embed title to display
     # the current location and time
     @property
-    def title(self):
+    def title(self) -> None:
         return "Current conditions in {} - {}, {} ".format(self.location, self.week_day, self.time)
 
 
     # formatted string to display
     # the current conditions
     @property
-    def conditions(self):
+    def conditions(self) -> None:
         message = "Temperature: {}".format(self.temp_actual)
         message += "\nFeels like: {}".format(self.temp_feels)
         message += "\n\nCurrent winds {}".format(self.winds)
@@ -48,7 +48,7 @@ class WeatherResult:
 
 
     # parse the weather result into properties
-    def set_weather(self, weather):
+    def set_weather(self, weather) -> None:
         weather_obs = weather["current_observation"]
         self.thumb = weather_obs["icon_url"]
         self.temp_actual = "{} (F)".format(str(weather_obs["temp_f"]))
@@ -61,7 +61,7 @@ class WeatherResult:
 
 
     # parse the forecast result into properties
-    def set_forecast(self, forecast):
+    def set_forecast(self, forecast) -> None:
         forecast_txt = forecast["forecast"]["txt_forecast"]["forecastday"]
         forecast_simple = forecast["forecast"]["simpleforecast"]["forecastday"]
         self.forecast_message = ""
@@ -88,7 +88,7 @@ class WeatherResult:
 
 
     # parse the meta data result into properties
-    def set_meta_data(self, metadata):
+    def set_meta_data(self, metadata) -> None:
         meta_obs = metadata["current_observation"]
         self.location = meta_obs["display_location"]["full"]
         self.time = " ".join(meta_obs["observation_time"].split(" ")[3:7])

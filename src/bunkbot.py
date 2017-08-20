@@ -308,7 +308,7 @@ class BunkBot(commands.Bot):
     # collection of current members
     def get_user(self, member: discord.Member) -> BunkUser or None:
         try:
-            return [u for u in self.users if u.name.lower() == member.name.lower()][0]
+            return self.get_user_by_name(member.name)
         except:
             return None
 
@@ -321,16 +321,16 @@ class BunkBot(commands.Bot):
             nlower = name.lower()
 
             for usr in self.users:
-                mname = sub(r"[^A-Za-z]\s+", "", usr.name.lower())
+                mname = sub(r"[^A-Za-z ]\s+", "", usr.name.lower())
 
                 if mname == nlower:
                     return usr
                 elif usr.member.display_name is not None:
-                    dname = sub(r"[^A-Za-z]\s+", "", usr.member.display_name.lower())
+                    dname = sub(r"[^A-Za-z ]\s+", "", usr.member.display_name.lower())
                     if dname == nlower:
                         return usr
                 elif usr.member.nick is not None:
-                    nick = sub(r"[^A-Za-z]\s+", "", usr.member.nick.lower())
+                    nick = sub(r"[^A-Za-z ]\s+", "", usr.member.nick.lower())
                     if nick == nlower:
                         return usr
 
@@ -359,30 +359,6 @@ class BunkBot(commands.Bot):
         except Exception as e:
             print(e)
             traceback.print_exc(file=sys.stdout)
-
-
-    # retrieve a member reference from the server
-    # this does not include the database user
-    # todo - rm
-    async def get_member(self, name: str) -> discord.Member or None:
-        mem = None
-        nlower = name.lower()
-
-        for m in self.server.members:
-            mname = sub(r"[^A-Za-z]+", "", m.name.lower())
-
-            if mname == nlower:
-                return m
-            elif m.display_name is not None:
-                dname = sub(r"[^A-Za-z]+", "", m.display_name.lower())
-                if dname == nlower:
-                    return m
-            elif m.nick is not None:
-                nick = sub(r"[^A-Za-z]+", "", m.nick.lower())
-                if nick == nlower:
-                    return m
-
-        return mem
 
 
 bunkbot = BunkBot()

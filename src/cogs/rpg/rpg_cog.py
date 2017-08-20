@@ -136,9 +136,9 @@ class BunkRPG:
                 await self.bot.send_message(ctx.message.channel, "You can't challenge yourself to a duel, loser")
                 return
 
-            user: BunkUser = self.bot.get_user_by_name(opponent)
+            oppponent: BunkUser = self.bot.get_user_by_name(opponent)
 
-            if user is None:
+            if oppponent is None:
                 await self.bot.send_message(ctx.message.channel, "User {0} not found".format(opponent))
                 return
 
@@ -153,11 +153,11 @@ class BunkRPG:
                 await self.bot.send_message(ctx.message.channel, "{0} is currently dueling".format(opponent))
                 return
 
-            self.duels.append(Duel(challenger, user))
+            self.duels.append(Duel(challenger, oppponent))
 
             await self.bot.send_message(ctx.message.channel,
                                         ":triangular_flag_on_post: {0.mention} is challenging {1.mention} to a duel! Type !accept to duel, or !reject to run away like a little biiiiiiiiiiiiitch"
-                                        .format(ctx.message.author, user))
+                                        .format(ctx.message.author, oppponent))
         except Exception as e:
             await self.bot.handle_error(e, "challenge")
 
@@ -195,7 +195,7 @@ class BunkRPG:
                         xp_lost = loser.xp
                         await self.bot.say("{0.mention} wins {1}'s remaining xp!".format(winner, loser.name))
                     elif loser.xp == 0:
-                        await self.bot.say("{0.mention} wins, but {1} has no more xp to give!".format(winner, loser.name))
+                        await self.bot.say("{0.mention} wins, but {1} has no xp to give!".format(winner, loser.name))
 
                     if loser.xp > 0: database.update_user_xp(loser, -xp_lost)
                     loser_level_xp = rpg.calc_req_xp(loser.level)

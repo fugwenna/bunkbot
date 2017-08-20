@@ -7,15 +7,15 @@ from src.util.bunk_user import BunkUser
 from src.storage.db import database
 from src.util.event_hook import EventHook
 
+# todo - tinydb bleh
+RPG_CONSTANTS =  database.rpg.all()
 
 # hard cap the message
 # processing to a discrete value
 # to prevent channel spamming
-# todo - database
-XP_CONST = 5
-UPDATE_CAP = 60
-TIMER_MINUTES = 1
-
+XP_CONST: float = RPG_CONSTANTS[0]["xp_const"]
+UPDATE_CAP: int = RPG_CONSTANTS[1]["update_cap"]
+TIMER_MINUTES: int = RPG_CONSTANTS[2]["timer_minutes"]
 
 class RPG:
     def __init__(self):

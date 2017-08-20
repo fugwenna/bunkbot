@@ -131,7 +131,7 @@ class BunkUser:
     def from_server(self, member: Member) -> None:
         self.member = member
         self.id = self.member.id
-        self.name = sub(r"[^A-Za-z]+", "", self.member.name.lower())
+        self.name = sub(r"[^A-Za-z ]+", "", self.member.name.lower())
 
         db_user = database.get_user2(member.name)
         if db_user is not None:

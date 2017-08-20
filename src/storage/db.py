@@ -109,4 +109,4 @@ class BunkDB:
         return user
 
 
-database = BunkDB()
+database: BunkDB = BunkDB()
