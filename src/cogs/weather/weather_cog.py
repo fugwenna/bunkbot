@@ -98,20 +98,27 @@ class Weather:
     # set the zip code
     # based on passed params
     def set_zip(self, ctx) -> None:
-        params = "".join(self.bot.get_cmd_params(ctx))
+        params = self.bot.get_cmd_params(ctx)
+        self.zip = "21201"
 
-        if "zip" in params:
-            self.zip = params.split("zip")[1].split("=")[1]
-        elif params is not "" and int(params):
-            self.zip = params
-        else:
-            self.zip = "21201"
+        if len(params) > 0:
+            if "zip" in params[0]:
+                self.zip = params[0].split("zip")[1].split("=")[1]
+            elif params[0] is not "" and len(params[0]) == 5:
+                self.zip = params[0]
 
 
     # print the full forecast weather
     def as_full(self, ctx) -> bool:
-        params = "".join(self.bot.get_cmd_params(ctx))
-        return "--full" in params or "-f" in params
+        params = self.bot.get_cmd_params(ctx)
+
+        if len(params) == 0:
+            return False
+        elif len(params) == 1:
+            return "--full" in params[0] or "-f" in params[0]
+        elif len(params) == 2:
+            return "--full" in params[1] or "-f" in params[1]
+
 
 
 def setup(bot: BunkBot) -> None:
