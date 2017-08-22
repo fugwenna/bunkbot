@@ -94,7 +94,6 @@ class Weather:
         except Exception as e:
             await self.bot.handle_error(e, "radar")
 
-
     # set the zip code
     # based on passed params
     def set_zip(self, ctx) -> None:
