@@ -68,8 +68,15 @@ class BunkRPG:
             for i in range(0, 20):
                 progress_bar.append("▯")
 
-            for p in range(0, pct_rounded-1):
-                progress_bar[p] = "▮"
+            # todo - this is for my bad code!
+            # this shouldnt happen loool
+            if pct_rounded - 1 > 20:
+                needed_xp = rpg.calc_req_xp(user.next_level)
+                if user.xp > needed_xp:
+                    database.update_user_level(user)
+            else:
+                for p in range(0, pct_rounded-1):
+                    progress_bar[p] = "▮"
 
             desc = "{0}".format("".join(progress_bar))
 
