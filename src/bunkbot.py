@@ -318,19 +318,19 @@ class BunkBot(commands.Bot):
     def get_user_by_name(self, name: str) -> BunkUser or None:
         try:
             user = None
-            nlower = name.lower()
+            nlower = name.lower().strip()
 
             for usr in self.users:
-                mname = sub(r"[^A-Za-z ]\s+", "", usr.name.lower())
+                mname = sub(r"[^A-Za-z ]+", "", usr.name.lower().strip())
 
                 if mname == nlower:
                     return usr
                 elif usr.member.display_name is not None:
-                    dname = sub(r"[^A-Za-z ]\s+", "", usr.member.display_name.lower())
+                    dname = sub(r"[^A-Za-z ]+", "", usr.member.display_name.lower().strip())
                     if dname == nlower:
                         return usr
                 elif usr.member.nick is not None:
-                    nick = sub(r"[^A-Za-z ]\s+", "", usr.member.nick.lower())
+                    nick = sub(r"[^A-Za-z ]+", "", usr.member.nick.lower().strip())
                     if nick == nlower:
                         return usr
 
