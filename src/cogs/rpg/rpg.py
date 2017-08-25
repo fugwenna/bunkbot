@@ -33,17 +33,17 @@ class RPG:
             new_user = database.update_user_xp(member, user["value"])
         except:
             pass
-        finally:
-            if new_user is None:
-                new_user = database.get_user(member)
-
-            if new_user is not None:
-                if str(member.status) == "online" and self.level_up(new_user["xp"], new_user["level"] + 1):
-                    database.update_user_level(member)
-
-                    if str(member.status) == "online":
-                        leveled_user = database.update_user_level(member)
-                        await self.on_user_level_up.fire(member, leveled_user["level"])
+        # finally:
+        #     if new_user is None:
+        #         new_user = database.get_user(member)
+        #
+        #     if new_user is not None:
+        #         if str(member.status) == "online" and self.level_up(new_user["xp"], new_user["level"] + 1):
+        #             database.update_user_level(member)
+        #
+        #             if str(member.status) == "online":
+        #                 leveled_user = database.update_user_level(member)
+        #                 await self.on_user_level_up.fire(member, leveled_user["level"])
 
 
     # every time a user sends a message

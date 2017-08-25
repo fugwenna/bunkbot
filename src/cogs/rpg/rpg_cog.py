@@ -143,6 +143,7 @@ class BunkRPG:
                 await self.bot.send_message(ctx.message.channel, "You can't challenge yourself to a duel, loser")
                 return
 
+            print(opponent)
             oppponent: BunkUser = self.bot.get_user_by_name(opponent)
 
             if oppponent is None:
@@ -173,51 +174,50 @@ class BunkRPG:
     @commands.command(pass_context=True, cls=None, help="Accept a duel")
     async def accept(self, ctx) -> None:
         try:
-            user: BunkUser = self.bot.get_user(ctx.message.author)
-
-            for d in self.duels:
-                if d.opponent.name == user.name:
-                    #todo TMP
-                    duel: Duel = d
-                    challenger_roll = roll()
-                    opponent_roll = roll()
-
-                    embed = Embed(title=":crossed_swords: {0} vs {1}".format(duel.challenger.name, duel.opponent.name), color=int("FF0000", 16))
-                    embed.add_field(name="Name", value="\n".join([duel.challenger.name, duel.opponent.name]), inline=True)
-                    embed.add_field(name="Damage", value="\n".join([challenger_roll, opponent_roll]), inline=True)
-
-                    if challenger_roll == opponent_roll:
-                        await self.bot.say("{0.mention} {1.mention} - TIE!".format(duel.challenger.name, duel.opponent.name))
-                        return
-
-                    winner: BunkUser = duel.challenger if challenger_roll > opponent_roll else duel.opponent
-                    loser: BunkUser = duel.challenger if challenger_roll < opponent_roll else duel.opponent
-
-                    xp_lost = 5
-                    await self.bot.say(embed=embed)
-
-                    if loser.xp > 5.0:
-                        await self.bot.say("{0.mention} wins 5 xp from {1}!".format(winner, loser.name))
-                    elif 5.0 > loser.xp > 0.0 :
-                        xp_lost = loser.xp
-                        await self.bot.say("{0.mention} wins {1}'s remaining xp!".format(winner, loser.name))
-                    elif loser.xp == 0:
-                        await self.bot.say("{0.mention} wins, but {1} has no xp to give!".format(winner, loser.name))
-
-                    if loser.xp > 0: database.update_user_xp(loser, -xp_lost)
-                    loser_level_xp = rpg.calc_req_xp(loser.level)
-
-                    if loser.level > 1 and loser.xp - xp_lost < loser_level_xp:
-                        database.update_user_level(loser, -1)
-                        await self.bot.say("{0.mention} has lost a level!".format(loser))
-
-                    if xp_lost > 0:
-                        await rpg.update_user_xp_force(winner, xp_lost)
-
-                    self.duels.remove(d)
-                    return
-
-            await self.bot.send_message(ctx.message.channel, "You have no duels to accept")
+            await self.bot.send_message(ctx.message.channel, "Fugwenna disabled this because hes a noob")
+            # user: BunkUser = self.bot.get_user(ctx.message.author)
+            #
+            # for d in self.duels:
+            #     if d.opponent.name == user.name:
+            #         self.duels.remove(d)
+            #
+            #         #todo TMP
+            #         duel: Duel = d
+            #         challenger_roll = roll()
+            #         opponent_roll = roll()
+            #
+            #         embed = Embed(title=":crossed_swords: {0} vs {1}".format(duel.challenger.name, duel.opponent.name), color=int("FF0000", 16))
+            #         embed.add_field(name="Name", value="\n".join([duel.challenger.name, duel.opponent.name]), inline=True)
+            #         embed.add_field(name="Damage", value="\n".join([challenger_roll, opponent_roll]), inline=True)
+            #
+            #         if challenger_roll == opponent_roll:
+            #             await self.bot.say("{0.mention} {1.mention} - TIE!".format(duel.challenger.name, duel.opponent.name))
+            #             return
+            #
+            #         winner: BunkUser = duel.challenger if challenger_roll > opponent_roll else duel.opponent
+            #         loser: BunkUser = duel.challenger if challenger_roll < opponent_roll else duel.opponent
+            #
+            #         xp_lost = 5
+            #         await self.bot.say(embed=embed)
+            #
+            #         if loser.xp > 5.0:
+            #             await self.bot.say("{0.mention} wins 5 xp from {1}!".format(winner, loser.name))
+            #         elif 5.0 > loser.xp > 0.0 :
+            #             xp_lost = loser.xp
+            #             await self.bot.say("{0.mention} wins {1}'s remaining xp!".format(winner, loser.name))
+            #         elif loser.xp == 0:
+            #             await self.bot.say("{0.mention} wins, but {1} has no xp to give!".format(winner, loser.name))
+            #
+            #         if loser.xp > 0: database.update_user_xp(loser, -xp_lost)
+            #         loser_level_xp = rpg.calc_req_xp(loser.level)
+            #
+            #         if loser.level > 1 and loser.xp - xp_lost < loser_level_xp:
+            #             database.update_user_level(loser, -1)
+            #             await self.bot.say("{0.mention} has lost a level!".format(loser))
+            #
+            #         if xp_lost > 0:
+            #             await rpg.update_user_xp_force(winner, xp_lost)
+            # await self.bot.send_message(ctx.message.channel, "You have no duels to accept")
         except Exception as e:
             await self.bot.handle_error(e, "accept")
 
