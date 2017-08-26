@@ -23,6 +23,7 @@ class BunkRPG:
         self.bot = bot
         self.duels = []
         rpg.on_user_level_up += self.ding
+        BunkUser.on_level_up += self.ding
 
 
     # DING - user has leveled up
@@ -143,15 +144,14 @@ class BunkRPG:
                 await self.bot.say("You can't challenge yourself to a duel, loser")
                 return
 
-            print(opponent)
             oppponent: BunkUser = self.bot.get_user(opponent)
 
             if oppponent is None:
                 await self.bot.say("User {0} not found".format(opponent))
                 return
 
-            c_dueling = [d for d in self.duels if d.challenger == challenger.name or d.challenger == opponent]
-            o_dueling = [d for d in self.duels if d.opponent == opponent or d.opponent == challenger.name]
+            c_dueling = [d for d in self.duels if d.challenger.name == challenger.name or d.challenger.name == opponent]
+            o_dueling = [d for d in self.duels if d.opponent.name == opponent or d.opponent.name == challenger.name]
 
             if c_dueling:
                 await self.bot.say("{0} is currently dueling".format(challenger.name))
@@ -206,11 +206,11 @@ class BunkRPG:
                     elif loser.xp == 0:
                         await self.bot.say("{0.mention} wins, but {1} has no xp to give!".format(winner, loser.name))
 
-                    if loser.xp > 0: database.update_user_xp(loser, -xp_lost)
+                    if loser.xp > 0: database.update_user_xp(loser.member, -xp_lost)
                     loser_level_xp = rpg.calc_req_xp(loser.level)
 
                     if loser.level > 1 and loser.xp - xp_lost < loser_level_xp:
-                        database.update_user_level(loser, -1)
+                        database.update_user_level(loser.member, -1)
                         await self.bot.say("{0.mention} has lost a level!".format(loser))
 
                     if xp_lost > 0:

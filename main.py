@@ -37,8 +37,8 @@ async def on_message(message: discord.Message) -> None:
 
 
 @bunkbot.event
-async def on_reaction_add(reaction: discord.Reaction, user: discord.Member) -> None:
-    await bunkbot.member_reaction_add(reaction, user)
+async def on_reaction_add(reaction: discord.Reaction, member: discord.Member) -> None:
+    await bunkbot.member_reaction_add(reaction, member)
 
 
 @bunkbot.event

@@ -4,23 +4,26 @@ discord.Member and database user
 """
 import datetime, pytz
 from re import sub
+from time import time
 from src.util.helpers import *
 from discord import Member, Server
 from src.storage.db import database
-from src.util.helpers import USER_NAME_REGEX
+from src.util.helpers import USER_NAME_REGEX, TIMER_MINUTES, UPDATE_CAP
 from src.util.event_hook import EventHook
 
 
 class BunkUser:
+    on_xp_gain = EventHook()
+    on_xp_loss = EventHook()
+    on_level_up = EventHook()
+    on_level_down = EventHook()
+
     def __init__(self, member: Member=None):
         now = datetime.datetime.now(tz=pytz.timezone("US/Eastern"))
+        self.is_dueling = False
         self.last_online = "{0:%m/%d/%Y %I:%M:%S %p}".format(now)
         self.xp_holder = 0.0
-        self.is_dueling = False
-        self.on_xp_gain = EventHook()
-        self.on_xp_loss = EventHook()
-        self.on_level_up = EventHook()
-        self.on_level_down = EventHook()
+        self.xp_last_update = time()
 
         self.member: Member = None
         self.id = -1
@@ -127,6 +130,35 @@ class BunkUser:
         return None
 
 
+    # recursively check if the user
+    # has leveled n levels
+    @property
+    def has_leveled_up(self) -> bool:
+        leveled = False
+
+        while self.xp > calc_req_xp(self.next_level):
+            leveled = True
+            self.from_database(database.update_user_level(self.member))
+
+        return leveled
+
+
+    # wrapper for checking
+    # if the user is streaming
+    @property
+    def is_streaming(self):
+        if not self.member:
+            return False
+
+        return self.member.game is not None and self.member.game.type == 1
+
+
+    # check if the  bunk user
+    # has a given role
+    def has_role(self, role: str) -> bool:
+        return len([r for r in self.member.roles if r.name == role]) > 0
+
+
     # update properties from a discord
     # member and remap with the database equivalent
     def from_server(self, member: Member) -> None:
@@ -136,7 +168,6 @@ class BunkUser:
 
         db_user = database.get_user2(member.name)
         if db_user is not None:
-            self.xp_holder = db_user["xp"]
             try:
                 self.last_online = db_user["last_online"]
             except KeyError:
@@ -148,7 +179,6 @@ class BunkUser:
     # update properties from a database user
     # and remap with the server equivalent
     def from_database(self, db_user: any, server: Server = None) -> None:
-        self.xp_holder = db_user["xp"]
         self.last_online = db_user["last_online"]
 
         if server is not None:
@@ -159,9 +189,36 @@ class BunkUser:
             self.from_server(self.member)
 
 
+    # update the database user last
+    # online property
+    # todo - sync xp
+    def update_last_online(self):
+        database.update_user_last_online(self.member)
+
+
     # update the bunk user xp
     # by a given value
-    # todo - from database
     async def update_xp(self, value) -> None:
-        req_xp = calc_req_xp(self.next_level)
-        #print(req_xp)
+        diff = time() - self.xp_last_update
+
+        if diff > 0:
+            min_diff = diff / 60
+
+            # continue to increase the message
+            # count until the user has reached a cap
+            # during an n minute window
+            if min_diff <= TIMER_MINUTES:
+                if self.xp_holder < UPDATE_CAP:
+                    self.xp_holder += value
+
+            # the window is up, therefore
+            # increase the user level percentage and
+            # check if they have leveled up
+            else:
+                self.from_database(database.update_user_xp(self.member, self.xp_holder))
+
+                if self.has_leveled_up:
+                    await BunkUser.on_level_up.fire(self.member, self.level)
+
+                self.xp_last_update = time()
+                self.xp_holder = value

@@ -40,6 +40,8 @@ class BunkBot(commands.Bot):
         self.general: discord.Channel = None
         self.role_streaming = None
         self.role_new = None
+        self.role_vip = None
+        self.role_moderator = None
         self.users = []
         self.load_cogs()
 
@@ -56,6 +58,10 @@ class BunkBot(commands.Bot):
                     self.role_streaming = ro
                 elif ro.name == "new":
                     self.role_new = ro
+                elif ro.name == "moderator":
+                    self.role_moderator = ro
+                elif ro.name == "vip":
+                    self.role_vip = ro
 
             for ch in self.server.channels:
                 if ch.name == "bot-testing":
@@ -138,29 +144,23 @@ class BunkBot(commands.Bot):
     # process each message that is sent
     # to the server - if bunkbot is chatting, continue to chat
     # otherwise, process the message as a command
-    # todo - rm rpg update xp
     async def process_message(self, message: discord.Message) -> None:
         try:
             if message.author.bot:
                 return
 
-            bunk_user = self.get_user(message.author)
-            if bunk_user is None:
-                bunk_user = BunkUser(message.author)
-                self.users.append(bunk_user)
+            bunk_user = self.get_user(message.author.name)
 
-            is_reset = message.content == "!reset"
+            is_reset = str(message.content).strip() == "!reset"
             is_bunk_mention = len(message.mentions) > 0 and message.mentions[0].name == "BunkBot"
             content = re.findall("[a-zA-Z]+", str(message.content).upper())
 
             if not is_reset and (self.is_chatting or (is_bunk_mention or "BUNKBOT" in content)):
                 await self.chat(message)
-                #await bunk_user.update_xp(0.5)
-                await rpg.update_user_xp(bunk_user, 0.5)
+                await bunk_user.update_xp(0.5)
             else:
                 await self.process_commands(message)
-                #await bunk_user.update_xp(1.0)
-                await rpg.update_user_xp(bunk_user, 1.0)
+                await bunk_user.update_xp(1.0)
 
             if is_reset:
                 await self.delete_message(message)
@@ -215,7 +215,7 @@ class BunkBot(commands.Bot):
     # been updated - i.e. apply custom/temporary roles
     async def member_update(self, before: discord.Member, after: discord.Member) -> None:
         try:
-            if self.get_user(after) is None:
+            if self.get_user(after.name) is None:
                 self.users.append(BunkUser(after))
 
             await self.check_member_streaming(before, after)
@@ -235,70 +235,90 @@ class BunkBot(commands.Bot):
 
     # basic xp gains for various
     # events handled in main.py
-    # todo - rpg rm
-    async def member_reaction_add(self, member: discord.Member) -> None:
+    async def member_reaction_add(self, reaction: discord.Reaction, member: discord.Member) -> None:
         try:
-            bunk_user = self.get_user(member)
-            await rpg.update_user_xp(bunk_user, 0.1)
+            bunk_user: BunkUser = self.get_user(member.name)
+            await bunk_user.update_xp(0.15)
         except Exception as e:
             await self.handle_error(e, "member_reaction_add")
 
 
     # give a slight xp increase
     # when a user joins a voice channel
-    # todo - rpg rm
     async def member_voice_update(self, before: discord.Member, after: discord.Member) -> None:
         try:
             before_voice: discord.VoiceState = before.voice.voice_channel
             after_voice: discord.VoiceState = after.voice.voice_channel
 
-            if before_voice is None and after_voice is not None:
-                await rpg.update_user_xp(after, 0.5)
+            is_voice = before_voice is None and after_voice is not None
+            was_voice = before_voice is not None and after_voice is None
+
+            bunk_user: BunkUser = self.get_user(after.name)
+
+            if is_voice or was_voice:
+                await bunk_user.update_xp(0.5)
         except Exception as e:
             await self.handle_error(e, "member_voice_update")
 
 
     # update a member if they are streaming
     # so they are more visible to other users
-    # todo - update with datamodel (BunkUser)
-    # todo - rpg rm
+    # todo fix .. did this stop working?
     async def check_member_streaming(self, before: discord.Member, after: discord.Member) -> None:
-        member_streaming = [r for r in after.roles if r.name == "streaming"]
-        is_mod = len([r for r in before.roles if r.name == "moderator_perms"]) > 0
-        mod_role = [r for r in before.roles if r.name == "moderator"]
+        try:
+            member_streaming = [r for r in after.roles if r.name == "streaming"]
 
-        if after.game is not None and after.game.type == 1:
-            if len(member_streaming) == 0:
-                await rpg.update_user_xp(after, 0.2)
-                await self.add_roles(after, self.role_streaming)
+            if after.game is not None and after.game.type == 1:
+                if len(member_streaming) == 0:
+                    await self.add_roles(after, self.role_streaming)
 
-                # todo clean up
-                if is_mod:
-                    await self.remove_roles(after, mod_role)
+            elif before.game is not None and before.game.type == 1:
+                if len(member_streaming) > 0:
+                    await self.remove_roles(after, self.role_streaming)
 
-        elif before.game is not None and before.game.type == 1:
-            if len(member_streaming) > 0:
-                await self.remove_roles(after, self.role_streaming)
-
-                # todo clean up
-                if is_mod:
-                    await self.add_roles(after, mod_role)
+            # before_user: BunkUser = BunkUser(before)
+            # after_user: BunkUser = BunkUser(after)
+            # bunk_user: BunkUser = self.get_user(after.name)
+            #
+            # print(after_user.name, after_user.is_streaming, after_user.has_role(self.role_streaming))
+            #
+            # if after_user.is_streaming and not after_user.has_role(self.role_streaming):
+            #     print("OK YES")
+            #     bunk_user.update_xp(0.2)
+            #     await self.add_roles(after, self.role_streaming)
+            #
+            #     if after_user.is_moderator:
+            #         pass
+            #         #await self.remove_roles(after, self.role_moderator)
+            #     elif after_user.is_vip:
+            #         pass
+            #         # await self.remove_roles(after, self.role_vip)
+            #
+            # elif before_user.is_streaming and after.has_role(self.role_streaming):
+            #     await self.remove_roles(after, self.role_streaming)
+            #
+            #     if after_user.is_moderator:
+            #         pass
+            #         #await self.add_roles(after, self.role_moderator)
+            #     elif after_user.is_vip:
+            #         pass
+            #         # await self.add_roles(after, self.role_vip)
+        except Exception as e:
+            print(e)
 
 
     # update the users "last online"
     # property in the database
-    # todo - as BunkUser set_last_online(value) method
-    # todo - rpg rm?
-    @staticmethod
-    async def check_member_last_online(before: discord.Member, after: discord.Member) -> None:
+    async def check_member_last_online(self, before: discord.Member, after: discord.Member) -> None:
         pre_status = str(before.status)
         post_status = str(after.status)
         on_off = pre_status != "offline"and post_status == "offline"
         off_on = pre_status == "offline" and post_status != "offline"
 
+        bunk_user: BunkUser = self.get_user(after.name)
+
         if on_off or off_on:
-            database.update_user_last_online(after)
-            await rpg.sync_user_xp(after)
+            bunk_user.update_last_online()
 
         if pre_status == "offline" and post_status == "idle":
             # from 'invisible' ...
@@ -311,7 +331,7 @@ class BunkBot(commands.Bot):
         try:
             name: str = user
 
-            if user is discord.Member:
+            if type(user) is discord.Member:
                 name = user.name
 
             bunk_user = None
@@ -331,8 +351,13 @@ class BunkBot(commands.Bot):
                     if nick == nlower:
                         return usr
 
+            if bunk_user is None and user is discord.Member:
+                bunk_user = BunkUser(user)
+                self.users.append(bunk_user)
+
             return bunk_user
-        except:
+        except Exception as e:
+            print(e)
             return None
 
 

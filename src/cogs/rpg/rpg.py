@@ -5,17 +5,8 @@ import time
 from discord import Member
 from src.util.bunk_user import BunkUser
 from src.storage.db import database
+from src.util.helpers import  TIMER_MINUTES, UPDATE_CAP, XP_CONST
 from src.util.event_hook import EventHook
-
-# todo - tinydb bleh
-RPG_CONSTANTS =  database.rpg.all()
-
-# hard cap the message
-# processing to a discrete value
-# to prevent channel spamming
-XP_CONST: float = RPG_CONSTANTS[0]["xp_const"]
-UPDATE_CAP: int = RPG_CONSTANTS[1]["update_cap"]
-TIMER_MINUTES: int = RPG_CONSTANTS[2]["timer_minutes"]
 
 class RPG:
     def __init__(self):
@@ -28,17 +19,14 @@ class RPG:
     async def sync_user_xp(self, member: Member) -> None:
         new_user = None
 
-        try:
-            user = self.config[member.name]
-            new_user = database.update_user_xp(member, user["value"])
-        except:
-            pass
-        finally:
-            if new_user is None:
-                new_user = database.get_user(member)
+            #user = self.config[member.name]
+            #new_user = database.update_user_xp(member, user["value"])
 
-            if new_user is not None:
-                pass
+            #if new_user is None:
+            #    new_user = database.get_user(member.name)
+
+            #if new_user is not None:
+            #    pass
         #        if str(member.status) == "online" and self.level_up(new_user["xp"], new_user["level"] + 1):
         #            database.update_user_level(member)
 
@@ -49,6 +37,7 @@ class RPG:
 
     # every time a user sends a message
     # process it for "leveling" logic
+    # todo - dep, rm
     async def update_user_xp(self, member: Member, value: float) -> None:
         try:
             user = self.config[member.name]
@@ -91,7 +80,7 @@ class RPG:
             self.config[member.name] = {"value": value, "last_update": time.time()}
             user = self.config[member.name]
 
-        new_user = database.update_user_xp(member, user["value"] + value)
+        new_user = database.update_user_xp(member.member, user["value"] + value)
 
         if self.level_up(new_user["xp"], new_user["level"] + 1):
             leveled_user = database.update_user_level(member)
