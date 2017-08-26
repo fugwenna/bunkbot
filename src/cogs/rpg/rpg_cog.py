@@ -41,12 +41,12 @@ class BunkRPG:
         try:
             await self.bot.send_typing(ctx.message.channel)
 
-            user: BunkUser = self.bot.get_user_by_name(ctx.message.author.name)
+            user: BunkUser = self.bot.get_user(ctx.message.author.name)
             color = ctx.message.author.color
 
             params = self.bot.get_cmd_params(ctx)
             if len(params) > 0:
-                param_user: BunkUser = self.bot.get_user_by_name(" ".join(params[0:]))
+                param_user: BunkUser = self.bot.get_user(" ".join(params[0:]))
                 if param_user is None:
                     await self.bot.say("Cannot locate user '{0}'".format(" ".join(params[0:])))
                     return
@@ -90,7 +90,7 @@ class BunkRPG:
             else:
                 embed.set_footer(text="You are currently {0}% to level {1}".format(round(pct * 100, 2), user.next_level))
 
-            await self.bot.send_message(ctx.message.channel, embed=embed)
+            await self.bot.say(embed=embed)
         except Exception as e:
             await self.bot.handle_error(e, "level")
 
@@ -120,7 +120,7 @@ class BunkRPG:
             embed.add_field(name="Level", value="\n".join(levels), inline=True)
             embed.add_field(name="Total XP", value="\n".join(xps), inline=True)
 
-            await self.bot.send_message(ctx.message.channel, embed=embed)
+            await self.bot.say(embed=embed)
         except Exception as e:
             await self.bot.handle_error(e, "leaders")
 
@@ -130,41 +130,40 @@ class BunkRPG:
     @commands.command(pass_context=True, cls=None, help=DUEL_DESCRIPTION, aliases=["challenge"])
     async def duel(self, ctx) -> None:
         try:
-            challenger: BunkUser = self.bot.get_user(ctx.message.author)
+            challenger: BunkUser = self.bot.get_user(ctx.message.author.name)
             param = self.bot.get_cmd_params(ctx)
 
             if len(param) == 0:
-                await self.bot.send_message(ctx.message.channel, "You must supply a challenger!")
+                await self.bot.say("You must supply a challenger!")
                 return
 
             opponent: str = " ".join(param[0:])
 
             if challenger.name == opponent:
-                await self.bot.send_message(ctx.message.channel, "You can't challenge yourself to a duel, loser")
+                await self.bot.say("You can't challenge yourself to a duel, loser")
                 return
 
             print(opponent)
-            oppponent: BunkUser = self.bot.get_user_by_name(opponent)
+            oppponent: BunkUser = self.bot.get_user(opponent)
 
             if oppponent is None:
-                await self.bot.send_message(ctx.message.channel, "User {0} not found".format(opponent))
+                await self.bot.say("User {0} not found".format(opponent))
                 return
 
             c_dueling = [d for d in self.duels if d.challenger == challenger.name or d.challenger == opponent]
             o_dueling = [d for d in self.duels if d.opponent == opponent or d.opponent == challenger.name]
 
             if c_dueling:
-                await self.bot.send_message(ctx.message.channel, "{0} is currently dueling".format(challenger.name))
+                await self.bot.say("{0} is currently dueling".format(challenger.name))
                 return
 
             if o_dueling:
-                await self.bot.send_message(ctx.message.channel, "{0} is currently dueling".format(opponent))
+                await self.bot.say("{0} is currently dueling".format(opponent))
                 return
 
             self.duels.append(Duel(challenger, oppponent))
 
-            await self.bot.send_message(ctx.message.channel,
-                                        ":triangular_flag_on_post: {0.mention} is challenging {1.mention} to a duel! Type !accept to duel, or !reject to run away like a little biiiiiiiiiiiiitch"
+            await self.bot.say(":triangular_flag_on_post: {0.mention} is challenging {1.mention} to a duel! Type !accept to duel, or !reject to run away like a little biiiiiiiiiiiiitch"
                                         .format(ctx.message.author, oppponent))
         except Exception as e:
             await self.bot.handle_error(e, "challenge")
@@ -174,50 +173,52 @@ class BunkRPG:
     @commands.command(pass_context=True, cls=None, help="Accept a duel")
     async def accept(self, ctx) -> None:
         try:
-            await self.bot.send_message(ctx.message.channel, "Fugwenna disabled this because hes a noob")
-            # user: BunkUser = self.bot.get_user(ctx.message.author)
-            #
-            # for d in self.duels:
-            #     if d.opponent.name == user.name:
-            #         self.duels.remove(d)
-            #
-            #         #todo TMP
-            #         duel: Duel = d
-            #         challenger_roll = roll()
-            #         opponent_roll = roll()
-            #
-            #         embed = Embed(title=":crossed_swords: {0} vs {1}".format(duel.challenger.name, duel.opponent.name), color=int("FF0000", 16))
-            #         embed.add_field(name="Name", value="\n".join([duel.challenger.name, duel.opponent.name]), inline=True)
-            #         embed.add_field(name="Damage", value="\n".join([challenger_roll, opponent_roll]), inline=True)
-            #
-            #         if challenger_roll == opponent_roll:
-            #             await self.bot.say("{0.mention} {1.mention} - TIE!".format(duel.challenger.name, duel.opponent.name))
-            #             return
-            #
-            #         winner: BunkUser = duel.challenger if challenger_roll > opponent_roll else duel.opponent
-            #         loser: BunkUser = duel.challenger if challenger_roll < opponent_roll else duel.opponent
-            #
-            #         xp_lost = 5
-            #         await self.bot.say(embed=embed)
-            #
-            #         if loser.xp > 5.0:
-            #             await self.bot.say("{0.mention} wins 5 xp from {1}!".format(winner, loser.name))
-            #         elif 5.0 > loser.xp > 0.0 :
-            #             xp_lost = loser.xp
-            #             await self.bot.say("{0.mention} wins {1}'s remaining xp!".format(winner, loser.name))
-            #         elif loser.xp == 0:
-            #             await self.bot.say("{0.mention} wins, but {1} has no xp to give!".format(winner, loser.name))
-            #
-            #         if loser.xp > 0: database.update_user_xp(loser, -xp_lost)
-            #         loser_level_xp = rpg.calc_req_xp(loser.level)
-            #
-            #         if loser.level > 1 and loser.xp - xp_lost < loser_level_xp:
-            #             database.update_user_level(loser, -1)
-            #             await self.bot.say("{0.mention} has lost a level!".format(loser))
-            #
-            #         if xp_lost > 0:
-            #             await rpg.update_user_xp_force(winner, xp_lost)
-            # await self.bot.send_message(ctx.message.channel, "You have no duels to accept")
+            found = False
+            user: BunkUser = self.bot.get_user(ctx.message.author.name)
+
+            for d in self.duels:
+                if d.opponent.name == user.name:
+                    found = True
+                    #todo TMP
+                    duel: Duel = d
+                    challenger_roll: int = roll()
+                    opponent_roll: int = roll()
+
+                    embed = Embed(title=":crossed_swords: {0} vs {1}".format(duel.challenger.name, duel.opponent.name), color=int("FF0000", 16))
+                    embed.add_field(name="Name", value="\n".join([duel.challenger.name, duel.opponent.name]), inline=True)
+                    embed.add_field(name="Damage", value="\n".join([challenger_roll, opponent_roll]), inline=True)
+
+                    if challenger_roll == opponent_roll:
+                        await self.bot.say("{0.mention} {1.mention} - TIE!".format(duel.challenger.name, duel.opponent.name))
+                        return
+
+                    winner: BunkUser = duel.challenger if challenger_roll > opponent_roll else duel.opponent
+                    loser: BunkUser = duel.challenger if challenger_roll < opponent_roll else duel.opponent
+
+                    xp_lost = 5
+                    await self.bot.say(embed=embed)
+
+                    if loser.xp > 5.0:
+                        await self.bot.say("{0.mention} wins 5 xp from {1}!".format(winner, loser.name))
+                    elif 5.0 > loser.xp > 0.0 :
+                        xp_lost = loser.xp
+                        await self.bot.say("{0.mention} wins {1}'s remaining xp!".format(winner, loser.name))
+                    elif loser.xp == 0:
+                        await self.bot.say("{0.mention} wins, but {1} has no xp to give!".format(winner, loser.name))
+
+                    if loser.xp > 0: database.update_user_xp(loser, -xp_lost)
+                    loser_level_xp = rpg.calc_req_xp(loser.level)
+
+                    if loser.level > 1 and loser.xp - xp_lost < loser_level_xp:
+                        database.update_user_level(loser, -1)
+                        await self.bot.say("{0.mention} has lost a level!".format(loser))
+
+                    if xp_lost > 0:
+                        await rpg.update_user_xp_force(winner, xp_lost)
+
+                    self.duels.remove(d)
+            if not found:
+                await self.bot.send_message(ctx.message.channel, "You have no duels to accept")
         except Exception as e:
             await self.bot.handle_error(e, "accept")
 
@@ -226,15 +227,17 @@ class BunkRPG:
     @commands.command(pass_context=True, cls=None, help="Reject a duel")
     async def reject(self, ctx) -> None:
         try:
-            user: BunkUser = self.bot.get_user(ctx.message.author)
+            found = False
+            user: BunkUser = self.bot.get_user(ctx.message.author.name)
 
             for d in self.duels:
                 if d.opponent.name == user.name:
+                    found = True
                     self.duels.remove(d)
                     await self.bot.send_message(ctx.message.channel, ":exclamation: {0.mention} has rejected a duel with {1.mention}".format(d.opponent, d.challenger))
-                    return
 
-            await self.bot.send_message(ctx.message.channel, "You have no duels to reject")
+            if not found:
+                await self.bot.send_message(ctx.message.channel, "You have no duels to reject")
         except Exception as e:
             await self.bot.handle_error(e, "cancel")
 
@@ -243,17 +246,20 @@ class BunkRPG:
     @commands.command(pass_context=True, cls=None, help="Cancel a duel")
     async def cancel(self, ctx) -> None:
         try:
-            user: BunkUser = self.bot.get_user(ctx.message.author)
+            found = False
+            user: BunkUser = self.bot.get_user(ctx.message.author.name)
 
             for d in self.duels:
                 if d.challenger.name == user.name:
+                    found = True
                     self.duels.remove(d)
                     await self.bot.send_message(ctx.message.channel, "{0.mention} has cancelled their duel with {1.mention}".format(d.challenger, d.opponent))
-                    return
 
-            await self.bot.send_message(ctx.message.channel, "You have no duels to cancel")
+            if not found:
+                await self.bot.send_message(ctx.message.channel, "You have no duels to cancel")
         except Exception as e:
             await self.bot.handle_error(e, "cancel")
+
 
 def setup(bot) -> None:
     bot.add_cog(BunkRPG(bot))

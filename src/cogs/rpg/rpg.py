@@ -33,11 +33,12 @@ class RPG:
             new_user = database.update_user_xp(member, user["value"])
         except:
             pass
-        #finally:
-        #    if new_user is None:
-        #        new_user = database.get_user(member)
+        finally:
+            if new_user is None:
+                new_user = database.get_user(member)
 
-        #    if new_user is not None:
+            if new_user is not None:
+                pass
         #        if str(member.status) == "online" and self.level_up(new_user["xp"], new_user["level"] + 1):
         #            database.update_user_level(member)
 

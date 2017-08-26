@@ -18,6 +18,7 @@ from discord.ext import commands
 
 from src.cogs.rpg.rpg import rpg
 from src.storage.db import database
+from src.util.helpers import USER_NAME_REGEX
 from src.util.bunk_user import BunkUser
 
 BOT_DESCRIPTION = """
@@ -306,35 +307,31 @@ class BunkBot(commands.Bot):
 
     # get a member from the
     # collection of current members
-    def get_user(self, member: discord.Member) -> BunkUser or None:
+    def get_user(self, user: str or discord.Member) -> BunkUser or None:
         try:
-            return self.get_user_by_name(member.name)
-        except:
-            return None
+            name: str = user
 
+            if user is discord.Member:
+                name = user.name
 
-    # get a member from the
-    # collection of current members
-    def get_user_by_name(self, name: str) -> BunkUser or None:
-        try:
-            user = None
+            bunk_user = None
             nlower = name.lower().strip()
 
             for usr in self.users:
-                mname = sub(r"[^A-Za-z ]+", "", usr.name.lower().strip())
+                mname = sub(USER_NAME_REGEX, "", usr.name.lower())
 
                 if mname == nlower:
                     return usr
                 elif usr.member.display_name is not None:
-                    dname = sub(r"[^A-Za-z ]+", "", usr.member.display_name.lower().strip())
+                    dname = sub(USER_NAME_REGEX, "", usr.member.display_name.lower())
                     if dname == nlower:
                         return usr
                 elif usr.member.nick is not None:
-                    nick = sub(r"[^A-Za-z ]+", "", usr.member.nick.lower().strip())
+                    nick = sub(USER_NAME_REGEX, "", usr.member.nick.lower())
                     if nick == nlower:
                         return usr
 
-            return user
+            return bunk_user
         except:
             return None
 
@@ -353,7 +350,11 @@ class BunkBot(commands.Bot):
     async def handle_error(self, error, command: str) -> None:
         try:
             error_message: str = ":exclamation: Error occurred from command '{0}': {1}".format(command, error)
-            traceback.print_exc(file=sys.stdout)
+
+            try:
+                traceback.print_exc(file=sys.stdout)
+            except:
+                pass
 
             await self.say_to_channel(self.bot_testing, error_message)
         except Exception as e:

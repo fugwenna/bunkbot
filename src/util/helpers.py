@@ -2,6 +2,8 @@ from random import randint
 from tinydb import Query
 from src.storage.db import database
 
+USER_NAME_REGEX = r"[^A-Za-z0-9!@#$%^&*()-_=+';[]{}\|<>,.?~`/ ]+"
+
 # calculate the required xp for a given level
 def calc_req_xp(level: int) -> float:
     const = database.rpg.get(Query().xp_const > 0)["xp_const"]
