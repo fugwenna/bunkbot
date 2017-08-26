@@ -74,7 +74,7 @@ class BunkRPG:
             if pct_rounded - 1 > 20:
                 needed_xp = rpg.calc_req_xp(user.next_level)
                 if user.xp > needed_xp:
-                    database.update_user_level(user)
+                    database.update_user_level(user.member)
             else:
                 for p in range(0, pct_rounded-1):
                     progress_bar[p] = "▮"
