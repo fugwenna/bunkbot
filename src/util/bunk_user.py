@@ -1,17 +1,17 @@
+import datetime, pytz
+from re import sub
+from time import time
+from discord import Member, Server
+from src.storage.db import database
+from src.cogs.rpg.duel import Duel
+from src.util.helpers import USER_NAME_REGEX, TIMER_MINUTES, UPDATE_CAP, calc_req_xp
+from src.util.event_hook import EventHook
+
+
 """
 Wrapper for users that merge
 discord.Member and database user
 """
-import datetime, pytz
-from re import sub
-from time import time
-from src.util.helpers import *
-from discord import Member, Server
-from src.storage.db import database
-from src.util.helpers import USER_NAME_REGEX, TIMER_MINUTES, UPDATE_CAP
-from src.util.event_hook import EventHook
-
-
 class BunkUser:
     on_xp_gain = EventHook()
     on_xp_loss = EventHook()
@@ -20,7 +20,8 @@ class BunkUser:
 
     def __init__(self, member: Member=None):
         now = datetime.datetime.now(tz=pytz.timezone("US/Eastern"))
-        self.is_dueling = False
+        self.duel: Duel = None
+        self.duel_roll = 0
         self.last_online = "{0:%m/%d/%Y %I:%M:%S %p}".format(now)
         self.xp_holder = 0.0
         self.xp_last_update = time()
@@ -198,23 +199,23 @@ class BunkUser:
 
     # update the bunk user xp
     # by a given value
-    async def update_xp(self, value) -> None:
+    async def update_xp(self, value, force = False) -> None:
         diff = time() - self.xp_last_update
 
-        if diff > 0:
+        if force or diff > 0:
             min_diff = diff / 60
 
             # continue to increase the message
             # count until the user has reached a cap
             # during an n minute window
-            if min_diff <= TIMER_MINUTES:
+            if not force and min_diff <= TIMER_MINUTES:
                 if self.xp_holder < UPDATE_CAP:
                     self.xp_holder += value
 
             # the window is up, therefore
             # increase the user level percentage and
             # check if they have leveled up
-            else:
+            elif force or min_diff > TIMER_MINUTES:
                 self.from_database(database.update_user_xp(self.member, self.xp_holder))
 
                 if self.has_leveled_up:

@@ -1,7 +1,7 @@
 """
 Tell bunkbot to shut his god damn mouth
 """
-from discord.ext import commands
+from discord.ext.commands import command
 from ..bunkbot import BunkBot
 
 class ChatReset:
@@ -10,7 +10,7 @@ class ChatReset:
 
 
     # reset the last_message_at command for bunkbot
-    @commands.command(pass_context=False, cls=None, help="Reset BunkBot's chat so he shuts his ridiculous mouth")
+    @command(pass_context=False, cls=None, help="Reset BunkBot's chat so he shuts his ridiculous mouth")
     async def reset(self) -> None:
         self.bot.last_message_at = -1
 

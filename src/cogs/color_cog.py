@@ -1,6 +1,7 @@
 import discord
-from discord.ext import commands
+from discord.ext.commands import command
 from src.bunkbot import BunkBot
+from src.util.bunk_exception import BunkException
 from src.util.bunk_user import BunkUser
 
 COLOR_DESCRIPTION = """Change the color of your name in the chat by using the command !color followed by either a basic
@@ -17,7 +18,7 @@ class Color:
 
     # get a list of colors as well as
     # a link to hex color codes
-    @commands.command(pass_context=False, cls=None, help="Link to discord API color list and hex code editor")
+    @command(pass_context=False, cls=None, help="Link to discord API color list and hex code editor")
     async def colors(self) -> None:
         try:
             reg_colors = "Use the classmethod names for a default color (!color red, blue, dark_green, etc) \nhttp://discordpy.readthedocs.io/en/latest/api.html?#discord.Colour.teal"
@@ -29,7 +30,7 @@ class Color:
 
     # executable command method which will
     # search and parse out the youtube html
-    @commands.command(pass_context=True, cls=None, help=COLOR_DESCRIPTION, aliases=["c"])
+    @command(pass_context=True, cls=None, help=COLOR_DESCRIPTION, aliases=["c"])
     async def color(self, ctx) -> None:
         try:
             await self.bot.send_typing(ctx.message.channel)
@@ -61,6 +62,9 @@ class Color:
                     await self.bot.say("{0}'s color changed to {1}".format(user.name, color))
 
                 await self.prune_color_roles()
+
+        except BunkException as be:
+            await self.say(be.message)
         except Exception as e:
             await self.bot.handle_error(e, "color")
             await self.bot.say("Color '{0}' is not recognized. Type !colors for help".format(color))

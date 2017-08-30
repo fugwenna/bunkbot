@@ -2,7 +2,6 @@
 Discord.py wrapper class which inherits the
 Bot class as it's parent
 """
-import discord
 import json
 import re
 import sys
@@ -12,14 +11,13 @@ import urllib.request
 from re import sub
 from os import walk
 from os.path import join, splitext, sep
-
+from discord import Channel, Member, Message, Reaction, Server, VoiceState, Embed
 from cleverwrap import CleverWrap
 from discord.ext import commands
-
-from src.cogs.rpg.rpg import rpg
 from src.storage.db import database
 from src.util.helpers import USER_NAME_REGEX
 from src.util.bunk_user import BunkUser
+from src.util.bunk_exception import BunkException
 
 BOT_DESCRIPTION = """
 The bunkest bot - type '!help' for my commands, or say my name to chat with me. Type '!help [command] for more info
@@ -144,7 +142,7 @@ class BunkBot(commands.Bot):
     # process each message that is sent
     # to the server - if bunkbot is chatting, continue to chat
     # otherwise, process the message as a command
-    async def process_message(self, message: discord.Message) -> None:
+    async def process_message(self, message: Message) -> None:
         try:
             if message.author.bot:
                 return
@@ -164,24 +162,30 @@ class BunkBot(commands.Bot):
 
             if is_reset:
                 await self.delete_message(message)
+
+        except BunkException as be:
+            await self.say_to_channel(self.bot_testing, be.message)
         except Exception as e:
             await self.handle_error(e, "process_message")
 
 
     # send a message to a specific channel instead
     # of the normal channel of the message context object
-    async def say_to_channel(self, channel: discord.Channel, message: str) -> None:
+    async def say_to_channel(self, channel: Channel, message: str or None, embed: Embed = None) -> None:
         try:
             self.send_typing(channel)
-            # todo test if await is needed
-            await self.send_message(channel, message)
+
+            if message is not None:
+                await self.send_message(channel, message)
+            elif embed is not None:
+                await self.send_message(channel, None, embed=embed)
         except Exception as e:
             await self.handle_error(e, "say_to_channel")
 
 
     # have a cleverbot conversation with
     # a user if they say the name 'bunkbot'
-    async def chat(self, message: discord.Message) -> None:
+    async def chat(self, message: Message) -> None:
         await self.send_typing(message.channel)
         content = re.sub(r'bunkbot', "", str(message.content), flags=re.IGNORECASE).strip()
 
@@ -196,9 +200,9 @@ class BunkBot(commands.Bot):
 
     # greet a new member with a simple message,
     # apply the "new" role, and update the database
-    async def member_join(self, member: discord.Member) -> None:
+    async def member_join(self, member: Member) -> None:
         try:
-            server: discord.Server = member.server
+            server: Server = member.server
             fmt: str = "Welcome {0.mention} to {1.name}!  Type !help for a list of my commands"
 
             database.check_user(member)
@@ -213,20 +217,23 @@ class BunkBot(commands.Bot):
 
     # perform custom functions when a user has
     # been updated - i.e. apply custom/temporary roles
-    async def member_update(self, before: discord.Member, after: discord.Member) -> None:
+    async def member_update(self, before: Member, after: Member) -> None:
         try:
             if self.get_user(after.name) is None:
                 self.users.append(BunkUser(after))
 
             await self.check_member_streaming(before, after)
             await self.check_member_last_online(before, after)
+
+        except BunkException as be:
+            await self.say_to_channel(self.bot_testing, be.message)
         except Exception as e:
             await self.handle_error(e, "member_update")
 
 
     # alert when a member has been "removed" from the server
     # no way to distinguish a kick or leave, only ban events
-    async def member_remove(self, member: discord.Member) -> None:
+    async def member_remove(self, member: Member) -> None:
         try:
            await self.say_to_channel(self.mod_chat, "User '{0}' has left the server.".format(member.name))
         except Exception as e:
@@ -235,20 +242,24 @@ class BunkBot(commands.Bot):
 
     # basic xp gains for various
     # events handled in main.py
-    async def member_reaction_add(self, reaction: discord.Reaction, member: discord.Member) -> None:
+    async def member_reaction_add(self, reaction: Reaction, member: Member) -> None:
         try:
             bunk_user: BunkUser = self.get_user(member.name)
             await bunk_user.update_xp(0.15)
+
+
+        except BunkException as be:
+            await self.say_to_channel(self.bot_testing, be.message)
         except Exception as e:
             await self.handle_error(e, "member_reaction_add")
 
 
     # give a slight xp increase
     # when a user joins a voice channel
-    async def member_voice_update(self, before: discord.Member, after: discord.Member) -> None:
+    async def member_voice_update(self, before: Member, after: Member) -> None:
         try:
-            before_voice: discord.VoiceState = before.voice.voice_channel
-            after_voice: discord.VoiceState = after.voice.voice_channel
+            before_voice: VoiceState = before.voice.voice_channel
+            after_voice: VoiceState = after.voice.voice_channel
 
             is_voice = before_voice is None and after_voice is not None
             was_voice = before_voice is not None and after_voice is None
@@ -257,6 +268,9 @@ class BunkBot(commands.Bot):
 
             if is_voice or was_voice:
                 await bunk_user.update_xp(0.5)
+
+        except BunkException as be:
+            await self.say_to_channel(self.bot_testing, be.message)
         except Exception as e:
             await self.handle_error(e, "member_voice_update")
 
@@ -264,7 +278,7 @@ class BunkBot(commands.Bot):
     # update a member if they are streaming
     # so they are more visible to other users
     # todo fix .. did this stop working?
-    async def check_member_streaming(self, before: discord.Member, after: discord.Member) -> None:
+    async def check_member_streaming(self, before: Member, after: Member) -> None:
         try:
             member_streaming = [r for r in after.roles if r.name == "streaming"]
 
@@ -303,13 +317,16 @@ class BunkBot(commands.Bot):
             #     elif after_user.is_vip:
             #         pass
             #         # await self.add_roles(after, self.role_vip)
+
+        except BunkException as be:
+            await self.say_to_channel(self.bot_testing, be.message)
         except Exception as e:
             print(e)
 
 
     # update the users "last online"
     # property in the database
-    async def check_member_last_online(self, before: discord.Member, after: discord.Member) -> None:
+    async def check_member_last_online(self, before: Member, after: Member) -> None:
         pre_status = str(before.status)
         post_status = str(after.status)
         on_off = pre_status != "offline"and post_status == "offline"
@@ -327,38 +344,30 @@ class BunkBot(commands.Bot):
 
     # get a member from the
     # collection of current members
-    def get_user(self, user: str or discord.Member) -> BunkUser or None:
-        try:
-            name: str = user
+    def get_user(self, user: str or Member) -> BunkUser or None:
+        name: str = user
 
-            if type(user) is discord.Member:
-                name = user.name
+        if type(user) is Member:
+            name = user.name
 
-            bunk_user = None
-            nlower = name.lower().strip()
+        nlower = name.lower().strip()
 
-            for usr in self.users:
-                mname = sub(USER_NAME_REGEX, "", usr.name.lower())
+        for usr in self.users:
+            mname = sub(USER_NAME_REGEX, "", usr.name.lower())
 
-                if mname == nlower:
+            if mname == nlower:
+                return usr
+            elif usr.member.display_name is not None:
+                dname = sub(USER_NAME_REGEX, "", usr.member.display_name.lower())
+                if dname == nlower:
                     return usr
-                elif usr.member.display_name is not None:
-                    dname = sub(USER_NAME_REGEX, "", usr.member.display_name.lower())
-                    if dname == nlower:
-                        return usr
-                elif usr.member.nick is not None:
-                    nick = sub(USER_NAME_REGEX, "", usr.member.nick.lower())
-                    if nick == nlower:
-                        return usr
+            elif usr.member.nick is not None:
+                nick = sub(USER_NAME_REGEX, "", usr.member.nick.lower())
+                if nick == nlower:
+                    return usr
 
-            if bunk_user is None and user is discord.Member:
-                bunk_user = BunkUser(user)
-                self.users.append(bunk_user)
-
-            return bunk_user
-        except Exception as e:
-            print(e)
-            return None
+        # no user found, raise exception
+        raise BunkException("Cannot locate user {0}".format(name))
 
 
     # make a basic http call

@@ -1,5 +1,5 @@
 from discord import Message, Embed
-from discord.ext import commands
+from discord.ext.commands import command
 from src.cogs.youtube.youtube_result import YoutubeResult
 from src.bunkbot import BunkBot
 
@@ -23,7 +23,7 @@ class Youtube:
 
     # perform a basic youtube search with a given
     # keyword - use beautiful soup to scrape HTML and return the result
-    @commands.command(pass_context=True, cls=None, help=YOUTUBE_DESCRIPTION, aliases=["youtube"])
+    @command(pass_context=True, cls=None, help=YOUTUBE_DESCRIPTION, aliases=["youtube"])
     async def yt(self, ctx) -> None:
         try:
             params: list = self.bot.get_cmd_params(ctx)
@@ -43,7 +43,7 @@ class Youtube:
 
     # replace the video from the previous search based
     # on the value entered (1-5)
-    @commands.command(pass_context=True, clas=None, help="Link another youtube result from the last search", aliases=["ytl"])
+    @command(pass_context=True, clas=None, help="Link another youtube result from the last search", aliases=["ytl"])
     async def link(self, ctx) -> None:
         try:
             params = self.bot.get_cmd_params(ctx)
@@ -60,8 +60,8 @@ class Youtube:
 
     # get a list of related videos from the last
     #youtube search
-    @commands.command(pass_context=True, clas=None, help="Get a list of related videos from the last youtube search")
-    async def more(self, ctx):
+    @command(pass_context=True, clas=None, help="Get a list of related videos from the last youtube search")
+    async def more(self, ctx) -> None:
         e_title = "Type !ytl 1-5 to link another video\nType !ytl or !ytl 0 to relink the original result\n";
         e_message = "\n".join(self.yt_result.titles)
         embed = Embed(title=e_title, description=e_message, color=int("CC181E", 16))

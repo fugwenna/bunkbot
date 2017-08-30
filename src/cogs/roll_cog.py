@@ -3,8 +3,9 @@ Roll a random number
 """
 from discord import Embed
 from random import randint
-from discord.ext import commands
+from discord.ext.commands import command, Context
 from src.bunkbot import BunkBot
+from src.util.bunk_exception import BunkException
 from src.util.bunk_user import BunkUser
 
 DESCRIPTION = """Roll a random value between 0 and 100.  Optionally, you may pass a value range.\n
@@ -18,8 +19,8 @@ class Roll:
 
     # roll a random number
     # optionally specify a value range with default 0-100
-    @commands.command(pass_context=True, cls=None, help=DESCRIPTION)
-    async def roll(self, ctx: commands.Context) -> None:
+    @command(pass_context=True, cls=None, help=DESCRIPTION)
+    async def roll(self, ctx: Context) -> None:
         try:
             self.bot.send_typing(ctx.message.channel)
 
@@ -41,6 +42,9 @@ class Roll:
             message = "{0} rolls {1}".format(user.name, str(randint(min_val, max_val)))
 
             await self.bot.say(embed=Embed(title=title, description=message, color=ctx.message.author.color))
+
+        except BunkException as be:
+            await self.say(be.message)
         except Exception as e:
             await self.bot.handle_error(e, "roll")
 

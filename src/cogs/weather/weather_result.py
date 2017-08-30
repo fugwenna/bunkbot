@@ -26,14 +26,14 @@ class WeatherResult:
     # discord embed title to display
     # the current location and time
     @property
-    def title(self) -> None:
+    def title(self) -> str:
         return "Current conditions in {} - {}, {} ".format(self.location, self.week_day, self.time)
 
 
     # formatted string to display
     # the current conditions
     @property
-    def conditions(self) -> None:
+    def conditions(self) -> str:
         message = "Temperature: {}".format(self.temp_actual)
         message += "\nFeels like: {}".format(self.temp_feels)
         message += "\n\nCurrent winds {}".format(self.winds)

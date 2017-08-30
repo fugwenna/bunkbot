@@ -6,7 +6,7 @@ import uuid
 from bs4 import BeautifulSoup
 from urllib import request
 from discord import Embed
-from discord.ext import commands
+from discord.ext.commands import command
 from src.bunkbot import BunkBot
 from src.cogs.weather.weather_result import WeatherResult
 from src.cogs.weather.radar_result import RadarResult
@@ -47,7 +47,7 @@ class Weather:
     # executable command which will
     # display current weather conditions for
     # a given zip code
-    @commands.command(pass_context=True, cls=None, help=WEATHER_DESCRIPTION)
+    @command(pass_context=True, cls=None, help=WEATHER_DESCRIPTION)
     async def weather(self, ctx) -> None:
         try:
             await self.bot.send_typing(ctx.message.channel)
@@ -69,7 +69,7 @@ class Weather:
 
     # link local maryland radar from
     # the intellicast updated gif - cache bust with uuid
-    @commands.command(pass_context=True, cls=None, help="View Radar based on zip")
+    @command(pass_context=True, cls=None, help="View Radar based on zip")
     async def radar(self, ctx) -> None:
         try:
             await self.bot.send_typing(ctx.message.channel)
@@ -93,6 +93,7 @@ class Weather:
             await self.bot.say("{0}?{1}".format(img, uuid.uuid4()))
         except Exception as e:
             await self.bot.handle_error(e, "radar")
+
 
     # set the zip code
     # based on passed params
