@@ -354,7 +354,6 @@ class BunkBot(commands.Bot):
 
         for usr in self.users:
             mname = sub(USER_NAME_REGEX, "", usr.name.lower()).strip()
-            print(nlower, mname)
 
             if mname == nlower:
                 return usr
