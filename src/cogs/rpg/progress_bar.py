@@ -16,6 +16,14 @@ class ProgressBar:
     # hollow and filled blocks, and set
     # misc properties (pct)
     def draw(self) -> str:
+        # todo fix
+        if self.user.xp == 0 and self.user.level == 1:
+            bar: list = []
+            self.pct = 0.0
+            for i in range(0, 20):
+                bar.append("▯")
+            return "".join(bar)
+
         now_xp = self.user.xp
 
         # xp required for the current level
