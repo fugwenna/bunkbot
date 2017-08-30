@@ -353,16 +353,16 @@ class BunkBot(commands.Bot):
         nlower = name.lower().strip()
 
         for usr in self.users:
-            mname = sub(USER_NAME_REGEX, "", usr.name.lower()).strip()
+            mname = sub(USER_NAME_REGEX, "", usr.name.lower().strip())
 
             if mname == nlower:
                 return usr
             elif usr.member.display_name is not None:
-                dname = sub(USER_NAME_REGEX, "", usr.member.display_name.lower()).strip()
+                dname = sub(USER_NAME_REGEX, "", usr.member.display_name.lower().strip())
                 if dname == nlower:
                     return usr
             elif usr.member.nick is not None:
-                nick = sub(USER_NAME_REGEX, "", usr.member.nick.lower()).strip()
+                nick = sub(USER_NAME_REGEX, "", usr.member.nick.lower().strip())
                 if nick == nlower:
                     return usr
 
