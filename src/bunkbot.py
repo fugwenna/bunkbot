@@ -220,7 +220,7 @@ class BunkBot(commands.Bot):
     # been updated - i.e. apply custom/temporary roles
     async def member_update(self, before: Member, after: Member) -> None:
         try:
-            before_user = self.get_user(before.name)
+            before_user: BunkUser = self.get_user(before.name)
             bunk_user: BunkUser = self.get_user(after.name)
 
             await self.check_member_streaming(before_user, bunk_user)
@@ -351,7 +351,7 @@ class BunkBot(commands.Bot):
         if type(user) is Member:
             name = user.name
 
-        nlower = name.lower().strip()
+        nlower = sub(USER_NAME_REGEX, "", name.lower().strip())
 
         for usr in self.users:
             mname = sub(USER_NAME_REGEX, "", usr.name.lower().strip())
