@@ -126,8 +126,9 @@ class BunkBot(commands.Bot):
                     await self.add_roles(member, self.role_new)
                     new_users.append(member.name)
 
-                self.users.append(BunkUser(member))
-                await self.check_member_streaming(member, member)
+                user: BunkUser = BunkUser(member)
+                self.users.append(user)
+                await self.check_member_streaming(user, user)
 
             if len(new_users) > 0:
                 new_user_list: str = "\n".join(new_users)
@@ -219,11 +220,11 @@ class BunkBot(commands.Bot):
     # been updated - i.e. apply custom/temporary roles
     async def member_update(self, before: Member, after: Member) -> None:
         try:
-            if self.get_user(after.name) is None:
-                self.users.append(BunkUser(after))
+            before_user = self.get_user(before.name)
+            bunk_user: BunkUser = self.get_user(after.name)
 
-            await self.check_member_streaming(before, after)
-            await self.check_member_last_online(before, after)
+            await self.check_member_streaming(before_user, bunk_user)
+            await self.check_member_last_online(before_user, bunk_user)
 
         except BunkException as be:
             await self.say_to_channel(self.bot_testing, be.message)
@@ -278,17 +279,17 @@ class BunkBot(commands.Bot):
     # update a member if they are streaming
     # so they are more visible to other users
     # todo fix .. did this stop working?
-    async def check_member_streaming(self, before: Member, after: Member) -> None:
+    async def check_member_streaming(self, before: BunkUser, after: BunkUser) -> None:
         try:
             member_streaming = [r for r in after.roles if r.name == "streaming"]
 
-            if after.game is not None and after.game.type == 1:
+            if after.member.game is not None and after.member.game.type == 1:
                 if len(member_streaming) == 0:
-                    await self.add_roles(after, self.role_streaming)
+                    await self.add_roles(after.member, self.role_streaming)
 
-            elif before.game is not None and before.game.type == 1:
+            elif before.member.game is not None and before.member.game.type == 1:
                 if len(member_streaming) > 0:
-                    await self.remove_roles(after, self.role_streaming)
+                    await self.remove_roles(after.member, self.role_streaming)
 
             # before_user: BunkUser = BunkUser(before)
             # after_user: BunkUser = BunkUser(after)
@@ -326,9 +327,9 @@ class BunkBot(commands.Bot):
 
     # update the users "last online"
     # property in the database
-    async def check_member_last_online(self, before: Member, after: Member) -> None:
-        pre_status = str(before.status)
-        post_status = str(after.status)
+    async def check_member_last_online(self, before: BunkUser, after: BunkUser) -> None:
+        pre_status = str(before.member.status)
+        post_status = str(after.member.status)
         on_off = pre_status != "offline"and post_status == "offline"
         off_on = pre_status == "offline" and post_status != "offline"
 
