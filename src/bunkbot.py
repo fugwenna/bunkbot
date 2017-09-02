@@ -336,7 +336,7 @@ class BunkBot(commands.Bot):
         bunk_user: BunkUser = self.get_user(after.name)
 
         if on_off or off_on:
-            bunk_user.update_last_online()
+           await bunk_user.update_last_online()
 
         if pre_status == "offline" and post_status == "idle":
             # from 'invisible' ...

@@ -192,9 +192,11 @@ class BunkUser:
 
     # update the database user last
     # online property
-    # todo - sync xp
-    def update_last_online(self):
+    async def update_last_online(self):
         database.update_user_last_online(self.member)
+
+        if self.xp_holder > 0:
+            await self.update_xp(0, True)
 
 
     # update the bunk user xp

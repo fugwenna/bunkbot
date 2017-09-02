@@ -5,7 +5,7 @@ from tinydb import Query
 from discord import Member, Embed
 from discord.ext import commands
 from discord.ext.commands import command
-from ..bunkbot import BunkBot
+from src.bunkbot import BunkBot
 from src.storage.db import database
 
 ALLOWABLE_SEARCH_PROPS = ["name", "nick", "display_name", "roles", "status"]
@@ -25,7 +25,6 @@ class Mod:
             await self.bot.send_message(ctx.message.channel, "https://github.com/fugwenna/bunkbot/")
         except Exception as e:
             await self.bot.handle_error(e, "source")
-
 
 
     # clear a role for ALL users ...
