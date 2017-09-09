@@ -236,7 +236,7 @@ class BunkBot(commands.Bot):
     # no way to distinguish a kick or leave, only ban events
     async def member_remove(self, member: Member) -> None:
         try:
-           await self.say_to_channel(self.mod_chat, "User '{0}' has left the server.".format(member.name))
+           await self.say_to_channel(self.mod_chat, "@everyone User '{0}' has left the server.".format(member.name))
         except Exception as e:
             self.handle_error(e, "member_update")
 
@@ -278,46 +278,23 @@ class BunkBot(commands.Bot):
 
     # update a member if they are streaming
     # so they are more visible to other users
-    # todo fix .. did this stop working?
     async def check_member_streaming(self, before: BunkUser, after: BunkUser) -> None:
         try:
-            member_streaming = [r for r in after.roles if r.name == "streaming"]
+            bunk_user: BunkUser = self.get_user(after.name)
 
-            if after.member.game is not None and after.member.game.type == 1:
-                if len(member_streaming) == 0:
+            if after.is_streaming:
+                await self.debug("{0} started streaming".format(after.name))
+                if not after.has_role(self.role_streaming):
+                    await self.debug("Adding role and updating XP for {0}...".format(after.name))
+                    bunk_user.update_xp(0.2)
                     await self.add_roles(after.member, self.role_streaming)
 
-            elif before.member.game is not None and before.member.game.type == 1:
-                if len(member_streaming) > 0:
+            elif before.is_streaming:
+                await self.debug("{0} stopped streaming...".format(after.name))
+                if after.has_role(self.role_streaming):
+                    await self.debug("Removing streaming role from {0}".format(after.name))
+                    bunk_user.update_xp(0.1)
                     await self.remove_roles(after.member, self.role_streaming)
-
-            # before_user: BunkUser = BunkUser(before)
-            # after_user: BunkUser = BunkUser(after)
-            # bunk_user: BunkUser = self.get_user(after.name)
-            #
-            # print(after_user.name, after_user.is_streaming, after_user.has_role(self.role_streaming))
-            #
-            # if after_user.is_streaming and not after_user.has_role(self.role_streaming):
-            #     print("OK YES")
-            #     bunk_user.update_xp(0.2)
-            #     await self.add_roles(after, self.role_streaming)
-            #
-            #     if after_user.is_moderator:
-            #         pass
-            #         #await self.remove_roles(after, self.role_moderator)
-            #     elif after_user.is_vip:
-            #         pass
-            #         # await self.remove_roles(after, self.role_vip)
-            #
-            # elif before_user.is_streaming and after.has_role(self.role_streaming):
-            #     await self.remove_roles(after, self.role_streaming)
-            #
-            #     if after_user.is_moderator:
-            #         pass
-            #         #await self.add_roles(after, self.role_moderator)
-            #     elif after_user.is_vip:
-            #         pass
-            #         # await self.add_roles(after, self.role_vip)
 
         except BunkException as be:
             await self.say_to_channel(self.bot_testing, be.message)
@@ -336,7 +313,8 @@ class BunkBot(commands.Bot):
         bunk_user: BunkUser = self.get_user(after.name)
 
         if on_off or off_on:
-           await bunk_user.update_last_online()
+            await self.debug("Updating last online for {0} - xp holder: {1}".format(after.name, after.xp_holder))
+            await bunk_user.update_last_online()
 
         if pre_status == "offline" and post_status == "idle":
             # from 'invisible' ...
@@ -395,6 +373,11 @@ class BunkBot(commands.Bot):
         except Exception as e:
             print(e)
             traceback.print_exc(file=sys.stdout)
+
+
+    # print debug messages to bot_testing
+    async def debug(self, message: str) -> None:
+        await self.say_to_channel(self.bot_testing, ":spider: {0}".format(message))
 
 
 bunkbot = BunkBot()
