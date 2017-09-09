@@ -223,8 +223,8 @@ class BunkBot(commands.Bot):
     # been updated - i.e. apply custom/temporary roles
     async def member_update(self, before: Member, after: Member) -> None:
         try:
-            before_user: BunkUser = BunkUser(before.name)
-            bunk_user: BunkUser = BunkUser(after.name)
+            before_user: BunkUser = BunkUser(before)
+            bunk_user: BunkUser = BunkUser(after)
 
             await self.check_member_streaming(before_user, bunk_user)
             await self.check_member_last_online(before_user, bunk_user)
