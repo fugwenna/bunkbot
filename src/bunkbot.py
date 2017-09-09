@@ -31,11 +31,12 @@ class BunkBot(commands.Bot):
         self.chat_timer = 9
         self.last_message_at = -1
         self.chat_bot: CleverWrap = None
-        self.server: discord.Server = None
-        self.bot_testing: discord.Channel = None
-        self.mod_chat: discord.Channel = None
-        self.vip_chat: discord.Channel = None
-        self.general: discord.Channel = None
+        self.server: Server = None
+        self.bot_testing: Channel = None
+        self.bot_logs: Channel = None
+        self.mod_chat: Channel = None
+        self.vip_chat: Channel = None
+        self.general: Channel = None
         self.role_streaming = None
         self.role_new = None
         self.role_vip = None
@@ -64,6 +65,8 @@ class BunkBot(commands.Bot):
             for ch in self.server.channels:
                 if ch.name == "bot-testing":
                     self.bot_testing = ch
+                elif ch.name == "bot-logs":
+                    self.bot_logs = ch
                 elif ch.name == "mod-chat":
                     self.mod_chat = ch
                 elif ch.name == "vip-chat":
@@ -377,7 +380,7 @@ class BunkBot(commands.Bot):
 
     # print debug messages to bot_testing
     async def debug(self, message: str) -> None:
-        await self.say_to_channel(self.bot_testing, ":spider: {0}".format(message))
+        await self.say_to_channel(self.bot_logs, ":spider: {0}".format(message))
 
 
 bunkbot = BunkBot()
