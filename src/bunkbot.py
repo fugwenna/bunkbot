@@ -372,7 +372,7 @@ class BunkBot(commands.Bot):
             except:
                 pass
 
-            await self.say_to_channel(self.bot_testing, error_message)
+            await self.say_to_channel(self.bot_logs, error_message)
         except Exception as e:
             print(e)
             traceback.print_exc(file=sys.stdout)
