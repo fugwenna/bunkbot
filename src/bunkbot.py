@@ -75,7 +75,7 @@ class BunkBot(commands.Bot):
                     self.general = ch
 
             self.chat_bot = CleverWrap(database.get("cleverbot"))
-            await self.say_to_channel(self.bot_testing, "Bot and database initialized. Syncing users and channels...")
+            await self.say_to_channel(self.bot_logs, "Bot and database initialized. Syncing users and channels...")
             await self.sync_users()
 
 
@@ -138,7 +138,7 @@ class BunkBot(commands.Bot):
                 new_user_msg: str = "Users synced. The following users have been added to the database: \n{0}".format(new_user_list)
                 await self.say_to_channel(self.mod_chat, new_user_msg)
             else:
-                await self.say_to_channel(self.bot_testing, "Users synced. No new users added to database.")
+                await self.say_to_channel(self.bot_logs, "Users synced. No new users added to database.")
         except Exception as e:
             await self.handle_error(e, "sync_users")
 
