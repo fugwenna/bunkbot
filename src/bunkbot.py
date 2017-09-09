@@ -315,6 +315,8 @@ class BunkBot(commands.Bot):
 
         bunk_user: BunkUser = self.get_user(after.name)
 
+        await self.debug("{0} {1} {2}".format(bunk_user.name, pre_status, post_status))
+
         if on_off or off_on:
             await self.debug("Updating last online for {0} - xp holder: {1}".format(after.name, after.xp_holder))
             await bunk_user.update_last_online()
