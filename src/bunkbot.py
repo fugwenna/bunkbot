@@ -92,7 +92,7 @@ class BunkBot(commands.Bot):
     # check if the bot is still
     # having a conversation with someone
     @property
-    def is_chatting(self):
+    def is_chatting(self) -> bool:
         new_time = time.time() - self.last_message_at
         still_chatting = new_time < self.chat_timer
 
@@ -284,20 +284,25 @@ class BunkBot(commands.Bot):
     async def check_member_streaming(self, before: BunkUser, after: BunkUser) -> None:
         try:
             bunk_user: BunkUser = self.get_user(after.name)
-
-            if after.is_streaming:
-                await self.debug("{0} started streaming".format(after.name))
-                if not after.has_role(self.role_streaming):
+            if after.member.game is not None and after.member.game.type == 1:
+                if len([r for r in after.member.roles if r.name == self.role_streaming.name]) == 0:
+            #if after.is_streaming:
+            #    if not after.has_role(self.role_streaming):
+                    await self.debug("{0} started streaming".format(after.name))
                     await self.debug("Adding role and updating XP for {0}...".format(after.name))
-                    bunk_user.update_xp(0.2)
+                    await bunk_user.update_xp(0.1)
                     await self.add_roles(after.member, self.role_streaming)
+                    bunk_user = BunkUser(after)
 
-            elif before.is_streaming:
-                await self.debug("{0} stopped streaming...".format(after.name))
-                if after.has_role(self.role_streaming):
+            elif before.member.game is not None and before.member.game.type == 1:
+                if len([r for r in after.member.roles if r.name == self.role_streaming.name]) > 0:
+            #elif before.is_streaming:
+            #    if after.has_role(self.role_streaming):
+                    await self.debug("{0} stopped streaming...".format(after.name))
                     await self.debug("Removing streaming role from {0}".format(after.name))
-                    bunk_user.update_xp(0.1)
+                    await bunk_user.update_xp(0.1)
                     await self.remove_roles(after.member, self.role_streaming)
+                    bunk_user = BunkUser(after)
 
         except BunkException as be:
             await self.say_to_channel(self.bot_testing, be.message)
@@ -316,7 +321,6 @@ class BunkBot(commands.Bot):
         bunk_user: BunkUser = self.get_user(after.name)
 
         if on_off or off_on:
-            await self.debug("Updating last online and xp for {0} - xp holder: {1}".format(after.name, after.xp_holder))
             await bunk_user.update_last_online()
 
         if pre_status == "offline" and post_status == "idle":
