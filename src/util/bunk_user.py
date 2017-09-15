@@ -174,7 +174,7 @@ class BunkUser:
             except KeyError:
                 pass #user never online
         else:
-            print("User '{0}' not in database...", self.name)
+            print("User '{0}' not in database...".format(self.name))
 
 
     # update properties from a database user
