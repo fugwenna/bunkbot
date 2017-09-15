@@ -42,12 +42,12 @@ class BunkDB:
     # get a user based on the passed
     # discord member reference
     def get_user(self, member: discord.Member) -> any:
-        return self.users.get(Query().name.lower() == member.name.lower())
+        return self.users.get(Query().name == member.name)
 
     # get a user based on the passed
     # discord member reference
     def get_user2(self, name: str) -> any:
-         return self.users.get(Query().lower() == name.lower())
+         return self.users.get(Query().name == name)
 
 
     # save an updated user reference

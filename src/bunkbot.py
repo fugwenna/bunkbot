@@ -142,7 +142,6 @@ class BunkBot(commands.Bot):
         except Exception as e:
             await self.handle_error(e, "sync_users")
 
-
     # process each message that is sent
     # to the server - if bunkbot is chatting, continue to chat
     # otherwise, process the message as a command
