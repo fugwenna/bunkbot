@@ -1,5 +1,4 @@
 from re import sub
-from tinydb import Query
 from discord import Embed
 from discord.ext.commands import command
 from src.cogs.rpg.duel import Duel
@@ -18,6 +17,14 @@ class BunkRPG:
     def __init__(self, bot: BunkBot):
         self.bot = bot
         self.duels = []
+        BunkUser.on_level_up += self.ding
+
+
+    # DING - user has leveled up
+    # inform them and update their server permissions
+    async def ding(self, member, value):
+         if member.name != "fugwenna":
+            await self.bot.say_to_channel(self.bot.general, ":bell: DING! {0.mention} has advanced to level {1}!".format(member, value))
 
 
     # get the top 10 leader board
