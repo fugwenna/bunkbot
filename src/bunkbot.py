@@ -276,6 +276,7 @@ class BunkBot(commands.Bot):
             await self.say_to_channel(self.bot_testing, be.message)
         except Exception as e:
             await self.handle_error(e, "member_voice_update")
+            await self.say_to_channel(self.bot_logs, traceback.print_exc(file=sys.stdout))
 
 
     # update a member if they are streaming
