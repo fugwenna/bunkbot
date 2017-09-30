@@ -1,7 +1,7 @@
 import datetime, pytz
 from re import sub
 from time import time
-from discord import Member, Server
+from discord import Member, Server, Channel
 from src.storage.db import database
 from src.cogs.rpg.duel import Duel
 from src.util.helpers import USER_NAME_REGEX, TIMER_MINUTES, UPDATE_CAP, calc_req_xp
@@ -13,10 +13,7 @@ Wrapper for users that merge
 discord.Member and database user
 """
 class BunkUser:
-    on_xp_gain = EventHook()
-    on_xp_loss = EventHook()
     on_level_up = EventHook()
-    on_level_down = EventHook()
 
     def __init__(self, member: Member=None):
         now = datetime.datetime.now(tz=pytz.timezone("US/Eastern"))
@@ -196,12 +193,12 @@ class BunkUser:
         database.update_user_last_online(self.member)
 
         if self.xp_holder > 0:
-            await self.update_xp(0, True)
+            await self.update_xp(0, None, True)
 
 
     # update the bunk user xp
     # by a given value
-    async def update_xp(self, value, force = False) -> None:
+    async def update_xp(self, value, channel: Channel = None, force = False) -> None:
         diff = time() - self.xp_last_update
 
         if force or diff > 0:
@@ -221,7 +218,7 @@ class BunkUser:
                 self.from_database(database.update_user_xp(self.member, self.xp_holder))
 
                 if self.has_leveled_up:
-                    await BunkUser.on_level_up.fire(self.member, self.level)
+                    await BunkUser.on_level_up.fire(self.member, self.level, channel)
 
                 self.xp_last_update = time()
                 self.xp_holder = value

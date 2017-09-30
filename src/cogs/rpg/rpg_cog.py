@@ -1,5 +1,5 @@
 from re import sub
-from discord import Embed
+from discord import Embed, Channel
 from discord.ext.commands import command
 from src.cogs.rpg.duel import Duel
 from src.cogs.rpg.progress_bar import ProgressBar
@@ -22,9 +22,12 @@ class BunkRPG:
 
     # DING - user has leveled up
     # inform them and update their server permissions
-    async def ding(self, member, value):
+    async def ding(self, member, value, channel: Channel = None) -> None:
          if member.name != "fugwenna":
-            await self.bot.say_to_channel(self.bot.general, ":bell: DING! {0.mention} has advanced to level {1}!".format(member, value))
+             if channel is None:
+                 channel = self.bot.general
+
+             await self.bot.say_to_channel(channel, ":bell: DING! {0.mention} has advanced to level {1}!".format(member, value))
 
 
     # get the top 10 leader board
@@ -145,7 +148,6 @@ class BunkRPG:
 
             await self.bot.say(embed=embed)
 
-            # todo - calculate within duel class
             xp_lost = 5.0
             if duel.loser.xp > 5.0:
                 await self.bot.say("{0.mention} wins 5 xp from {1}!".format(duel.winner, duel.loser.name))
@@ -163,7 +165,7 @@ class BunkRPG:
                 await self.bot.say("{0.mention} has lost a level!".format(duel.loser))
 
             if xp_lost > 0:
-                await duel.winner.update_xp(xp_lost, True)
+                await duel.winner.update_xp(xp_lost, ctx.message.channel, True)
 
         except BunkException as be:
             await self.bot.say(be.message)
@@ -222,5 +224,4 @@ class BunkRPG:
 
 
 def setup(bot: BunkBot) -> None:
-    #return
     bot.add_cog(BunkRPG(bot))

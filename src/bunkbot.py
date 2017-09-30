@@ -158,10 +158,10 @@ class BunkBot(commands.Bot):
 
             if not is_reset and (self.is_chatting or (is_bunk_mention or "BUNKBOT" in content)):
                 await self.chat(message)
-                await bunk_user.update_xp(0.5)
+                await bunk_user.update_xp(0.5, message.channel)
             else:
                 await self.process_commands(message)
-                await bunk_user.update_xp(1.0)
+                await bunk_user.update_xp(1.0, message.channel)
 
             if is_reset:
                 await self.delete_message(message)
@@ -226,7 +226,9 @@ class BunkBot(commands.Bot):
             bunk_user: BunkUser = BunkUser(after)
 
             await self.check_member_streaming(before_user, bunk_user)
-            await self.check_member_last_online(before_user, bunk_user)
+
+            # todo - disabling because i think it may be causing i/o errors
+            #await self.check_member_last_online(before_user, bunk_user)
 
         except BunkException as be:
             await self.say_to_channel(self.bot_testing, be.message)
@@ -288,8 +290,6 @@ class BunkBot(commands.Bot):
                 if len([r for r in after.member.roles if r.name == self.role_streaming.name]) == 0:
             #if after.is_streaming:
             #    if not after.has_role(self.role_streaming):
-                    await self.debug("{0} started streaming".format(after.name))
-                    await self.debug("Adding role and updating XP for {0}...".format(after.name))
                     await bunk_user.update_xp(0.1)
                     await self.add_roles(after.member, self.role_streaming)
                     bunk_user = BunkUser(after)
@@ -298,8 +298,6 @@ class BunkBot(commands.Bot):
                 if len([r for r in after.member.roles if r.name == self.role_streaming.name]) > 0:
             #elif before.is_streaming:
             #    if after.has_role(self.role_streaming):
-                    await self.debug("{0} stopped streaming...".format(after.name))
-                    await self.debug("Removing streaming role from {0}".format(after.name))
                     await bunk_user.update_xp(0.1)
                     await self.remove_roles(after.member, self.role_streaming)
                     bunk_user = BunkUser(after)
