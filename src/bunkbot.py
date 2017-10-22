@@ -226,9 +226,7 @@ class BunkBot(commands.Bot):
             bunk_user: BunkUser = BunkUser(after)
 
             await self.check_member_streaming(before_user, bunk_user)
-
-            # todo - disabling because i think it may be causing i/o errors
-            #await self.check_member_last_online(before_user, bunk_user)
+            await self.check_member_last_online(before_user, bunk_user)
 
         except BunkException as be:
             await self.say_to_channel(self.bot_testing, be.message)
@@ -286,21 +284,23 @@ class BunkBot(commands.Bot):
     async def check_member_streaming(self, before: BunkUser, after: BunkUser) -> None:
         try:
             bunk_user: BunkUser = self.get_user(after.name)
-            if after.member.game is not None and after.member.game.type == 1:
-                if len([r for r in after.member.roles if r.name == self.role_streaming.name]) == 0:
-            #if after.is_streaming:
-            #    if not after.has_role(self.role_streaming):
-                    await bunk_user.update_xp(0.1)
-                    await self.add_roles(after.member, self.role_streaming)
-                    bunk_user = BunkUser(after)
 
-            elif before.member.game is not None and before.member.game.type == 1:
-                if len([r for r in after.member.roles if r.name == self.role_streaming.name]) > 0:
-            #elif before.is_streaming:
-            #    if after.has_role(self.role_streaming):
-                    await bunk_user.update_xp(0.1)
-                    await self.remove_roles(after.member, self.role_streaming)
-                    bunk_user = BunkUser(after)
+            if bunk_user is not None:
+                if after.member.game is not None and after.member.game.type == 1:
+                    if len([r for r in after.member.roles if r.name == self.role_streaming.name]) == 0:
+                #if after.is_streaming:
+                #    if not after.has_role(self.role_streaming):
+                        await bunk_user.update_xp(0.1)
+                        await self.add_roles(after.member, self.role_streaming)
+                        bunk_user = BunkUser(after)
+
+                elif before.member.game is not None and before.member.game.type == 1:
+                    if len([r for r in after.member.roles if r.name == self.role_streaming.name]) > 0:
+                #elif before.is_streaming:
+                #    if after.has_role(self.role_streaming):
+                        await bunk_user.update_xp(0.1)
+                        await self.remove_roles(after.member, self.role_streaming)
+                        bunk_user = BunkUser(after)
 
         except BunkException as be:
             await self.say_to_channel(self.bot_testing, be.message)
@@ -370,8 +370,9 @@ class BunkBot(commands.Bot):
             error_message: str = ":exclamation: Error occurred from command '{0}': {1}".format(command, error)
 
             try:
-                traceback.print_exc(file=sys.stdout)
+                await self.say_to_channel(traceback.print_exc(file=sys.stdout))
             except:
+                await self.say_to_channel(self.bot_logs, "Error printing traceback")
                 pass
 
             await self.say_to_channel(self.bot_logs, error_message)
