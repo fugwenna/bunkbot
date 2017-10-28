@@ -15,13 +15,14 @@ class BunkDB:
         self.config: Table = self.db.table("config")
         self.users: Table = self.db.table("users")
         self.rpg: Table = self.db.table("rpg")
+        self.holiday: Table = self.db.table("holiday")
         self.check_defaults()
 
 
     # set default database and config values
     def check_defaults(self):
         if len(self.config.all()) == 0:
-            self.config.insert_multiple([{"token": ""}, {"serverid": ""}, {"cleverbot": ""}, {"weather":""}])
+            self.config.insert_multiple([{"token":""}, {"serverid":""}, {"cleverbot":""}, {"weather":""}])
 
         if len(self.rpg.all()) == 0:
             self.rpg.insert_multiple([{"xp_const": 5}, {"update_cap": 60}, {"timer_minutes": 1}])

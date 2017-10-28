@@ -18,6 +18,8 @@ from src.storage.db import database
 from src.util.helpers import USER_NAME_REGEX
 from src.util.bunk_user import BunkUser
 from src.util.bunk_exception import BunkException
+from src.util.holidays import Holiday
+
 
 BOT_DESCRIPTION = """
 The bunkest bot - type '!help' for my commands, or say my name to chat with me. Type '!help [command] for more info
@@ -43,6 +45,7 @@ class BunkBot(commands.Bot):
         self.role_moderator = None
         self.users = []
         self.load_cogs()
+        Holiday.on_holiday += self.send_greeting
 
 
     # lifecycle hook - set up all
@@ -77,6 +80,7 @@ class BunkBot(commands.Bot):
             self.chat_bot = CleverWrap(database.get("cleverbot"))
             await self.say_to_channel(self.bot_logs, "Bot and database initialized. Syncing users and channels...")
             await self.sync_users()
+            await Holiday.start_timer()
 
 
     # retrieve an array of the passed
@@ -352,6 +356,16 @@ class BunkBot(commands.Bot):
 
         # no user found, raise exception
         raise BunkException("Cannot locate user {0}".format(name))
+
+
+    # send a simple greeting to the
+    # general chat channel
+    async def send_greeting(self, message: str) -> None:
+        try:
+            await self.debug("Testing cron task events...")
+            await self.debug(message)
+        except Exception as e:
+            self.handle_error(e, "send_greeting")
 
 
     # make a basic http call
