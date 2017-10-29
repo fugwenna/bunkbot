@@ -19,6 +19,7 @@ from src.util.helpers import USER_NAME_REGEX
 from src.util.bunk_user import BunkUser
 from src.util.bunk_exception import BunkException
 from src.util.holidays import Holiday
+from src.util.event_hook import EventHook
 
 
 BOT_DESCRIPTION = """
@@ -27,6 +28,8 @@ on a command (i.e. !help color)\n
 """
 
 class BunkBot(commands.Bot):
+    on_bot_initialized = EventHook()
+
     def __init__(self):
         super().__init__("!", None, BOT_DESCRIPTION, False)
         self.init: bool = False
@@ -81,6 +84,7 @@ class BunkBot(commands.Bot):
             await self.say_to_channel(self.bot_logs, "Bot and database initialized. Syncing users and channels...")
             await self.sync_users()
             await Holiday.start_timer()
+            await BunkBot.on_bot_initialized.fire()
 
 
     # retrieve an array of the passed
@@ -290,25 +294,24 @@ class BunkBot(commands.Bot):
             bunk_user: BunkUser = self.get_user(after.name)
 
             if bunk_user is not None:
+                # if after.is_streaming:
                 if after.member.game is not None and after.member.game.type == 1:
                     await self.debug("{0} is now streaming...".format(after.name))
                     await self.debug("checking custom role " + str(after.is_streaming))
                     await self.debug("has role?" + str(after.has_role(self.role_streaming)))
                     if len([r for r in after.member.roles if r.name == self.role_streaming.name]) == 0:
-                #if after.is_streaming:
-                #    if not after.has_role(self.role_streaming):
+                    #if not after.has_role(self.role_streaming):
                         await self.debug("adding xp")
                         await bunk_user.update_xp(0.1)
                         await self.debug("adding role")
                         await self.add_roles(after.member, self.role_streaming)
-
+                #elif before.is_streaming:
                 elif before.member.game is not None and before.member.game.type == 1:
                     self.debug("{0} is not streaming".format(before.name))
                     self.debug("checking custom role " + str(before.is_streaming))
                     self.debug("has role?" + str(after.has_role(self.role_streaming)))
                     if len([r for r in after.member.roles if r.name == self.role_streaming.name]) > 0:
-                #elif before.is_streaming:
-                #    if after.has_role(self.role_streaming):
+                    #if after.has_role(self.role_streaming):
                         await self.debug("adding xp")
                         await bunk_user.update_xp(0.1)
                         await self.debug("removing role")

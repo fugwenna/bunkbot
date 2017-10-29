@@ -3,7 +3,7 @@ Cron task that will fire an event every day to
 BunkBot when a holiday occurs - major holiday dates
 will be celebrated with @everyone
 """
-import pytz, asyncio, holidays
+import pytz, asyncio
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from datetime import datetime
 from .event_hook import EventHook

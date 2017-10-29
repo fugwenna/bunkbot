@@ -44,7 +44,7 @@ class Roll:
             await self.bot.say(embed=Embed(title=title, description=message, color=ctx.message.author.color))
 
         except BunkException as be:
-            await self.say(be.message)
+            await self.bot.say(be.message)
         except Exception as e:
             await self.bot.handle_error(e, "roll")
 

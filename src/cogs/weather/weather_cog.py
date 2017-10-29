@@ -2,7 +2,8 @@
 Zip-code driven weather forecast and current conditions
 based on data retrieved from weather underground
 """
-import uuid
+import uuid, asyncio
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from bs4 import BeautifulSoup
 from urllib import request
 from discord import Embed
@@ -16,7 +17,9 @@ WEATHER_DESCRIPTION = """Retrieve a current snapshot of todays weather based on 
     param: zip - optionally pass a zip code. Default is Baltimore (21201).
         Example: !weather zip=90210
     \n
-    param: --full (or -f) - display a 3 day forcast (day/night) for the provided zip code.
+    param: --full (or -f) - display a 3 day forcast (day/night) for the provided zip code.\n
+    Optionally provide a number (1-3) for 1, 2, or 3 day forecast
+        Example: !weather zip=90210 2
 """
 
 WEATHER_API = "http://api.wunderground.com/api/"
@@ -28,6 +31,7 @@ class Weather:
         self.bot = bot
         self.zip = "20201"
         self.token = database.get("weather")
+        BunkBot.on_bot_initialized += self.wire_daily_forecast
 
 
     # dynamic property that will be used to
@@ -42,6 +46,38 @@ class Weather:
     @property
     def forecast_api(self)-> str:
         return WEATHER_API + self.token + "/forecast10day/q/" + self.zip + "/format.json"
+
+
+    # start the daily forecast event loop
+    # once the main bot has been initialized
+    async def wire_daily_forecast(self) -> None:
+         scheduler = AsyncIOScheduler()
+         scheduler.add_job(self.send_daily_forecast, trigger="cron", hour=9)
+         scheduler.start()
+         try:
+             asyncio.get_event_loop().run_forever()
+         except:
+             pass
+
+
+    # daily forecast for the the
+    # default Baltimore zip
+    async def send_daily_forecast(self) -> None:
+        try:
+            self.zip = "21201"
+
+            curr_weather_result = self.bot.http_get(self.weather_api)
+            forecast_result = self.bot.http_get(self.forecast_api)
+
+            weather = WeatherResult(curr_weather_result, forecast_result, True, 1)
+
+            embed = Embed(title=weather.title, description=weather.conditions, color=int("008cba", 16))
+            embed.set_footer(text=weather.credit, icon_url=weather.wu_icon)
+            embed.set_thumbnail(url=weather.thumb)
+
+            await self.bot.say_to_channel(self.bot.general, None, embed)
+        except Exception as e:
+            await self.bot.handle_error(e, "send_daily_forecast")
 
 
     # executable command which will

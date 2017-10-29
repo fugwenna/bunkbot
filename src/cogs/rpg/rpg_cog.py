@@ -49,7 +49,7 @@ class BunkRPG:
                 levels.append(str(p.level))
                 xps.append(str(p.xp))
 
-            embed = Embed(title="", color=int("19CF3A", 16))
+            embed = Embed(title="Leaderboard - top 10 users", color=int("19CF3A", 16))
             embed.add_field(name="Name", value="\n".join(names), inline=True)
             embed.add_field(name="Level", value="\n".join(levels), inline=True)
             embed.add_field(name="Total XP", value="\n".join(xps), inline=True)
@@ -79,7 +79,7 @@ class BunkRPG:
                 user = param_user
                 color = param_user.member.color
 
-            progress_bar = ProgressBar(user)
+            progress_bar: ProgressBar = ProgressBar(user)
             embed = Embed(title="{0}: Level {1}".format(user.name, user.level), description=progress_bar.draw(), color=color)
 
             if len(params) > 0:

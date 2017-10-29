@@ -5,7 +5,7 @@ weather underground json results for the weather cog
 """
 
 class WeatherResult:
-    def __init__(self, weather, forecast, full=False):
+    def __init__(self, weather, forecast, full=False, days=4):
         self.credit = "Data provided by http://www.wunderground.com"
         self.full = full
         self.thumb = None
@@ -18,6 +18,7 @@ class WeatherResult:
         self.location = None
         self.time = None
         self.wu_icon = None
+        self.days = days
         self.set_meta_data(weather)
         self.set_weather(weather)
         self.set_forecast(forecast)
@@ -39,7 +40,7 @@ class WeatherResult:
         message += "\n\nCurrent winds {}".format(self.winds)
 
         if self.precip != "-1":
-            message += "\nPrecip accumulated today: {} inches".format(self.precip)
+            message += "\nPrecip accumulated today: {}".format(self.precip)
 
         if self.full:
             message += "\n\n {}".format(self.forecast_message)
@@ -51,13 +52,13 @@ class WeatherResult:
     def set_weather(self, weather) -> None:
         weather_obs = weather["current_observation"]
         self.thumb = weather_obs["icon_url"]
-        self.temp_actual = "{} (F)".format(str(weather_obs["temp_f"]))
-        self.temp_feels = "{} (F)".format(str(weather_obs["feelslike_f"]))
+        self.temp_actual = "{0} F ({1} C)".format(str(weather_obs["temp_f"]), str(weather_obs["temp_c"]))
+        self.temp_feels = "{0} F ({1} C)".format(str(weather_obs["feelslike_f"]), str(weather_obs["feelslike_c"]))
         self.winds = "{} at {} mph".format(str(weather_obs["wind_dir"]), str(weather_obs["wind_mph"]))
         self.precip = "-1"
 
         if weather_obs["precip_today_in"] != "0.00":
-            self.precip = str(weather_obs["precip_today_in"])
+            self.precip = str(weather_obs["precip_today_string"])
 
 
     # parse the forecast result into properties
@@ -66,22 +67,23 @@ class WeatherResult:
         forecast_simple = forecast["forecast"]["simpleforecast"]["forecastday"]
         self.forecast_message = ""
 
-        for day in range(0, 4):
+        for day in range(0, self.days):
             fs = forecast_simple[day]
             ft = forecast_txt[day * 2]
             ftt = forecast_txt[(day * 2) + 1]
 
             if day == 0:
-                the_day = "Today:"
-                the_night = "Tonight:"
+                the_day = "Today:  "
+                the_night = "Tonight:  "
                 self.week_day = fs["date"]["weekday"]
             else:
                 date = "{}, ({}/{})".format(fs["date"]["weekday"], fs["date"]["month"], fs["date"]["day"])
                 the_day = ""
                 the_night = ftt["title"]
-                self.forecast_message += date + "\n-----\n"
+                self.forecast_message += date + "\n-----"
 
-            self.forecast_message += "{} {}\n{} {}".format(the_day, ft["fcttext"], the_night, ftt["fcttext"])
+            self.forecast_message += "\n"
+            self.forecast_message += "{}{}\n{} {}".format(the_day, ft["fcttext"], the_night, ftt["fcttext"])
 
             if day < 3:
                 self.forecast_message += "\n\n\n"
