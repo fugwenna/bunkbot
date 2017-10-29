@@ -291,15 +291,15 @@ class BunkBot(commands.Bot):
 
             if bunk_user is not None:
                 if after.member.game is not None and after.member.game.type == 1:
-                    self.debug("{0} is now streaming...".format(after.name))
-                    self.debug("checking custom role " + str(after.is_streaming))
-                    self.debug("has role?" + str(after.has_role(self.role_streaming)))
+                    await self.debug("{0} is now streaming...".format(after.name))
+                    await self.debug("checking custom role " + str(after.is_streaming))
+                    await self.debug("has role?" + str(after.has_role(self.role_streaming)))
                     if len([r for r in after.member.roles if r.name == self.role_streaming.name]) == 0:
                 #if after.is_streaming:
                 #    if not after.has_role(self.role_streaming):
-                        self.debug("adding xp")
+                        await self.debug("adding xp")
                         await bunk_user.update_xp(0.1)
-                        self.debug("adding role")
+                        await self.debug("adding role")
                         await self.add_roles(after.member, self.role_streaming)
 
                 elif before.member.game is not None and before.member.game.type == 1:
@@ -309,9 +309,9 @@ class BunkBot(commands.Bot):
                     if len([r for r in after.member.roles if r.name == self.role_streaming.name]) > 0:
                 #elif before.is_streaming:
                 #    if after.has_role(self.role_streaming):
-                        self.debug("adding xp")
+                        await self.debug("adding xp")
                         await bunk_user.update_xp(0.1)
-                        self.debug("removing role")
+                        await self.debug("removing role")
                         await self.remove_roles(after.member, self.role_streaming)
 
         except BunkException as be:
