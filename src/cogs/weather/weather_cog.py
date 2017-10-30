@@ -52,7 +52,7 @@ class Weather:
     # once the main bot has been initialized
     async def wire_daily_forecast(self) -> None:
          scheduler = AsyncIOScheduler()
-         scheduler.add_job(self.send_daily_forecast, trigger="cron", hour=9)
+         scheduler.add_job(self.send_daily_forecast, trigger="cron", hour=13)
          scheduler.start()
          try:
              asyncio.get_event_loop().run_forever()

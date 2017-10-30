@@ -40,7 +40,6 @@ class BunkBot(commands.Bot):
         self.bot_testing: Channel = None
         self.bot_logs: Channel = None
         self.mod_chat: Channel = None
-        self.vip_chat: Channel = None
         self.general: Channel = None
         self.role_streaming = None
         self.role_new = None
@@ -75,8 +74,6 @@ class BunkBot(commands.Bot):
                     self.bot_logs = ch
                 elif ch.name == "mod-chat":
                     self.mod_chat = ch
-                elif ch.name == "vip-chat":
-                    self.vip_chat = ch
                 elif ch.name == "general":
                     self.general = ch
 
@@ -149,6 +146,7 @@ class BunkBot(commands.Bot):
                 await self.say_to_channel(self.bot_logs, "Users synced. No new users added to database.")
         except Exception as e:
             await self.handle_error(e, "sync_users")
+
 
     # process each message that is sent
     # to the server - if bunkbot is chatting, continue to chat
@@ -258,7 +256,6 @@ class BunkBot(commands.Bot):
             bunk_user: BunkUser = self.get_user(member.name)
             await bunk_user.update_xp(0.15)
 
-
         except BunkException as be:
             await self.say_to_channel(self.bot_testing, be.message)
         except Exception as e:
@@ -294,27 +291,21 @@ class BunkBot(commands.Bot):
             bunk_user: BunkUser = self.get_user(after.name)
 
             if bunk_user is not None:
-                # if after.is_streaming:
-                if after.member.game is not None and after.member.game.type == 1:
-                    await self.debug("{0} is now streaming...".format(after.name))
-                    await self.debug("checking custom role " + str(after.is_streaming))
-                    await self.debug("has role?" + str(after.has_role(self.role_streaming)))
-                    if len([r for r in after.member.roles if r.name == self.role_streaming.name]) == 0:
-                    #if not after.has_role(self.role_streaming):
-                        await self.debug("adding xp")
+                if after.is_streaming:
+                #if after.member.game is not None and after.member.game.type == 1:
+                    #if len([r for r in after.member.roles if r.name == self.role_streaming.name]) == 0:
+                    await self.debug("checking role...")
+                    if not after.has_role(self.role_streaming):
                         await bunk_user.update_xp(0.1)
-                        await self.debug("adding role")
+                        await self.debug("adding role to {0}".format(after.member.name))
                         await self.add_roles(after.member, self.role_streaming)
-                #elif before.is_streaming:
-                elif before.member.game is not None and before.member.game.type == 1:
-                    self.debug("{0} is not streaming".format(before.name))
-                    self.debug("checking custom role " + str(before.is_streaming))
-                    self.debug("has role?" + str(after.has_role(self.role_streaming)))
-                    if len([r for r in after.member.roles if r.name == self.role_streaming.name]) > 0:
-                    #if after.has_role(self.role_streaming):
-                        await self.debug("adding xp")
+                elif before.is_streaming:
+                #elif before.member.game is not None and before.member.game.type == 1:
+                    #if len([r for r in after.member.roles if r.name == self.role_streaming.name]) > 0:
+                    await self.debug("checking role...")
+                    if after.has_role(self.role_streaming):
                         await bunk_user.update_xp(0.1)
-                        await self.debug("removing role")
+                        await self.debug("removing role from {0}".format(after.member.name))
                         await self.remove_roles(after.member, self.role_streaming)
 
         except BunkException as be:
@@ -337,7 +328,7 @@ class BunkBot(commands.Bot):
             await bunk_user.update_last_online()
 
         if pre_status == "offline" and post_status == "idle":
-            # from 'invisible' ...
+            self.debug("{0} from 'offline' to 'idle' ... invis?".format(after.name))
             return
 
 
