@@ -17,6 +17,10 @@ class Mod:
     @commands.has_any_role("admin", "moderator")
     @command(pass_context=True, cls=None, help="Lock the server")
     async def lock(self, ctx: Context) -> None:
+        if self.bot.SERVER_LOCKED:
+            await self.bot.say_to_channel(self.bot.mod_chat, "Server is already locked")
+            return
+
         self.bot.SERVER_LOCKED = True
         await self.bot.say_to_channel(self.bot.mod_chat, ":shield: SERVER LOCKED :shield: Invited members will be automatically kicked")
 
@@ -28,6 +32,10 @@ class Mod:
     @commands.has_any_role("admin", "moderator")
     @command(pass_context=True, cls=None, help="Unlock the server")
     async def unlock(self, ctx: Context) -> None:
+        if not self.bot.SERVER_LOCKED:
+            await self.bot.say_to_channel(self.bot.mod_chat, "Server is not locked")
+            return
+
         self.bot.SERVER_LOCKED = False
         await self.bot.say_to_channel(self.bot.mod_chat, "SERVER UNLOCKED: Invitations allowed")
 
