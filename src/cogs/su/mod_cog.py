@@ -27,7 +27,7 @@ class Mod:
     # unlock the server and allow invitations
     @commands.has_any_role("admin", "moderator")
     @command(pass_context=True, cls=None, help="Unlock the server")
-    async def lock(self, ctx: Context) -> None:
+    async def unlock(self, ctx: Context) -> None:
         self.bot.SERVER_LOCKED = False
         await self.bot.say_to_channel(self.bot.mod_chat, "SERVER UNLOCKED: Invitations allowed")
 
