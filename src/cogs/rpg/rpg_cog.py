@@ -19,13 +19,14 @@ class BunkRPG:
     def __init__(self, bot: BunkBot):
         self.bot = bot
         self.duels = []
-        scheduler = AsyncIOScheduler()
-        scheduler.add_job(self.check_decayed_xp, trigger="cron", hour=0, misfire_grace_time=60)
-        scheduler.start()
-        try:
-            asyncio.get_event_loop().run_forever()
-        except:
-            pass
+        # scheduler = AsyncIOScheduler()
+        # scheduler.add_job(self.check_decayed_xp, trigger="cron", hour=0, misfire_grace_time=60)
+        # scheduler.start()
+        # try:
+        #     asyncio.get_event_loop().run_forever()
+        # except:
+        #     pass
+
         BunkUser.on_level_up += self.ding
 
 
