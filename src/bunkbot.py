@@ -328,7 +328,7 @@ class BunkBot(commands.Bot):
             await bunk_user.update_last_online()
 
         if pre_status == "offline" and post_status == "idle":
-            self.debug("{0} from 'offline' to 'idle' ... invis?".format(after.name))
+            await self.debug("{0} from 'offline' to 'idle' ... invis?".format(after.name))
             return
 
 
@@ -364,8 +364,9 @@ class BunkBot(commands.Bot):
     # general chat channel
     async def send_greeting(self, message: str) -> None:
         try:
-            await self.debug("Testing cron task events...")
-            await self.debug(message)
+            await self.say_to_channel(self.general, message)
+            #await self.debug("Testing cron task events...")
+            #await self.debug(message)
         except Exception as e:
             self.handle_error(e, "send_greeting")
 

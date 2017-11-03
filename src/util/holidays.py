@@ -15,8 +15,7 @@ HOLIDAYS = [{
     "midnight": True,
     "message": "@everyone :champagne: :champagne: :champagne: :fireworks: :sparkler: HAPPY NEW YEAR!!!!1!!!11one1!!eleven!!111! :sparkler: :fireworks: :champagne: :champagne: :champagne:"
 }, {
-    #"date": "10/31/{0}".format(now_year),
-    "date": "10/29/{0}".format(now_year),
+    "date": "10/31/{0}".format(now_year),
     "midnight": False,
     "message": "@everyone :jack_o_lantern: :jack_o_lantern: HAPPY HALLOWEEN!!!!!!!!!:jack_o_lantern: :jack_o_lantern: "
 }]
@@ -66,7 +65,7 @@ class Holiday:
     async def start_timer() -> None:
         scheduler = AsyncIOScheduler()
         scheduler.add_job(Holiday.send_midnight_greeting, trigger="cron", hour=0)
-        scheduler.add_job(Holiday.send_evening_greeting, trigger="cron", hour=20)
+        scheduler.add_job(Holiday.send_evening_greeting, trigger="cron", hour=18)
         scheduler.start()
         try:
             asyncio.get_event_loop().run_forever()
