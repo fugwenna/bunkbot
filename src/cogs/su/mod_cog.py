@@ -18,7 +18,7 @@ class Mod:
     @command(pass_context=True, cls=None, help="Lock the server")
     async def lock(self, ctx: Context) -> None:
         self.bot.SERVER_LOCKED = True
-        await self.bot.say_to_channel(self.bot.mod_chat, ":shield: SERVER UNLOCKED :shield: Invited members will be automatically kicked")
+        await self.bot.say_to_channel(self.bot.mod_chat, ":shield: SERVER LOCKED :shield: Invited members will be automatically kicked")
 
         if ctx.message.channel != self.bot.mod_chat:
             await self.bot.delete_message(ctx.message)
