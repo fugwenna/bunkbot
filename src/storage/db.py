@@ -30,7 +30,7 @@ class BunkDB:
 
     # helper method that will query the requested table
     # and property name - default table as config
-    def get(self, attr: str, table: str = "config") -> str:
+    def get(self, attr: str, table: str = "config") -> str or None:
         q: Query = Query()
         tab: Table = self.db.table(table)
         res = tab.get(q[attr] != "")
@@ -45,9 +45,10 @@ class BunkDB:
     def get_user(self, member: discord.Member) -> any:
         return self.users.get(Query().name == member.name)
 
+
     # get a user based on the passed
     # discord member reference
-    def get_user2(self, name: str) -> any:
+    def get_user_by_name(self, name: str) -> any:
          return self.users.get(Query().name == name)
 
 
@@ -92,7 +93,10 @@ class BunkDB:
         if cur_xp + value > 0:
             new_xp = round(cur_xp + value, 2)
 
-        self.users.update({"xp": new_xp}, Query().name == member.name)
+        now = datetime.datetime.now(tz=pytz.timezone("US/Eastern"))
+        last_xp = "{0:%m/%d/%Y %I:%M:%S %p}".format(now)
+
+        self.users.update({"xp": new_xp, "last_xp_updated": last_xp}, Query().name == member.name)
 
         user = self.get_user(member)
         return user

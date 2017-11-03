@@ -15,6 +15,10 @@ HOLIDAYS = [{
     "midnight": True,
     "message": "@everyone :champagne: :champagne: :champagne: :fireworks: :sparkler: HAPPY NEW YEAR!!!!1!!!11one1!!eleven!!111! :sparkler: :fireworks: :champagne: :champagne: :champagne:"
 }, {
+    "date": "12/25/{0}".format(now_year),
+    "midnight": False,
+    "message": ":christmas_tree: :snowflake: :snowman2: Merry Christmas!!!! :snowman2: :snowflake: :christmas_tree:"
+}, {
     "date": "10/31/{0}".format(now_year),
     "midnight": False,
     "message": "@everyone :jack_o_lantern: :jack_o_lantern: HAPPY HALLOWEEN!!!!!!!!!:jack_o_lantern: :jack_o_lantern: "

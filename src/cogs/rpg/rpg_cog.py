@@ -1,3 +1,5 @@
+import pytz, asyncio
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from re import sub
 from discord import Embed, Channel
 from discord.ext.commands import command
@@ -17,17 +19,35 @@ class BunkRPG:
     def __init__(self, bot: BunkBot):
         self.bot = bot
         self.duels = []
+        scheduler = AsyncIOScheduler()
+        scheduler.add_job(self.check_decayed_xp, trigger="cron", hour=0, misfire_grace_time=60)
+        scheduler.start()
+        try:
+            asyncio.get_event_loop().run_forever()
+        except:
+            pass
         BunkUser.on_level_up += self.ding
+
+
+    # every day, tell bunkbot to check over
+    # the users and see when their XP was last updated
+    # and calculate decay accordingly
+    async def check_decayed_xp(self) -> None:
+        for user in self.bot.users:
+            b_user: BunkUser = user
+            await self.bot.say_to_channel(self.bot.bot_logs, "Checking XP for {0} {1}".format(b_user.name, b_user.last_xp_updated))
+        return
 
 
     # DING - user has leveled up
     # inform them and update their server permissions
     async def ding(self, member, value, channel: Channel = None) -> None:
-         if member.name != "fugwenna":
-             if channel is None:
-                 channel = self.bot.general
+        if member.name != "fugwenna":
+            if channel is None:
+                channel = self.bot.general
 
-             await self.bot.say_to_channel(channel, ":bell: DING! {0.mention} has advanced to level {1}!".format(member, value))
+            # todo VIP level 10?
+            await self.bot.say_to_channel(channel, ":bell: DING! {0.mention} has advanced to level {1}!".format(member, value))
 
 
     # get the top 10 leader board
@@ -49,7 +69,7 @@ class BunkRPG:
                 levels.append(str(p.level))
                 xps.append(str(p.xp))
 
-            embed = Embed(title="Leaderboard - top 10 users", color=int("19CF3A", 16))
+            embed = Embed(title="Leader board - top 10 users", color=int("19CF3A", 16))
             embed.add_field(name="Name", value="\n".join(names), inline=True)
             embed.add_field(name="Level", value="\n".join(levels), inline=True)
             embed.add_field(name="Total XP", value="\n".join(xps), inline=True)

@@ -54,13 +54,23 @@ class BunkUser:
         return len([m for m in self.member.roles if m.name == "vip" or m.name == "vip_perms"]) > 0
 
 
+    # current database user last xp updated date
+    @property
+    def last_xp_updated(self) -> float or None:
+        if self.member is None:
+            return None
+
+        db_user = database.get_user(self.member)
+        return db_user["last_xp_updated"]
+
+
     # current database user xp
     @property
     def xp(self) -> float:
         if self.member is None:
             return 1
 
-        db_user = database.get_user2(self.member.name)
+        db_user = database.get_user(self.member)
         return db_user["xp"]
 
 
@@ -69,7 +79,7 @@ class BunkUser:
         if self.member is None:
             return 1
 
-        db_user = database.get_user2(self.member.name)
+        db_user = database.get_user(self.member)
         return db_user["level"]
 
 
@@ -164,7 +174,7 @@ class BunkUser:
         self.id = self.member.id
         self.name = sub(USER_NAME_REGEX, "", self.member.name.lower()).strip()
 
-        db_user = database.get_user2(member.name)
+        db_user = database.get_user(member)
         if db_user is not None:
             try:
                 self.last_online = db_user["last_online"]

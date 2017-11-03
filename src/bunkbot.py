@@ -44,7 +44,9 @@ class BunkBot(commands.Bot):
         self.role_streaming = None
         self.role_new = None
         self.role_vip = None
+        self.role_vip_perms = None
         self.role_moderator = None
+        self.role_moderator_perms = None
         self.users = []
         self.load_cogs()
         Holiday.on_holiday += self.send_greeting
@@ -64,8 +66,12 @@ class BunkBot(commands.Bot):
                     self.role_new = ro
                 elif ro.name == "moderator":
                     self.role_moderator = ro
+                elif ro.name == "moderator_perms":
+                    self.role_moderator_perms = ro
                 elif ro.name == "vip":
                     self.role_vip = ro
+                elif ro.name == "vip_perms":
+                    self.role_vip_perms = ro
 
             for ch in self.server.channels:
                 if ch.name == "bot-testing":
@@ -365,8 +371,6 @@ class BunkBot(commands.Bot):
     async def send_greeting(self, message: str) -> None:
         try:
             await self.say_to_channel(self.general, message)
-            #await self.debug("Testing cron task events...")
-            #await self.debug(message)
         except Exception as e:
             self.handle_error(e, "send_greeting")
 
