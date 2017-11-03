@@ -47,6 +47,7 @@ class BunkBot(commands.Bot):
         self.role_vip_perms = None
         self.role_moderator = None
         self.role_moderator_perms = None
+        self.SERVER_LOCKED = False
         self.users = []
         self.load_cogs()
         Holiday.on_holiday += self.send_greeting
@@ -217,6 +218,11 @@ class BunkBot(commands.Bot):
     # apply the "new" role, and update the database
     async def member_join(self, member: Member) -> None:
         try:
+            if self.SERVER_LOCKED:
+                await self.kick(member)
+                await self.say_to_channel(self.mod_chat, "User {0} kicked while joining during a server lock".format(member.name))
+                return
+
             server: Server = member.server
             fmt: str = "Welcome {0.mention} to {1.name}!  Type !help for a list of my commands"
 
@@ -250,7 +256,7 @@ class BunkBot(commands.Bot):
     # no way to distinguish a kick or leave, only ban events
     async def member_remove(self, member: Member) -> None:
         try:
-           await self.say_to_channel(self.mod_chat, "@everyone User '{0}' has left the server.".format(member.name))
+           await self.say_to_channel(self.mod_chat, "@everyone :skull_crossbones: User '{0}' has left the server :skull_crossbones:".format(member.name))
         except Exception as e:
             self.handle_error(e, "member_update")
 
