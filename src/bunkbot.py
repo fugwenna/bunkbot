@@ -294,16 +294,16 @@ class BunkBot(commands.Bot):
                 if after.is_streaming:
                 #if after.member.game is not None and after.member.game.type == 1:
                     #if len([r for r in after.member.roles if r.name == self.role_streaming.name]) == 0:
-                    await self.debug("checking role...")
-                    if not after.has_role(self.role_streaming):
+                    await self.debug("checking role for add...")
+                    if not after.has_role(self.role_streaming.name):
                         await bunk_user.update_xp(0.1)
                         await self.debug("adding role to {0}".format(after.member.name))
                         await self.add_roles(after.member, self.role_streaming)
                 elif before.is_streaming:
                 #elif before.member.game is not None and before.member.game.type == 1:
                     #if len([r for r in after.member.roles if r.name == self.role_streaming.name]) > 0:
-                    await self.debug("checking role...")
-                    if after.has_role(self.role_streaming):
+                    await self.debug("checking role for rm...")
+                    if after.has_role(self.role_streaming.name):
                         await bunk_user.update_xp(0.1)
                         await self.debug("removing role from {0}".format(after.member.name))
                         await self.remove_roles(after.member, self.role_streaming)
