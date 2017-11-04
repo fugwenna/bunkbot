@@ -309,21 +309,21 @@ class BunkBot(commands.Bot):
                     #await self.debug("checking role for add...")
                     if not after.has_role(self.role_streaming.name):
                         await bunk_user.update_xp(0.1)
-                        #await self.debug("adding role to {0}".format(after.member.name))
-                        await self.add_roles(after.member, self.role_streaming)
+                        await self.debug("adding streaming role to {0}".format(after.member.name))
+                        await self.add_roles(bunk_user.member, self.role_streaming)
                 elif before.is_streaming:
                 #elif before.member.game is not None and before.member.game.type == 1:
                     #if len([r for r in after.member.roles if r.name == self.role_streaming.name]) > 0:
                     #await self.debug("checking role for rm...")
                     if after.has_role(self.role_streaming.name):
                         await bunk_user.update_xp(0.1)
-                        #await self.debug("removing role from {0}".format(after.member.name))
-                        await self.remove_roles(after.member, self.role_streaming)
+                        await self.debug("removing streaming role from {0}".format(after.member.name))
+                        await self.remove_roles(bunk_user.member, self.role_streaming)
 
         except BunkException as be:
             await self.say_to_channel(self.bot_testing, be.message)
         except Exception as e:
-            print(e)
+            await self.handle_error(e, "check_member_streaming")
 
 
     # update the users "last online"

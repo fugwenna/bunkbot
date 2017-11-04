@@ -50,6 +50,7 @@ class Weather:
 
     # start the daily forecast event loop
     # once the main bot has been initialized
+    # 9AM UTC - 13
     async def wire_daily_forecast(self) -> None:
          scheduler = AsyncIOScheduler()
          scheduler.add_job(self.send_daily_forecast, trigger="cron", hour=13, misfire_grace_time=60)

@@ -146,7 +146,7 @@ class BunkRPG:
 
     # accept a duel from another BunkUser
     # and lock the duel for both users
-    @command(pass_context=True, help="Challenge another user to a duel")
+    @command(pass_context=True, help="Accept a duel")
     async def accept(self, ctx) -> None:
         try:
             bunk_user = self.bot.get_user(ctx.message.author.name)
