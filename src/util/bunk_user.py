@@ -56,12 +56,15 @@ class BunkUser:
 
     # current database user last xp updated date
     @property
-    def last_xp_updated(self) -> float or None:
+    def last_xp_updated(self) -> str or None:
         if self.member is None:
             return None
 
         db_user = database.get_user(self.member)
-        return db_user["last_xp_updated"]
+        try:
+            return db_user["last_xp_updated"]
+        except:
+            return None
 
 
     # current database user xp

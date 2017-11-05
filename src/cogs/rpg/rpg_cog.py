@@ -1,4 +1,5 @@
 import pytz, asyncio
+from datetime import datetime, timedelta
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from re import sub
 from discord import Embed, Channel
@@ -19,14 +20,11 @@ class BunkRPG:
     def __init__(self, bot: BunkBot):
         self.bot = bot
         self.duels = []
-        # scheduler = AsyncIOScheduler()
-        # scheduler.add_job(self.check_decayed_xp, trigger="cron", hour=0, misfire_grace_time=60)
-        # scheduler.start()
-        # try:
-        #     asyncio.get_event_loop().run_forever()
-        # except:
-        #     pass
-
+        scheduler = AsyncIOScheduler()
+        scheduler.add_job(self.check_decayed_xp, trigger="cron", hour=0, misfire_grace_time=60)
+        scheduler.start()
+        asyncio.get_event_loop().run_forever()
+        #BunkBot.on_bot_initialized += self.check_decayed_xp
         BunkUser.on_level_up += self.ding
 
 
@@ -34,10 +32,21 @@ class BunkRPG:
     # the users and see when their XP was last updated
     # and calculate decay accordingly
     async def check_decayed_xp(self) -> None:
-        for user in self.bot.users:
-            b_user: BunkUser = user
-            await self.bot.say_to_channel(self.bot.bot_logs, "Checking XP for {0} {1}".format(b_user.name, b_user.last_xp_updated))
-        return
+        try:
+            await self.bot.debug("Testing XP decay ...")
+
+            decays = []
+            today = datetime.today().date()
+
+            for user in self.bot.users:
+                b_user: BunkUser = user
+                last_update = datetime.strptime(b_user.last_xp_updated, "%m/%d/%Y").date()
+                delta = (today - last_update).days
+                if delta > 0:
+                    await self.bot.debug("{0} has not had an xp update in {1} days!".format(b_user.name, delta))
+
+        except Exception as e:
+            await self.bot.handle_error(e, "check_decayed_xp")
 
 
     # DING - user has leveled up

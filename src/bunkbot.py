@@ -8,6 +8,9 @@ import sys
 import time
 import traceback
 import urllib.request
+import datetime
+import pytz
+import logging
 from re import sub
 from os import walk
 from os.path import join, splitext, sep
@@ -22,10 +25,13 @@ from src.util.holidays import Holiday
 from src.util.event_hook import EventHook
 
 
+LOG_FILE = "./src/storage/bunk_log"
 BOT_DESCRIPTION = """
 The bunkest bot - type '!help' for my commands, or say my name to chat with me. Type '!help [command] for more info
 on a command (i.e. !help color)\n
 """
+
+
 
 class BunkBot(commands.Bot):
     on_bot_initialized = EventHook()
@@ -304,18 +310,11 @@ class BunkBot(commands.Bot):
 
             if bunk_user is not None:
                 if after.is_streaming:
-                #if after.member.game is not None and after.member.game.type == 1:
-                    #if len([r for r in after.member.roles if r.name == self.role_streaming.name]) == 0:
-                    #await self.debug("checking role for add...")
                     if not after.has_role(self.role_streaming.name):
                         await bunk_user.update_xp(0.1)
                         await self.debug("adding streaming role to {0}".format(after.member.name))
                         await self.add_roles(bunk_user.member, self.role_streaming)
                 elif before.is_streaming:
-                #elif before.member.game is not None and before.member.game.type == 1:
-                    #if len([r for r in after.member.roles if r.name == self.role_streaming.name]) > 0:
-                    #await self.debug("checking role for rm...")
-                    if after.has_role(self.role_streaming.name):
                         await bunk_user.update_xp(0.1)
                         await self.debug("removing streaming role from {0}".format(after.member.name))
                         await self.remove_roles(bunk_user.member, self.role_streaming)
@@ -396,11 +395,12 @@ class BunkBot(commands.Bot):
         try:
             error_message: str = ":exclamation: Error occurred from command '{0}': {1}".format(command, error)
 
-            try:
-                await self.say_to_channel(traceback.print_exc(file=sys.stdout))
-            except:
-                await self.say_to_channel(self.bot_logs, "Error printing traceback")
-                pass
+            # try:
+            #     now = datetime.datetime.now(tz=pytz.timezone("US/Eastern"))
+            #     log_time = "{0:%m/%d/%Y %I:%M:%S %p}".format(now)
+            # except:
+            #     await self.say_to_channel(self.bot_logs, "Error printing traceback")
+            #     pass
 
             await self.say_to_channel(self.bot_logs, error_message)
         except Exception as e:

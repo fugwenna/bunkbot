@@ -93,10 +93,8 @@ class BunkDB:
         if cur_xp + value > 0:
             new_xp = round(cur_xp + value, 2)
 
-        now = datetime.datetime.now(tz=pytz.timezone("US/Eastern"))
-        last_xp = "{0:%m/%d/%Y %I:%M:%S %p}".format(now)
-
-        self.users.update({"xp": new_xp, "last_xp_updated": last_xp}, Query().name == member.name)
+        now = datetime.datetime.now()
+        self.users.update({"xp": new_xp, "last_xp_updated": now}, Query().name == member.name)
 
         user = self.get_user(member)
         return user
