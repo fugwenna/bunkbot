@@ -20,12 +20,20 @@ class BunkRPG:
     def __init__(self, bot: BunkBot):
         self.bot = bot
         self.duels = []
-        scheduler = AsyncIOScheduler()
-        scheduler.add_job(self.check_decayed_xp, trigger="cron", hour=0, misfire_grace_time=60)
-        scheduler.start()
-        asyncio.get_event_loop().run_forever()
-        #BunkBot.on_bot_initialized += self.check_decayed_xp
+        BunkBot.on_bot_initialized += self.wire_decay_check
         BunkUser.on_level_up += self.ding
+
+
+    # wire up the scheduler to handle
+    # XP decay every day
+    async def wire_decay_check(self) -> None:
+        try:
+            scheduler = AsyncIOScheduler()
+            scheduler.add_job(self.check_decayed_xp, trigger="cron", hour=0, misfire_grace_time=60)
+            scheduler.start()
+            asyncio.get_event_loop().run_forever()
+        except:
+            pass
 
 
     # every day, tell bunkbot to check over
