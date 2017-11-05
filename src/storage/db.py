@@ -94,7 +94,9 @@ class BunkDB:
             new_xp = round(cur_xp + value, 2)
 
         now = datetime.datetime.now()
-        self.users.update({"xp": new_xp, "last_xp_updated": now}, Query().name == member.name)
+        last_xp = "{0:%m/%d/%Y}".format(now)
+
+        self.users.update({"xp": new_xp, "last_xp_updated": last_xp}, Query().name == member.name)
 
         user = self.get_user(member)
         return user
