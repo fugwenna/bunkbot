@@ -32,7 +32,6 @@ on a command (i.e. !help color)\n
 """
 
 
-
 class BunkBot(commands.Bot):
     on_bot_initialized = EventHook()
 

@@ -50,7 +50,7 @@ class BunkRPG:
                 b_user: BunkUser = user
                 last_update = datetime.strptime(b_user.last_xp_updated, "%m/%d/%Y").date()
                 delta = (today - last_update).days
-                if delta > 0:
+                if delta > 1:
                     await self.bot.debug("{0} has not had an xp update in {1} days!".format(b_user.name, delta))
 
         except Exception as e:
