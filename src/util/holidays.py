@@ -21,7 +21,11 @@ HOLIDAYS = [{
 }, {
     "date": "10/31/{0}".format(now_year),
     "midnight": False,
-    "message": "@everyone :jack_o_lantern: :jack_o_lantern: HAPPY HALLOWEEN!!!!!!!!!:jack_o_lantern: :jack_o_lantern: "
+    "message": "@everyone :jack_o_lantern: :jack_o_lantern: HAPPY HALLOWEEN!!!!!!!!!:jack_o_lantern: :jack_o_lantern:"
+}, {
+    "date": "11/23/{0}".format(now_year),
+    "midnight": False,
+    "message": "@everyone :turkey: :poultry_leg: :sweet_potato: HAPPY THANKSGIVING!!!!!!111!!! :sweet_potato: :poultry_leg: :turkey:"
 }]
 
 #["1/1", "7/4", "10/31", "12/24", "12/25"]
