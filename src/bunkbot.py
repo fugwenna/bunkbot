@@ -46,6 +46,7 @@ class BunkBot(commands.Bot):
         self.bot_logs: Channel = None
         self.mod_chat: Channel = None
         self.general: Channel = None
+        self.role_admin = None
         self.role_streaming = None
         self.role_new = None
         self.role_vip = None
@@ -53,6 +54,9 @@ class BunkBot(commands.Bot):
         self.role_moderator = None
         self.role_moderator_perms = None
         self.SERVER_LOCKED = False
+        self.ADMIN: BunkUser = None
+        self.MODERATORS: list = []
+        self.VIPS: list = []
         self.users = []
         self.load_cogs()
         Holiday.on_holiday += self.send_greeting
@@ -70,6 +74,8 @@ class BunkBot(commands.Bot):
                     self.role_streaming = ro
                 elif ro.name == "new":
                     self.role_new = ro
+                elif ro.name == "admin":
+                    self.role_admin = ro
                 elif ro.name == "moderator":
                     self.role_moderator = ro
                 elif ro.name == "moderator_perms":
@@ -148,6 +154,14 @@ class BunkBot(commands.Bot):
 
                 user: BunkUser = BunkUser(member)
                 self.users.append(user)
+
+                if user.has_role(self.role_admin.name):
+                    self.ADMIN = user
+                elif user.has_role(self.role_moderator.name):
+                    self.MODERATORS.append(user)
+                elif user.has_role(self.role_vip.name):
+                    self.VIPS.append(user)
+
                 await self.check_member_streaming(user, user)
 
             if len(new_users) > 0:
@@ -298,7 +312,6 @@ class BunkBot(commands.Bot):
             await self.say_to_channel(self.bot_testing, be.message)
         except Exception as e:
             await self.handle_error(e, "member_voice_update")
-            await self.say_to_channel(self.bot_logs, traceback.print_exc(file=sys.stdout))
 
 
     # update a member if they are streaming
@@ -311,11 +324,9 @@ class BunkBot(commands.Bot):
                 if after.is_streaming:
                     if not after.has_role(self.role_streaming.name):
                         await bunk_user.update_xp(0.1)
-                        await self.debug("adding streaming role to {0}".format(after.member.name))
                         await self.add_roles(bunk_user.member, self.role_streaming)
                 elif before.is_streaming:
                         await bunk_user.update_xp(0.1)
-                        await self.debug("removing streaming role from {0}".format(after.member.name))
                         await self.remove_roles(bunk_user.member, self.role_streaming)
 
         except BunkException as be:
@@ -327,19 +338,23 @@ class BunkBot(commands.Bot):
     # update the users "last online"
     # property in the database
     async def check_member_last_online(self, before: BunkUser, after: BunkUser) -> None:
-        pre_status = str(before.member.status)
-        post_status = str(after.member.status)
-        on_off = pre_status != "offline"and post_status == "offline"
-        off_on = pre_status == "offline" and post_status != "offline"
+        try:
+            pre_status = str(before.member.status)
+            post_status = str(after.member.status)
+            on_off = pre_status != "offline"and post_status == "offline"
+            off_on = pre_status == "offline" and post_status != "offline"
 
-        bunk_user: BunkUser = self.get_user(after.name)
+            bunk_user: BunkUser = self.get_user(after.name)
 
-        if on_off or off_on:
-            await bunk_user.update_last_online()
+            if bunk_user is not None:
+                if on_off or off_on:
+                    await bunk_user.update_last_online()
 
-        if pre_status == "offline" and post_status == "idle":
-            # invis?
-            return
+            if pre_status == "offline" and post_status == "idle":
+                # invis?
+                return
+        except Exception as e:
+            await self.handle_error(e, "check_member_last_online")
 
 
     # get a member from the
