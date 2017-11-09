@@ -305,8 +305,9 @@ class BunkBot(commands.Bot):
 
             bunk_user: BunkUser = self.get_user(after.name)
 
-            if is_voice or was_voice:
-                await bunk_user.update_xp(0.5)
+            if bunk_user is not None:
+                if is_voice or was_voice:
+                    await bunk_user.update_xp(0.5)
 
         except BunkException as be:
             await self.say_to_channel(self.bot_testing, be.message)
