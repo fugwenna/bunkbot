@@ -29,7 +29,7 @@ class BunkRPG:
     async def wire_decay_check(self) -> None:
         try:
             scheduler = AsyncIOScheduler()
-            scheduler.add_job(self.check_decayed_xp, trigger="cron", hour=0, misfire_grace_time=60)
+            scheduler.add_job(self.check_decayed_xp, trigger="cron", hour=4, misfire_grace_time=60)
             scheduler.start()
             asyncio.get_event_loop().run_forever()
         except:
@@ -44,14 +44,23 @@ class BunkRPG:
             await self.bot.debug("Testing XP decay ...")
 
             decays = []
+            no_xp_date = []
             today = datetime.today().date()
 
             for user in self.bot.users:
                 b_user: BunkUser = user
-                last_update = datetime.strptime(b_user.last_xp_updated, "%m/%d/%Y").date()
-                delta = (today - last_update).days
-                if delta > 1:
-                    await self.bot.debug("{0} has not had an xp update in {1} days!".format(b_user.name, delta))
+
+                if not b_user.last_xp_updated:
+                    no_xp_date.append("{0} has no xp to decay".format(b_user.name))
+                else:
+                    last_update = datetime.strptime(b_user.last_xp_updated, "%m/%d/%Y").date()
+                    delta = (today - last_update).days
+                    if delta > 1:
+                        decays.append("{0} has not had an xp update in {1} days! ({2})".format(b_user.name, delta, b_user.last_xp_updated))
+
+            await self.bot.debug("\n".join(decays))
+            await self.bot.debug("\n".join(no_xp_date))
+
 
         except Exception as e:
             await self.bot.handle_error(e, "check_decayed_xp")
