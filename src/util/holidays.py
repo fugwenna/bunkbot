@@ -72,7 +72,7 @@ class Holiday:
     @staticmethod
     async def start_timer() -> None:
         scheduler = AsyncIOScheduler()
-        scheduler.add_job(Holiday.send_midnight_greeting, trigger="cron", hour=0, misfire_grace_time=60)
+        scheduler.add_job(Holiday.send_midnight_greeting, trigger="cron", hour=5, misfire_grace_time=60)
         scheduler.add_job(Holiday.send_evening_greeting, trigger="cron", hour=18, misfire_grace_time=60)
         scheduler.start()
         try:
