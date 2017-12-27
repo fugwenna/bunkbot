@@ -39,11 +39,18 @@ class Duel:
         self.challenger.duel = None
         self.opponent.duel = None
 
-        if  self.challenger.duel_roll == self.opponent.duel_roll:
+        if self.challenger.duel_roll == self.opponent.duel_roll:
             self.tie = True
         else:
-            self.winner = self.challenger if self.challenger.duel_roll > self.opponent.duel_roll else self.opponent
-            self.loser = self.challenger if self.challenger.duel_roll < self.opponent.duel_roll else self.opponent
+            if self.challenger.duel_roll > self.opponent.duel_roll:
+                self.winner = self.challenger
+                self.loser = self.opponent
+            else:
+                self.winner = self.opponent
+                self.loser = self.challenger
+
+            #self.winner = self.challenger if self.challenger.duel_roll > self.opponent.duel_roll else self.opponent
+            #self.loser = self.challenger if self.challenger.duel_roll < self.opponent.duel_roll else self.opponent
 
 
     # after a duel, update each individual

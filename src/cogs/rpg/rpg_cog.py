@@ -84,12 +84,16 @@ class BunkRPG:
         try:
             await self.bot.send_typing(ctx.message.channel)
 
-            players = sorted([u for u in self.bot.users if u.xp >= 0],
+            players = sorted([u for u in self.bot.users if u.xp is not None and u.level is not None and u.xp >= 0],
                              key=lambda x: (x.level, x.xp), reverse=True)[:9]
 
             names = []
             levels = []
             xps = []
+
+            if players is None:
+                await self.bot.say("Uhh.. try again, @fugwenna sucks at programming")
+                return
 
             for p in players:
                 names.append(sub(r"[^A-Za-z]+", "", p.name))

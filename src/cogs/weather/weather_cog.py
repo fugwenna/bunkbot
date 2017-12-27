@@ -53,12 +53,12 @@ class Weather:
     # 9AM UTC - 13
     async def wire_daily_forecast(self) -> None:
          scheduler = AsyncIOScheduler()
-         scheduler.add_job(self.send_daily_forecast, trigger="cron", hour=14, misfire_grace_time=60)
+         scheduler.add_job(self.send_daily_forecast, trigger="cron", hour=14, misfire_grace_time=120)
          scheduler.start()
          try:
              asyncio.get_event_loop().run_forever()
-         except:
-             pass
+         except Exception as e:
+             self.bot.handle_error(e, "wire_daily_forecast")
 
 
     # daily forecast for the the
