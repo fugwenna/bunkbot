@@ -1,7 +1,6 @@
 from random import randint
 from src.storage.db import database
 
-USER_NAME_REGEX = r"[^\x00-\x7F]+"
 RPG_CONSTANTS =  database.rpg.all()
 XP_CONST: float = RPG_CONSTANTS[0]["xp_const"]
 UPDATE_CAP: int = RPG_CONSTANTS[1]["update_cap"]

@@ -8,9 +8,6 @@ import sys
 import time
 import traceback
 import urllib.request
-import datetime
-import pytz
-import logging
 from re import sub
 from os import walk
 from os.path import join, splitext, sep
@@ -18,14 +15,13 @@ from discord import Channel, Member, Message, Reaction, Server, VoiceState, Embe
 from cleverwrap import CleverWrap
 from discord.ext import commands
 from src.storage.db import database
-from src.util.helpers import USER_NAME_REGEX
 from src.util.bunk_user import BunkUser
 from src.util.bunk_exception import BunkException
 from src.util.holidays import Holiday
 from src.util.event_hook import EventHook
+from src.util.constants import *
 
 
-LOG_FILE = "./src/storage/bunk_log"
 BOT_DESCRIPTION = """
 The bunkest bot - type '!help' for my commands, or say my name to chat with me. Type '!help [command] for more info
 on a command (i.e. !help color)\n
@@ -36,7 +32,7 @@ class BunkBot(commands.Bot):
     on_bot_initialized = EventHook()
 
     def __init__(self):
-        super().__init__("!", None, BOT_DESCRIPTION, False)
+        super().__init__("!", None, BOT_DESCRIPTION, True)
         self.init: bool = False
         self.chat_timer = 9
         self.last_message_at = -1
@@ -67,35 +63,35 @@ class BunkBot(commands.Bot):
     async def on_init(self):
         if self.init is False:
             self.init = True
-            self.server = self.get_server(database.get("serverid"))
+            self.server = self.get_server(database.get(DB_SERVER_ID))
 
             for ro in self.server.roles:
-                if ro.name == "streaming":
+                if ro.name == ROLE_STREAMING:
                     self.role_streaming = ro
-                elif ro.name == "new":
+                elif ro.name == ROLE_NEW:
                     self.role_new = ro
-                elif ro.name == "admin":
+                elif ro.name == ROLE_ADMIN:
                     self.role_admin = ro
-                elif ro.name == "moderator":
+                elif ro.name == ROLE_MODERATOR:
                     self.role_moderator = ro
-                elif ro.name == "moderator_perms":
+                elif ro.name == ROLE_MODERATOR_PERMS:
                     self.role_moderator_perms = ro
-                elif ro.name == "vip":
+                elif ro.name == ROLE_VIP:
                     self.role_vip = ro
-                elif ro.name == "vip_perms":
+                elif ro.name == ROLE_VIP_PERMS:
                     self.role_vip_perms = ro
 
             for ch in self.server.channels:
-                if ch.name == "bot-testing":
+                if ch.name == CHANNEL_BOT_TESTING:
                     self.bot_testing = ch
-                elif ch.name == "bot-logs":
+                elif ch.name == CHANNEL_BOT_LOGS:
                     self.bot_logs = ch
-                elif ch.name == "mod-chat":
+                elif ch.name == CHANNEL_MOD_CHAT:
                     self.mod_chat = ch
-                elif ch.name == "general":
+                elif ch.name == CHANNEL_GENERAL:
                     self.general = ch
 
-            self.chat_bot = CleverWrap(database.get("cleverbot"))
+            self.chat_bot = CleverWrap(database.get(DB_CLEVERBOT))
             await self.say_to_channel(self.bot_logs, "Bot and database initialized. Syncing users and channels...")
             await self.sync_users()
             await Holiday.start_timer()
@@ -327,8 +323,8 @@ class BunkBot(commands.Bot):
                         await bunk_user.update_xp(0.1)
                         await self.add_roles(bunk_user.member, self.role_streaming)
                 elif before.is_streaming:
-                        await bunk_user.update_xp(0.1)
-                        await self.remove_roles(bunk_user.member, self.role_streaming)
+                    await bunk_user.update_xp(0.1)
+                    await self.remove_roles(bunk_user.member, self.role_streaming)
 
         except BunkException as be:
             await self.say_to_channel(self.bot_testing, be.message)

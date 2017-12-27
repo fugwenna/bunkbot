@@ -4,8 +4,9 @@ from time import time
 from discord import Member, Server, Channel
 from src.storage.db import database
 from src.cogs.rpg.duel import Duel
-from src.util.helpers import USER_NAME_REGEX, TIMER_MINUTES, UPDATE_CAP, calc_req_xp
+from src.util.helpers import TIMER_MINUTES, UPDATE_CAP, calc_req_xp
 from src.util.event_hook import EventHook
+from src.util.constants import USER_NAME_REGEX
 
 
 """
