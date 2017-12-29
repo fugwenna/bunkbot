@@ -254,17 +254,22 @@ class BunkBot(commands.Bot):
     # perform custom functions when a user has
     # been updated - i.e. apply custom/temporary roles
     async def member_update(self, before: Member, after: Member) -> None:
+        before_user = None
+        bunk_user = None
+
         try:
             before_user: BunkUser = BunkUser(before)
             bunk_user: BunkUser = BunkUser(after)
-
-            await self.check_member_streaming(before_user, bunk_user)
-            await self.check_member_last_online(before_user, bunk_user)
 
         except BunkException as be:
             await self.say_to_channel(self.bot_testing, be.message)
         except Exception as e:
             await self.handle_error(e, "member_update")
+            return
+
+        await self.check_member_streaming(before_user, bunk_user)
+        await self.check_member_last_online(before_user, bunk_user)
+
 
 
     # alert when a member has been "removed" from the server

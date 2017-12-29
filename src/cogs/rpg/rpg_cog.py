@@ -29,9 +29,11 @@ class BunkRPG:
     async def wire_decay_check(self) -> None:
         try:
             scheduler = AsyncIOScheduler()
-            scheduler.add_job(self.check_decayed_xp, trigger="cron", hour=4, misfire_grace_time=60)
+            scheduler.add_job(self.check_decayed_xp, trigger="cron", hour=4, misfire_grace_time=120)
             scheduler.start()
-            asyncio.get_event_loop().run_forever()
+
+            if not scheduler.running:
+                asyncio.get_event_loop().run_forever()
         except:
             pass
 
@@ -58,10 +60,8 @@ class BunkRPG:
                     if delta > 1:
                         decays.append("{0} has not had an xp update in {1} days! ({2})".format(b_user.name, delta, b_user.last_xp_updated))
 
-            await self.bot.debug("\n".join(decays))
-            await self.bot.debug("\n".join(no_xp_date))
-
-
+            #await self.bot.debug("\n".join(decays))
+            #await self.bot.debug("\n".join(no_xp_date))
         except Exception as e:
             await self.bot.handle_error(e, "check_decayed_xp")
 
@@ -84,6 +84,7 @@ class BunkRPG:
         try:
             await self.bot.send_typing(ctx.message.channel)
 
+            await self.bot.debug("getting players...")
             players = sorted([u for u in self.bot.users if u.xp is not None and u.level is not None and u.xp >= 0],
                              key=lambda x: (x.level, x.xp), reverse=True)[:9]
 
@@ -95,6 +96,7 @@ class BunkRPG:
                 await self.bot.say("Uhh.. try again, @fugwenna sucks at programming")
                 return
 
+            await self.bot.debug("loopin")
             for p in players:
                 names.append(sub(r"[^A-Za-z]+", "", p.name))
                 levels.append(str(p.level))
