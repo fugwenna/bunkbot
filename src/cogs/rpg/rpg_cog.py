@@ -34,8 +34,8 @@ class BunkRPG:
 
             if not scheduler.running:
                 asyncio.get_event_loop().run_forever()
-        except:
-            pass
+        except Exception as e:
+            await self.bot.handle_error(e, "wire_decay_check")
 
 
     # every day, tell bunkbot to check over
@@ -43,8 +43,6 @@ class BunkRPG:
     # and calculate decay accordingly
     async def check_decayed_xp(self) -> None:
         try:
-            await self.bot.debug("Testing XP decay ...")
-
             decays = []
             no_xp_date = []
             today = datetime.today().date()
@@ -60,8 +58,8 @@ class BunkRPG:
                     if delta > 1:
                         decays.append("{0} has not had an xp update in {1} days! ({2})".format(b_user.name, delta, b_user.last_xp_updated))
 
-            #await self.bot.debug("\n".join(decays))
-            #await self.bot.debug("\n".join(no_xp_date))
+            await self.bot.debug("\n".join(decays))
+            await self.bot.debug("\n".join(no_xp_date))
         except Exception as e:
             await self.bot.handle_error(e, "check_decayed_xp")
 
