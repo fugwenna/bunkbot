@@ -31,7 +31,7 @@ class Weather:
         self.bot = bot
         self.zip = "20201"
         self.token = database.get("weather")
-        BunkBot.on_bot_initialized += self.wire_daily_forecast
+        #BunkBot.on_bot_initialized += self.wire_daily_forecast
 
 
     # dynamic property that will be used to
@@ -69,8 +69,8 @@ class Weather:
         try:
             self.zip = "21201"
 
-            curr_weather_result = self.bot.http_get(self.weather_api)
-            forecast_result = self.bot.http_get(self.forecast_api)
+            curr_weather_result = await self.bot.http_get(self.weather_api)
+            forecast_result = await self.bot.http_get(self.forecast_api)
 
             weather = WeatherResult(curr_weather_result, forecast_result, True, 1)
 
@@ -92,8 +92,8 @@ class Weather:
             await self.bot.send_typing(ctx.message.channel)
             self.set_zip(ctx)
 
-            curr_weather_result = self.bot.http_get(self.weather_api)
-            forecast_result = self.bot.http_get(self.forecast_api)
+            curr_weather_result = await self.bot.http_get(self.weather_api)
+            forecast_result = await self.bot.http_get(self.forecast_api)
 
             weather = WeatherResult(curr_weather_result, forecast_result, self.as_full(ctx))
 
@@ -114,7 +114,7 @@ class Weather:
             await self.bot.send_typing(ctx.message.channel)
             self.set_zip(ctx)
 
-            radar_location = self.bot.http_get("{0}{1}".format(RADAR_QUERY, self.zip))
+            radar_location = await self.bot.http_get("{0}{1}".format(RADAR_QUERY, self.zip))
             radar_result = RadarResult(radar_location)
 
             if not radar_result.location_found:

@@ -398,11 +398,11 @@ class BunkBot(commands.Bot):
 
     # make a basic http call
     # with urllib
-    def http_get(self, url: str) -> json:
+    async def http_get(self, url: str) -> json:
         try:
             return json.loads(urllib.request.urlopen(url).read())
         except Exception as e:
-            self.handle_error(e, "http_get")
+            await self.handle_error(e, "http_get")
 
 
     # default catch for handling any errors that
