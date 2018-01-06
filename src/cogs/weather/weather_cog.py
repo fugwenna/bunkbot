@@ -31,7 +31,7 @@ class Weather:
         self.bot = bot
         self.zip = "20201"
         self.token = database.get("weather")
-        #BunkBot.on_bot_initialized += self.wire_daily_forecast
+        BunkBot.on_bot_initialized += self.wire_daily_forecast
 
 
     # dynamic property that will be used to
