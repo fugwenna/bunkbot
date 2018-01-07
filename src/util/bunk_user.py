@@ -158,11 +158,17 @@ class BunkUser:
     # wrapper for checking
     # if the user is streaming
     @property
-    def is_streaming(self):
+    def is_streaming(self) -> bool:
         if not self.member:
             return False
 
         return self.member.game is not None and self.member.game.type == 1
+
+
+    # id reference for hotslogs
+    @property
+    def hots_ref(self) -> int:
+        return -1
 
 
     # check if the  bunk user
