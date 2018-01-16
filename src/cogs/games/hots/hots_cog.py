@@ -6,16 +6,15 @@ from src.bunkbot import BunkBot
 from src.util.bunk_exception import BunkException
 from src.util.bunk_user import BunkUser
 from .hotslogs_result import HotslogsResult
+from .hots_exception import HotsException
 
 DESCRIPTION: str = """Commands for HOTS, using hotslogs.com data"""
-HOTS_ID_URL: str = "https://api.hotslogs.com/Public/Players/"
 
 class Hots:
     def __init__(self, bot: BunkBot):
         self.bot = bot
 
-    # roll a random number
-    # optionally specify a value range with default 0-100
+    # look up info on a hots player
     @command(pass_context=True, cls=None, help="Lookup a hots player based on name/id", aliases=["hp", "hotslogs", "hots"])
     async def hotsplayer(self, ctx: Context) -> None:
         try:
@@ -31,20 +30,22 @@ class Hots:
                 return
 
             data = None
+            hrsult = HotslogsResult()
             identifier: str = cmds[0]
 
             # user has based an id
             if identifier.isdigit():
-                hrsult = HotslogsResult()
-                html = hrsult.get_player_by_id(identifier)
-                #await self.bot.say(data)
+                data = hrsult.get_player_by_id(identifier)
             else:
-                pass
-                #html = self.scrape(HOTS_PLAYER_URL)
+                data = hrsult.get_player_by_name(identifier)
 
+
+            print(data)
 
             #await self.bot.say(embed=Embed(title=title, description=message, color=ctx.message.author.color))
 
+        except HotsException as he:
+            await self.bot.say("Multiple players found for query: " + he.message)
         except BunkException as be:
             await self.bot.say(be.message)
         except Exception as e:

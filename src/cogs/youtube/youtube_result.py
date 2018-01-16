@@ -59,7 +59,7 @@ class YoutubeResult:
     @staticmethod
     def parse_query(query: str) -> str:
         query: str = parse.quote_plus(query)
-        response = request.urlopen(YT_SEARCH_URL + query)
-        html =  response.read().decode()
+        response = request.urlopen(YT_SEARCH_URL + query, timeout=1)
+        html = response.read().decode()
         response.close()
         return html

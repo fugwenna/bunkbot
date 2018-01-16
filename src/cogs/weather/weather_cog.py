@@ -72,13 +72,14 @@ class Weather:
             curr_weather_result = await self.bot.http_get(self.weather_api)
             forecast_result = await self.bot.http_get(self.forecast_api)
 
-            weather = WeatherResult(curr_weather_result, forecast_result, True, 1)
+            if curr_weather_result is not None and forecast_result is not None:
+                weather = WeatherResult(curr_weather_result, forecast_result, True, 1)
 
-            embed = Embed(title=weather.title, description=weather.conditions, color=int("008cba", 16))
-            embed.set_footer(text=weather.credit, icon_url=weather.wu_icon)
-            embed.set_thumbnail(url=weather.thumb)
+                embed = Embed(title=weather.title, description=weather.conditions, color=int("008cba", 16))
+                embed.set_footer(text=weather.credit, icon_url=weather.wu_icon)
+                embed.set_thumbnail(url=weather.thumb)
 
-            await self.bot.say_to_channel(self.bot.general, None, embed)
+                await self.bot.say_to_channel(self.bot.general, None, embed)
         except Exception as e:
             await self.bot.handle_error(e, "send_daily_forecast")
 
@@ -95,15 +96,16 @@ class Weather:
             curr_weather_result = await self.bot.http_get(self.weather_api)
             forecast_result = await self.bot.http_get(self.forecast_api)
 
-            weather = WeatherResult(curr_weather_result, forecast_result, self.as_full(ctx))
+            if curr_weather_result is not None and forecast_result is not None:
+                weather = WeatherResult(curr_weather_result, forecast_result, self.as_full(ctx))
 
-            embed = Embed(title=weather.title, description=weather.conditions, color=int("008cba", 16))
-            embed.set_footer(text=weather.credit, icon_url=weather.wu_icon)
-            embed.set_thumbnail(url=weather.thumb)
+                embed = Embed(title=weather.title, description=weather.conditions, color=int("008cba", 16))
+                embed.set_footer(text=weather.credit, icon_url=weather.wu_icon)
+                embed.set_thumbnail(url=weather.thumb)
 
-            await self.bot.say(embed=embed)
+                await self.bot.say(embed=embed)
         except Exception as e:
-            await self.bot.handle_error(e, "weather")
+            await self.bot.handle_error(e, "weather", ctx)
 
 
     # link local maryland radar from
@@ -115,23 +117,25 @@ class Weather:
             self.set_zip(ctx)
 
             radar_location = await self.bot.http_get("{0}{1}".format(RADAR_QUERY, self.zip))
-            radar_result = RadarResult(radar_location)
 
-            if not radar_result.location_found:
-                await self.bot.say("Cannot locate radar for location '{0}'".format(self.zip))
-                return
+            if radar_location is not None:
+                radar_result = RadarResult(radar_location)
 
-            url = RADAR_IMAGE.format(radar_result.id)
+                if not radar_result.location_found:
+                    await self.bot.say("Cannot locate radar for location '{0}'".format(self.zip))
+                    return
 
-            response = request.urlopen(url)
-            html = response.read().decode()
-            response.close()
+                url = RADAR_IMAGE.format(radar_result.id)
 
-            img = BeautifulSoup(html, "html.parser").find("img", id="map")["src"]
+                response = request.urlopen(url)
+                html = response.read().decode()
+                response.close()
 
-            await self.bot.say("{0}?{1}".format(img, uuid.uuid4()))
+                img = BeautifulSoup(html, "html.parser").find("img", id="map")["src"]
+
+                await self.bot.say("{0}?{1}".format(img, uuid.uuid4()))
         except Exception as e:
-            await self.bot.handle_error(e, "radar")
+            await self.bot.handle_error(e, "radar", ctx)
 
 
     # set the zip code
@@ -157,7 +161,6 @@ class Weather:
             return "--full" in params[0] or "-f" in params[0]
         elif len(params) == 2:
             return "--full" in params[1] or "-f" in params[1]
-
 
 
 def setup(bot: BunkBot) -> None:

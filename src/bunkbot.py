@@ -8,10 +8,12 @@ import sys
 import time
 import traceback
 import urllib.request
+from urllib.request import HTTPError, URLError, socket
 from re import sub
 from os import walk
 from os.path import join, splitext, sep
 from discord import Channel, Member, Message, Reaction, Server, VoiceState, Embed
+from discord.ext.commands import Context
 from cleverwrap import CleverWrap
 from discord.ext import commands
 from src.storage.db import database
@@ -397,26 +399,27 @@ class BunkBot(commands.Bot):
 
 
     # make a basic http call
-    # with urllib
     async def http_get(self, url: str) -> json:
         try:
-            return json.loads(urllib.request.urlopen(url).read())
+            return json.loads(urllib.request.urlopen(url, timeout=1).read())
+        except socket.timeout:
+            await self.handle_error("http timeout", "http_get")
+        except (HTTPError, URLError) as uhe:
+            await self.handle_error(uhe, "http_get")
         except Exception as e:
             await self.handle_error(e, "http_get")
 
 
     # default catch for handling any errors that
     # occur when processing bot commands
-    async def handle_error(self, error, command: str) -> None:
+    async def handle_error(self, error, command: str, ctx: Context = None) -> None:
         try:
             error_message: str = ":exclamation: Error occurred from command '{0}': {1}".format(command, error)
 
-            # try:
-            #     now = datetime.datetime.now(tz=pytz.timezone("US/Eastern"))
-            #     log_time = "{0:%m/%d/%Y %I:%M:%S %p}".format(now)
-            # except:
-            #     await self.say_to_channel(self.bot_logs, "Error printing traceback")
-            #     pass
+            if ctx is not None:
+                msg: Message = ctx.message
+                err: str = ":exclamation: An error has occurred! :exclamation: @fugwenna help ahhhh"
+                await self.say_to_channel(msg.channel, err)
 
             await self.say_to_channel(self.bot_logs, error_message)
         except Exception as e:

@@ -82,7 +82,6 @@ class BunkRPG:
         try:
             await self.bot.send_typing(ctx.message.channel)
 
-            await self.bot.debug("getting players...")
             players = sorted([u for u in self.bot.users if u.xp is not None and u.level is not None and u.xp >= 0],
                              key=lambda x: (x.level, x.xp), reverse=True)[:9]
 
@@ -94,7 +93,6 @@ class BunkRPG:
                 await self.bot.say("Uhh.. try again, @fugwenna sucks at programming")
                 return
 
-            await self.bot.debug("loopin")
             for p in players:
                 names.append(sub(r"[^A-Za-z]+", "", p.name))
                 levels.append(str(p.level))
@@ -107,7 +105,7 @@ class BunkRPG:
 
             await self.bot.say(embed=embed)
         except Exception as e:
-            await self.bot.handle_error(e, "leaders")
+            await self.bot.handle_error(e, "leaders", ctx)
 
 
     # allow users to print out their current level
@@ -143,7 +141,7 @@ class BunkRPG:
         except BunkException as be:
             await self.bot.say(be.message)
         except Exception as e:
-            await self.bot.handle_error(e, "level")
+            await self.bot.handle_error(e, "level", ctx)
 
 
     # challenge another user to a duel
@@ -171,7 +169,7 @@ class BunkRPG:
         except BunkException as be:
             await self.bot.say(be.message)
         except Exception as e:
-            await self.bot.handle_error(e, "duel")
+            await self.bot.handle_error(e, "duel", ctx)
 
 
     # accept a duel from another BunkUser
@@ -221,7 +219,7 @@ class BunkRPG:
         except BunkException as be:
             await self.bot.say(be.message)
         except Exception as e:
-            await self.bot.handle_error(e, "accept")
+            await self.bot.handle_error(e, "accept", ctx)
 
 
     # reject a duel from another BunkUser
@@ -246,7 +244,7 @@ class BunkRPG:
         except BunkException as be:
             await self.bot.say(be.message)
         except Exception as e:
-            await self.bot.handle_error(e, "cancel")
+            await self.bot.handle_error(e, "cancel", ctx)
 
 
     # cancel a duel from another BunkUser
@@ -271,7 +269,7 @@ class BunkRPG:
         except BunkException as be:
             await self.bot.say(be.message)
         except Exception as e:
-            await self.bot.handle_error(e, "cancel")
+            await self.bot.handle_error(e, "cancel", ctx)
 
 
 def setup(bot: BunkBot) -> None:
