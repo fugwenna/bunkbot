@@ -83,7 +83,7 @@ class Mod:
 
             user: BunkUser = self.bot.get_user(" ".join(cmds[0:]))
 
-            await self.bot.say_to_channel(self.bot.mod_chat, "User {0} last online {1}".format(user.name, user.last_xp_updated))
+            await self.bot.say_to_channel(self.bot.mod_chat, "User {0} last last active {1}".format(user.name, user.last_xp_updated))
 
         except BunkException as be:
             await self.bot.say(be.message)
