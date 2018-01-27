@@ -111,7 +111,7 @@ class BunkRPG:
     # allow users to print out their current level
     # or the level of another user, which will display
     # in n of 20 blocks based on pct to next level
-    @command(pass_context=True, help="Print your current level", aliases=["ranks2"])
+    @command(pass_context=True, help="Print your current level", aliases=["xp", "rank"])
     async def level(self, ctx) -> None:
         try:
             await self.bot.send_typing(ctx.message.channel)
