@@ -68,7 +68,7 @@ class Mod:
 
     # last_xp
     @commands.has_any_role("admin", "moderator")
-    @command(pass_context=True, cls=None, help="Find the last online of a user", aliases=["last", "lastxp", "lxp"])
+    @command(pass_context=True, cls=None, help="Find the last online of a user", aliases=["last", "lastxp", "lxp", "active", "lastactive"])
     async def lastxpupdate(self, ctx: Context) -> None:
         try:
             await self.bot.send_typing(ctx.message.channel)
