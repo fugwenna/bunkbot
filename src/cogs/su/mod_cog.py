@@ -4,7 +4,8 @@ Commands only allowable by admin and moderator
 from discord.ext import commands
 from discord.ext.commands import command, Context
 from src.bunkbot import BunkBot
-
+from src.util.bunk_user import BunkUser
+from src.util.bunk_exception import BunkException
 
 class Mod:
     def __init__(self, bot: BunkBot):
@@ -39,6 +40,31 @@ class Mod:
 
         if ctx.message.channel != self.bot.mod_chat:
             await self.bot.delete_message(ctx.message)
+
+
+    # unlock the server and allow invitations
+    @commands.has_any_role("admin", "moderator")
+    @command(pass_context=True, cls=None, help="Find the last online of a user", aliases=["last", "online", "lo"])
+    async def lastonline(self, ctx: Context) -> None:
+        try:
+            await self.bot.send_typing(ctx.message.channel)
+
+            if ctx.message.channel != self.bot.mod_chat:
+                await self.bot.delete_message(ctx.message)
+
+            cmds = self.bot.get_cmd_params(ctx)
+            if len(cmds) == 0:
+                await self.bot.say("Please enter a user name")
+                return
+
+            user: BunkUser = self.bot.get_user(" ".join(cmds[0:]))
+
+            await self.bot.say_to_channel(self.bot.mod_chat, "User {0} last online {1}".format(user.name, user.last_online))
+
+        except BunkException as be:
+            await self.bot.say(be.message)
+        except Exception as e:
+            await self.bot.handle_error(e, "lastonline")
 
 
 def setup(bot: BunkBot):
