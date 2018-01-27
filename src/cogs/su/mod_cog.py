@@ -88,7 +88,7 @@ class Mod:
         except BunkException as be:
             await self.bot.say(be.message)
         except Exception as e:
-            await self.bot.handle_error(e, "lastonline")
+            await self.bot.handle_error(e, "lastxpupdate")
 
 def setup(bot: BunkBot):
     bot.add_cog(Mod(bot))
