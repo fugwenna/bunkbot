@@ -240,6 +240,7 @@ class PollCog:
                 title = "Poll '{0}' results:".format(self.poll.question)
                 embed = Embed(title=title, description=bars, color=int("008cba", 16))
 
+                await self.bot.say("@here The results for poll: '{0}' are in!".format(self.poll.question))
                 await self.bot.say(embed=embed)
                 self.poll = Poll()
 
