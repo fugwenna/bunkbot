@@ -10,8 +10,6 @@ class PollResultBar:
         for i in range(0, 20):
             bar.append("▯")
 
-        print(self.pct)
-
         pct_rounded = int(self.pct * 10) * 2
 
         for p in range(0, pct_rounded):
