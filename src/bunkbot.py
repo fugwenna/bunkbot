@@ -6,6 +6,7 @@ import json
 import re
 import sys
 import time
+import os
 import traceback
 import urllib.request
 from urllib.request import HTTPError, URLError, socket
@@ -200,6 +201,9 @@ class BunkBot(commands.Bot):
             await self.say_to_channel(self.bot_testing, be.message)
         except Exception as e:
             await self.handle_error(e, "process_message")
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            await self.say_to_channel(self.bot_logs, "{0} {1} {2}".format(exc_type, fname, exc_tb.tb_lineno))
 
 
     # send a message to a specific channel instead
@@ -267,11 +271,13 @@ class BunkBot(commands.Bot):
             await self.say_to_channel(self.bot_testing, be.message)
         except Exception as e:
             await self.handle_error(e, "member_update")
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            await self.say_to_channel(self.bot_logs, "{0} {1} {2}".format(exc_type, fname, exc_tb.tb_lineno))
             return
 
         await self.check_member_streaming(before_user, bunk_user)
         await self.check_member_last_online(before_user, bunk_user)
-
 
 
     # alert when a member has been "removed" from the server

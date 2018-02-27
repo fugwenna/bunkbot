@@ -43,23 +43,24 @@ class BunkRPG:
     # and calculate decay accordingly
     async def check_decayed_xp(self) -> None:
         try:
-            decays = []
-            no_xp_date = []
-            today = datetime.today().date()
+            return
+            #decays = []
+            #no_xp_date = []
+            #today = datetime.today().date()
 
-            for user in self.bot.users:
-                b_user: BunkUser = user
+            #for user in self.bot.users:
+            #    b_user: BunkUser = user
 
-                if not b_user.last_xp_updated:
-                    no_xp_date.append("{0} has no xp to decay".format(b_user.name))
-                else:
-                    last_update = datetime.strptime(b_user.last_xp_updated, "%m/%d/%Y").date()
-                    delta = (today - last_update).days
-                    if delta > 1:
-                        decays.append("{0} has not had an xp update in {1} days! ({2})".format(b_user.name, delta, b_user.last_xp_updated))
+            #    if not b_user.last_xp_updated:
+            #        no_xp_date.append("{0} has no xp to decay".format(b_user.name))
+            #    else:
+            #        last_update = datetime.strptime(b_user.last_xp_updated, "%m/%d/%Y").date()
+            #        delta = (today - last_update).days
+            #        if delta > 1:
+            #            decays.append("{0} has not had an xp update in {1} days! ({2})".format(b_user.name, delta, b_user.last_xp_updated))
 
-            await self.bot.debug("\n".join(decays))
-            await self.bot.debug("\n".join(no_xp_date))
+            #await self.bot.debug("\n".join(decays))
+            #await self.bot.debug("\n".join(no_xp_date))
         except Exception as e:
             await self.bot.handle_error(e, "check_decayed_xp")
 
