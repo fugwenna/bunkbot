@@ -5,7 +5,11 @@ with helper methods and additional functions
 import discord, datetime, pytz
 from tinydb import TinyDB, Query
 from tinydb.database import Table
+from src.util.functions import to_name
 
+CONFIG = Query()
+USERS = Query()
+RPG = Query()
 
 class BunkDB:
     # establish a 'connection' to the local
@@ -30,10 +34,8 @@ class BunkDB:
 
     # helper method that will query the requested table
     # and property name - default table as config
-    def get(self, attr: str, table: str = "config") -> str or None:
-        q: Query = Query()
-        tab: Table = self.db.table(table)
-        res = tab.get(q[attr] != "")
+    def get(self, attr: str) -> str or None:
+        res = self.config.get(CONFIG[attr] != "")
         if res is not None:
             return res[attr]
         else:
@@ -42,51 +44,38 @@ class BunkDB:
 
     # get a user based on the passed
     # discord member reference
-    def get_user(self, member: discord.Member) -> any:
-        return self.users.get(Query().name == member.name)
-
-
-    # get a user based on the passed
-    # discord member reference
     def get_user_by_name(self, name: str) -> any:
-         return self.users.get(Query().name == name)
-
-
-    # save an updated user reference
-    # and return the updated user
-    def save_user(self, user: any, query: any) -> None:
-        self.users.update(query, Query().name == user.name)
-        return self.get_user(user.name)
+         return self.users.get(Query().name == to_name(name))
 
 
     # check if a user exists in the database - if not,
     # add them with base roles and properties
-    def check_user(self, member: discord.Member) -> bool:
-        user: Table = self.users.search(Query().name == member.name)
+    def check_user_with_member(self, member: discord.Member) -> bool:
+        user: Table = self.users.search(Query().name == to_name(member.name))
 
         if len(user) == 0:
-            self.users.insert({"name": member.name, "xp": 0, "level": 1})
+            self.users.insert({"name": to_name(member.name), "member_name": member.name, "xp": 0, "level": 1})
             if not str(member.status) == "offline":
-                self.update_user_last_online(member)
+                self.update_user_last_online(to_name(member.name))
             return True
 
         if not str(member.status) == "offline":
-            self.update_user_last_online(member)
+            self.update_user_last_online(to_name(member.name))
         return False
 
 
     # update the "last online" property for
     # a user when a user appears online
-    def update_user_last_online(self, member: discord.Member) -> None:
+    def update_user_last_online(self, name: str) -> None:
         now = datetime.datetime.now(tz=pytz.timezone("US/Eastern"))
         last_on = "{0:%m/%d/%Y %I:%M:%S %p}".format(now)
-        self.users.update({"last_online": last_on}, Query().name == member.name)
+        self.users.update({"last_online": last_on}, Query().name == to_name(name))
 
 
     # update the users level percentage
     # and return the user reference
-    def update_user_xp(self, member: discord.Member, value: float) -> any:
-        user = self.get_user(member)
+    def update_user_xp(self, name: str, value: float) -> any:
+        user = self.get_user_by_name(name)
         cur_xp = float(user["xp"])
 
         new_xp = 0
@@ -96,21 +85,21 @@ class BunkDB:
         now = datetime.datetime.now()
         last_xp = "{0:%m/%d/%Y}".format(now)
 
-        self.users.update({"xp": new_xp, "last_xp_updated": last_xp}, Query().name == member.name)
+        self.users.update({"xp": new_xp, "last_xp_updated": last_xp}, Query().name == to_name(name))
 
-        user = self.get_user(member)
+        user = self.get_user_by_name(name)
         return user
 
 
     # update the users level
     # and return the user reference
-    def update_user_level(self, member: discord.Member, value: int = 1) -> any:
-        user = self.get_user(member)
+    def update_user_level(self, name: str, value: int = 1) -> any:
+        user = self.get_user_by_name(name)
         cur_lvl = int(user["level"])
 
-        self.users.update({"level": cur_lvl + value}, Query().name == member.name)
+        self.users.update({"level": cur_lvl + value}, Query().name == to_name(name))
 
-        user = self.get_user(member)
+        user = self.get_user_by_name(name)
         return user
 
 

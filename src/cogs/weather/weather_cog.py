@@ -12,6 +12,7 @@ from src.bunkbot import BunkBot
 from src.cogs.weather.weather_result import WeatherResult
 from src.cogs.weather.radar_result import RadarResult
 from src.storage.db import database
+from src.util.constants import DB_WEATHER
 
 WEATHER_DESCRIPTION = """Retrieve a current snapshot of todays weather based on zip code.\n
     param: zip - optionally pass a zip code. Default is Baltimore (21201).
@@ -30,7 +31,7 @@ class Weather:
     def __init__(self, bot: BunkBot):
         self.bot = bot
         self.zip = "20201"
-        self.token = database.get("weather")
+        self.token = database.get(DB_WEATHER)
         BunkBot.on_bot_initialized += self.wire_daily_forecast
 
 

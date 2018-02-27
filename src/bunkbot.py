@@ -17,6 +17,7 @@ from discord.ext.commands import Context
 from cleverwrap import CleverWrap
 from discord.ext import commands
 from src.storage.db import database
+from src.util.functions import to_name
 from src.util.bunk_user import BunkUser
 from src.util.bunk_exception import BunkException
 from src.util.holidays import Holiday
@@ -145,22 +146,23 @@ class BunkBot(commands.Bot):
         try:
             new_users: list = []
             for member in self.server.members:
-                user_added: bool = database.check_user(member)
-                if user_added:
-                    await self.add_roles(member, self.role_new)
-                    new_users.append(member.name)
+                if not member.bot:
+                    user_added: bool = database.check_user_with_member(member)
+                    if user_added:
+                        await self.add_roles(member, self.role_new)
+                        new_users.append(member.name)
 
-                user: BunkUser = BunkUser(member)
-                self.users.append(user)
+                    user: BunkUser = BunkUser(member)
+                    self.users.append(user)
 
-                if user.has_role(self.role_admin.name):
-                    self.ADMIN = user
-                elif user.has_role(self.role_moderator.name):
-                    self.MODERATORS.append(user)
-                elif user.has_role(self.role_vip.name):
-                    self.VIPS.append(user)
+                    if user.has_role(self.role_admin.name):
+                        self.ADMIN = user
+                    elif user.has_role(self.role_moderator.name):
+                        self.MODERATORS.append(user)
+                    elif user.has_role(self.role_vip.name):
+                        self.VIPS.append(user)
 
-                await self.check_member_streaming(user, user)
+                    await self.check_member_streaming(user, user)
 
             if len(new_users) > 0:
                 new_user_list: str = "\n".join(new_users)
@@ -244,7 +246,7 @@ class BunkBot(commands.Bot):
             server: Server = member.server
             fmt: str = "Welcome {0.mention} to {1.name}!  Type !help for a list of my commands"
 
-            database.check_user(member)
+            database.check_user_with_member(member)
             self.users.append(BunkUser(member))
             await self.add_roles(member, self.role_new)
 
@@ -273,7 +275,6 @@ class BunkBot(commands.Bot):
 
         await self.check_member_streaming(before_user, bunk_user)
         await self.check_member_last_online(before_user, bunk_user)
-
 
 
     # alert when a member has been "removed" from the server
@@ -365,27 +366,23 @@ class BunkBot(commands.Bot):
 
     # get a member from the
     # collection of current members
-    def get_user(self, user: str or Member) -> BunkUser or None:
-        name: str = user
-
-        if type(user) is Member:
-            name = user.name
-
-        nlower = sub(USER_NAME_REGEX, "", name.lower().strip())
+    def get_user(self, name: str) -> BunkUser or None:
+        nlower = to_name(name)
 
         for usr in self.users:
-            mname = sub(USER_NAME_REGEX, "", usr.name.lower().strip())
+            mname = to_name(usr.name)
+            #mname = sub(USER_NAME_REGEX, "", usr.name.lower().strip())
 
             if mname == nlower:
                 return usr
-            elif usr.member.display_name is not None:
-                dname = sub(USER_NAME_REGEX, "", usr.member.display_name.lower().strip())
-                if dname == nlower:
-                    return usr
-            elif usr.member.nick is not None:
-                nick = sub(USER_NAME_REGEX, "", usr.member.nick.lower().strip())
-                if nick == nlower:
-                    return usr
+            #elif usr.member.display_name is not None:
+            #    dname = sub(USER_NAME_REGEX, "", usr.member.display_name.lower().strip())
+            #    if dname == nlower:
+            #        return usr
+            #elif usr.member.nick is not None:
+            #    nick = sub(USER_NAME_REGEX, "", usr.member.nick.lower().strip())
+            #    if nick == nlower:
+            #        return usr
 
         # no user found, raise exception
         raise BunkException("Cannot locate user {0}".format(name))

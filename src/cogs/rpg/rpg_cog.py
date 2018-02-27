@@ -1,5 +1,4 @@
-import pytz, asyncio
-from datetime import datetime, timedelta
+import asyncio
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from re import sub
 from discord import Embed, Channel
@@ -10,6 +9,7 @@ from src.util.helpers import calc_req_xp
 from src.storage.db import database
 from src.util.bunk_user import BunkUser
 from src.util.bunk_exception import BunkException
+from src.util.constants import USER_NAME_REGEX
 from src.bunkbot import BunkBot
 
 
@@ -95,7 +95,7 @@ class BunkRPG:
                 return
 
             for p in players:
-                names.append(sub(r"[^A-Za-z]+", "", p.name))
+                names.append(sub(USER_NAME_REGEX, "", p.name))
                 levels.append(str(p.level))
                 xps.append(str(p.xp))
 
@@ -207,7 +207,9 @@ class BunkRPG:
             elif duel.loser.xp == 0:
                 await self.bot.say("{0.mention} wins, but {1} has no xp to give!".format(duel.winner, duel.loser.name))
 
-            if duel.loser.xp > 0: database.update_user_xp(duel.loser.member, -xp_lost)
+            if duel.loser.xp > 0:
+                database.update_user_xp(duel.loser.member.name, -xp_lost)
+
             loser_level_xp = calc_req_xp(duel.loser.level)
 
             if duel.loser.level > 1 and duel.loser.xp - xp_lost < loser_level_xp:

@@ -1,12 +1,11 @@
 import datetime, pytz
-from re import sub
 from time import time
 from discord import Member, Server, Channel
 from src.storage.db import database
 from src.cogs.rpg.duel import Duel
 from src.util.helpers import TIMER_MINUTES, UPDATE_CAP, calc_req_xp
+from src.util.functions import to_name
 from src.util.event_hook import EventHook
-from src.util.constants import USER_NAME_REGEX
 
 
 """
@@ -27,6 +26,7 @@ class BunkUser:
         self.member: Member = None
         self.id = -1
         self.name = ""
+        self.member_name = ""
 
         if member is not None:
             self.from_server(member)
@@ -61,7 +61,7 @@ class BunkUser:
         if self.member is None:
             return None
 
-        db_user = database.get_user(self.member)
+        db_user = database.get_user_by_name(self.name)
         try:
             return db_user["last_xp_updated"]
         except:
@@ -74,7 +74,7 @@ class BunkUser:
         if self.member is None:
             return 1
 
-        db_user = database.get_user(self.member)
+        db_user = database.get_user_by_name(self.name)
         return db_user["xp"]
 
 
@@ -83,7 +83,7 @@ class BunkUser:
         if self.member is None:
             return 1
 
-        db_user = database.get_user(self.member)
+        db_user = database.get_user_by_name(self.name)
         return db_user["level"]
 
 
@@ -182,12 +182,13 @@ class BunkUser:
     def from_server(self, member: Member) -> None:
         self.member = member
         self.id = self.member.id
-        self.name = sub(USER_NAME_REGEX, "", self.member.name.lower()).strip()
+        self.name = to_name(self.member.name)
+        db_user = database.get_user_by_name(self.name)
 
-        db_user = database.get_user(member)
         if db_user is not None:
             try:
                 self.last_online = db_user["last_online"]
+                self.member_name = db_user["member_name"]
             except KeyError:
                 pass #user never online
         else:
@@ -198,6 +199,7 @@ class BunkUser:
     # and remap with the server equivalent
     def from_database(self, db_user: any, server: Server = None) -> None:
         self.last_online = db_user["last_online"]
+        self.member_name = db_user["member_name"]
 
         if server is not None:
             member_search = [m for m in server if m.name == db_user["name"]]
@@ -210,7 +212,7 @@ class BunkUser:
     # update the database user last
     # online property
     async def update_last_online(self):
-        database.update_user_last_online(self.member)
+        database.update_user_last_online(self.name)
 
         if self.xp_holder > 0:
             await self.update_xp(0, None, True)
@@ -235,7 +237,7 @@ class BunkUser:
             # increase the user level percentage and
             # check if they have leveled up
             elif force or min_diff > TIMER_MINUTES:
-                self.from_database(database.update_user_xp(self.member, self.xp_holder))
+                self.from_database(database.update_user_xp(self.name, self.xp_holder))
 
                 if self.has_leveled_up:
                     await BunkUser.on_level_up.fire(self.member, self.level, channel)
