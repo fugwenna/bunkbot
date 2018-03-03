@@ -16,7 +16,7 @@ every 30 minutes and allow people to add urls
 class TwitchCog:
     def __init__(self, bot: BunkBot):
         self.bot: BunkBot = bot
-        BunkBot.on_bot_initialized += self.wire_stream_listener
+        #BunkBot.on_bot_initialized += self.wire_stream_listener
 
 
     async def get_streams(self) -> None:

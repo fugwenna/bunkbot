@@ -61,7 +61,7 @@ class BunkUser:
         if self.member is None:
             return None
 
-        db_user = database.get_user_by_name(self.name)
+        db_user = database.get_user_by_id(self.id)
         try:
             return db_user["last_xp_updated"]
         except:
@@ -74,7 +74,7 @@ class BunkUser:
         if self.member is None:
             return 1
 
-        db_user = database.get_user_by_name(self.name)
+        db_user = database.get_user_by_id(self.id)
         return db_user["xp"]
 
 
@@ -83,7 +83,7 @@ class BunkUser:
         if self.member is None:
             return 1
 
-        db_user = database.get_user_by_name(self.name)
+        db_user = database.get_user_by_id(self.id)
         return db_user["level"]
 
 
@@ -150,7 +150,7 @@ class BunkUser:
 
         while self.xp > calc_req_xp(self.next_level):
             leveled = True
-            self.from_database(database.update_user_level(self.member))
+            self.from_database(database.update_user_level(self.id))
 
         return leveled
 
@@ -183,7 +183,7 @@ class BunkUser:
         self.member = member
         self.id = self.member.id
         self.name = to_name(self.member.name)
-        db_user = database.get_user_by_name(self.name)
+        db_user = database.get_user_by_id(self.id)
 
         if db_user is not None:
             try:
@@ -202,7 +202,7 @@ class BunkUser:
         self.member_name = db_user["member_name"]
 
         if server is not None:
-            member_search = [m for m in server if m.name == db_user["name"]]
+            member_search = [m for m in server.members if m.name == db_user.id == m.id]
             if len(member_search) > 0:
                 self.from_server(member_search[0])
         elif self.member is not None:
@@ -212,7 +212,7 @@ class BunkUser:
     # update the database user last
     # online property
     async def update_last_online(self):
-        database.update_user_last_online(self.name)
+        database.update_user_last_online(self.id)
 
         if self.xp_holder > 0:
             await self.update_xp(0, None, True)
@@ -237,7 +237,7 @@ class BunkUser:
             # increase the user level percentage and
             # check if they have leveled up
             elif force or min_diff > TIMER_MINUTES:
-                self.from_database(database.update_user_xp(self.name, self.xp_holder))
+                self.from_database(database.update_user_xp(self.id, self.xp_holder))
 
                 if self.has_leveled_up:
                     await BunkUser.on_level_up.fire(self.member, self.level, channel)

@@ -36,7 +36,7 @@ class Color:
             await self.bot.send_typing(ctx.message.channel)
 
             params = self.bot.get_cmd_params(ctx)
-            user: BunkUser = self.bot.get_user(ctx.message.author.name)
+            user: BunkUser = self.bot.get_user_by_id(ctx.message.author.id)
 
             if len(params) == 0:
                 if user.color is None: await self.bot.say("You do not have a color role assigned to you")

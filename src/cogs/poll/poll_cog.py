@@ -12,7 +12,7 @@ from .result_bar import PollResultBar
 class PollCog:
     def __init__(self, bot: BunkBot):
         self.bot = bot
-        self.poll = Poll()
+        self.poll: Poll = Poll()
 
     @command(pass_context=True, cls=None, help="Create a poll", aliases=["mkpoll", "poll", "mp"])
     async def makepoll(self, ctx: Context) -> None:
@@ -29,7 +29,7 @@ class PollCog:
 
             question = " ".join(cmd)
             self.poll.is_active = True
-            self.poll.author = self.bot.get_user(ctx.message.author)
+            self.poll.author = self.bot.get_user_by_id(ctx.message.author.id)
             self.poll.question = question
 
             await self.bot.say("Created poll '{0}'".format(question))
@@ -125,7 +125,7 @@ class PollCog:
                 raise BunkException("{0} - There is no currently active poll to cancel"
                                     .format(ctx.message.author.mention))
 
-            bunk_user = self.bot.get_user(ctx.message.author)
+            bunk_user = self.bot.get_user_by_id(ctx.message.author.id)
             if bunk_user.name == self.poll.author.name:
                 await self.bot.say("{0} poll cancelled".format(self.poll.author.mention))
                 self.poll = Poll()
@@ -152,7 +152,7 @@ class PollCog:
             if vote > len(self.poll.options) or vote < 1:
                 raise BunkException("Not a valid vote")
 
-            bunk_user: BunkUser = self.bot.get_user(ctx.message.author)
+            bunk_user: BunkUser = self.bot.get_user_by_id(ctx.message.author.id)
             voted = [x for x in self.poll.votes if x.user.name == bunk_user.name]
 
             option: Option = self.poll.options[vote-1]
@@ -203,7 +203,7 @@ class PollCog:
     @command(pass_context=True, cls=None, help="Get the results of the poll", aliases=["results", "pollresults"])
     async def resultspoll(self, ctx: Context) -> None:
         try:
-            bunk_user = self.bot.get_user(ctx.message.author)
+            bunk_user = self.bot.get_user_by_id(ctx.message.author.id)
             if bunk_user.name == self.poll.author.name:
                 await self.bot.send_typing(ctx.message.channel)
 
@@ -211,7 +211,7 @@ class PollCog:
                 self.poll.is_live = False
 
                 results = []
-                winners= []
+                winners = []
                 current_best = 0
 
                 for option in self.poll.options:

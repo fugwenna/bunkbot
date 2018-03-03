@@ -117,7 +117,7 @@ class BunkRPG:
         try:
             await self.bot.send_typing(ctx.message.channel)
 
-            user: BunkUser = self.bot.get_user(ctx.message.author.name)
+            user: BunkUser = self.bot.get_user_by_id(ctx.message.author.id)
             color = ctx.message.author.color
 
             params = self.bot.get_cmd_params(ctx)
@@ -151,7 +151,7 @@ class BunkRPG:
     @command(pass_context=True, help="Challenge another user to a duel", aliases=["challenge2"])
     async def duel(self, ctx) -> None:
         try:
-            challenger: BunkUser = self.bot.get_user(ctx.message.author.name)
+            challenger: BunkUser = self.bot.get_user_by_id(ctx.message.author.id)
             param = self.bot.get_cmd_params(ctx)
 
             if len(param) == 0:
@@ -178,7 +178,7 @@ class BunkRPG:
     @command(pass_context=True, help="Accept a duel")
     async def accept(self, ctx) -> None:
         try:
-            bunk_user = self.bot.get_user(ctx.message.author.name)
+            bunk_user = self.bot.get_user_by_id(ctx.message.author.id)
             duels = [d for d in self.duels if d.opponent.name == bunk_user.name]
 
             if len(duels) == 0:
@@ -208,12 +208,12 @@ class BunkRPG:
                 await self.bot.say("{0.mention} wins, but {1} has no xp to give!".format(duel.winner, duel.loser.name))
 
             if duel.loser.xp > 0:
-                database.update_user_xp(duel.loser.member.name, -xp_lost)
+                database.update_user_xp(duel.loser.member.id, -xp_lost)
 
             loser_level_xp = calc_req_xp(duel.loser.level)
 
             if duel.loser.level > 1 and duel.loser.xp - xp_lost < loser_level_xp:
-                duel.loser.from_database(database.update_user_level(duel.loser.member, -1))
+                duel.loser.from_database(database.update_user_level(duel.loser.member.id, -1))
                 await self.bot.say("{0.mention} has lost a level!".format(duel.loser))
 
             if xp_lost > 0:
@@ -231,7 +231,7 @@ class BunkRPG:
     async def reject(self, ctx) -> None:
         try:
             found = False
-            user: BunkUser = self.bot.get_user(ctx.message.author.name)
+            user: BunkUser = self.bot.get_user_by_id(ctx.message.author.id)
 
             for d in self.duels:
                 if d.opponent.name == user.name:
@@ -256,7 +256,7 @@ class BunkRPG:
     async def cancel(self, ctx) -> None:
         try:
             found = False
-            user: BunkUser = self.bot.get_user(ctx.message.author.name)
+            user: BunkUser = self.bot.get_user_by_id(ctx.message.author.id)
 
             for d in self.duels:
                 if d.challenger.name == user.name:

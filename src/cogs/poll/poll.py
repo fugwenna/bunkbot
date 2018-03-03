@@ -2,7 +2,7 @@ from src.util.bunk_user import BunkUser
 
 class Poll:
     def __init__(self):
-        self.author: BunkUser = None
+        self.author: BunkUser or None = None
         self.question: str = ""
         self.votes = []
         self.options = []

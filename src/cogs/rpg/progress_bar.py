@@ -54,7 +54,7 @@ class ProgressBar:
         if pct_rounded - 1 > 20:
             needed_xp = calc_req_xp(self.user.next_level)
             if self.user.xp > needed_xp:
-                database.update_user_level(self.user.name)
+                database.update_user_level(self.user.id)
         else:
             for p in range(0, pct_rounded - 1):
                 bar[p] = "▮"

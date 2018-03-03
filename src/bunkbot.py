@@ -181,7 +181,7 @@ class BunkBot(commands.Bot):
             if message.author.bot:
                 return
 
-            bunk_user = self.get_user(message.author.name)
+            bunk_user = self.get_user_by_id(message.author.id)
 
             is_reset = str(message.content).strip() == "!reset"
             is_bunk_mention = len(message.mentions) > 0 and message.mentions[0].name == "BunkBot"
@@ -289,7 +289,7 @@ class BunkBot(commands.Bot):
     # events handled in main.py
     async def member_reaction_add(self, reaction: Reaction, member: Member) -> None:
         try:
-            bunk_user: BunkUser = self.get_user(member.name)
+            bunk_user: BunkUser = self.get_user_by_id(member.id)
             await bunk_user.update_xp(0.15)
 
         except BunkException as be:
@@ -308,7 +308,7 @@ class BunkBot(commands.Bot):
             is_voice = before_voice is None and after_voice is not None
             was_voice = before_voice is not None and after_voice is None
 
-            bunk_user: BunkUser = self.get_user(after.name)
+            bunk_user: BunkUser = self.get_user_by_id(after.id)
 
             if bunk_user is not None:
                 if is_voice or was_voice:
@@ -324,7 +324,7 @@ class BunkBot(commands.Bot):
     # so they are more visible to other users
     async def check_member_streaming(self, before: BunkUser, after: BunkUser) -> None:
         try:
-            bunk_user: BunkUser = self.get_user(after.name)
+            bunk_user: BunkUser = self.get_user_by_id(after.id)
 
             if bunk_user is not None:
                 if after.is_streaming:
@@ -350,7 +350,7 @@ class BunkBot(commands.Bot):
             on_off = pre_status != "offline"and post_status == "offline"
             off_on = pre_status == "offline" and post_status != "offline"
 
-            bunk_user: BunkUser = self.get_user(after.name)
+            bunk_user: BunkUser = self.get_user_by_id(after.id)
 
             if bunk_user is not None:
                 if on_off or off_on:
@@ -370,21 +370,23 @@ class BunkBot(commands.Bot):
 
         for usr in self.users:
             mname = to_name(usr.name)
-            #mname = sub(USER_NAME_REGEX, "", usr.name.lower().strip())
 
             if mname == nlower:
                 return usr
-            #elif usr.member.display_name is not None:
-            #    dname = sub(USER_NAME_REGEX, "", usr.member.display_name.lower().strip())
-            #    if dname == nlower:
-            #        return usr
-            #elif usr.member.nick is not None:
-            #    nick = sub(USER_NAME_REGEX, "", usr.member.nick.lower().strip())
-            #    if nick == nlower:
-            #        return usr
 
         # no user found, raise exception
         raise BunkException("Cannot locate user {0}".format(name))
+
+
+    # get a member from the
+    # collection of current members
+    def get_user_by_id(self, uid: str) -> BunkUser or None:
+        for usr in self.users:
+            if usr.id == uid:
+                return usr
+
+        # no user found, raise exception
+        raise BunkException("Cannot locate user {0}".format(uid))
 
 
     # send a simple greeting to the

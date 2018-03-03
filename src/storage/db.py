@@ -58,38 +58,38 @@ class BunkDB:
 
     # get a user based on the passed
     # discord member id reference
-    def get_user_by_id(self, id: str) -> any:
-         return self.users.get(Query().id == id)
+    def get_user_by_id(self, uid: str) -> any:
+         return self.users.get(Query().id == uid)
 
 
     # check if a user exists in the database - if not,
     # add them with base roles and properties
     def check_user_with_member(self, member: discord.Member) -> bool:
-        user: Table = self.users.search(Query().name == to_name(member.name))
+        user: Table = self.users.search(Query().id == member.id)
 
         if len(user) == 0:
             self.users.insert({"name": to_name(member.name), "id": member.id, "member_name": member.name, "xp": 0, "level": 1})
             if not str(member.status) == "offline":
-                self.update_user_last_online(to_name(member.name))
+                self.update_user_last_online(member.id)
             return True
 
         if not str(member.status) == "offline":
-            self.update_user_last_online(to_name(member.name))
+            self.update_user_last_online(member.id)
         return False
 
 
     # update the "last online" property for
     # a user when a user appears online
-    def update_user_last_online(self, name: str) -> None:
+    def update_user_last_online(self, uid: str) -> None:
         now = datetime.datetime.now(tz=pytz.timezone("US/Eastern"))
         last_on = "{0:%m/%d/%Y %I:%M:%S %p}".format(now)
-        self.users.update({"last_online": last_on}, Query().name == to_name(name))
+        self.users.update({"last_online": last_on}, Query().id == uid)
 
 
     # update the users level percentage
     # and return the user reference
-    def update_user_xp(self, name: str, value: float) -> any:
-        user = self.get_user_by_name(name)
+    def update_user_xp(self, uid: str, value: float) -> any:
+        user = self.get_user_by_id(uid)
         cur_xp = float(user["xp"])
 
         new_xp = 0
@@ -99,21 +99,21 @@ class BunkDB:
         now = datetime.datetime.now()
         last_xp = "{0:%m/%d/%Y}".format(now)
 
-        self.users.update({"xp": new_xp, "last_xp_updated": last_xp}, Query().name == to_name(name))
+        self.users.update({"xp": new_xp, "last_xp_updated": last_xp}, Query().id == uid)
 
-        user = self.get_user_by_name(name)
+        user = self.get_user_by_id(uid)
         return user
 
 
     # update the users level
     # and return the user reference
-    def update_user_level(self, name: str, value: int = 1) -> any:
-        user = self.get_user_by_name(name)
+    def update_user_level(self, uid: str, value: int = 1) -> any:
+        user = self.get_user_by_id(uid)
         cur_lvl = int(user["level"])
 
-        self.users.update({"level": cur_lvl + value}, Query().name == to_name(name))
+        self.users.update({"level": cur_lvl + value}, Query().id == uid)
 
-        user = self.get_user_by_name(name)
+        user = self.get_user_by_id(uid)
         return user
 
 

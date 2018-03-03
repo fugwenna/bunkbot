@@ -27,7 +27,7 @@ class Roll:
             min_val = 0
             max_val = 100
             params = self.bot.get_cmd_params(ctx)
-            user: BunkUser = self.bot.get_user(ctx.message.author.name)
+            user: BunkUser = self.bot.get_user_by_id(ctx.message.author.id)
 
             if len(params) > 0:
                 if "-" in params[0]:
