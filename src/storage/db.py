@@ -20,13 +20,21 @@ class BunkDB:
         self.users: Table = self.db.table("users")
         self.rpg: Table = self.db.table("rpg")
         self.holiday: Table = self.db.table("holiday")
+        self.streams: Table = self.db.table("streams")
         self.check_defaults()
 
 
     # set default database and config values
     def check_defaults(self):
         if len(self.config.all()) == 0:
-            self.config.insert_multiple([{"token":""}, {"serverid":""}, {"cleverbot":""}, {"weather":""}])
+            self.config.insert_multiple([
+                {"token": ""},
+                {"serverid": ""},
+                {"cleverbot": ""},
+                {"weather": ""},
+                {"twitch_id": ""},
+                {"twitch_secret": ""}
+            ])
 
         if len(self.rpg.all()) == 0:
             self.rpg.insert_multiple([{"xp_const": 5}, {"update_cap": 60}, {"timer_minutes": 1}])
@@ -43,9 +51,15 @@ class BunkDB:
 
 
     # get a user based on the passed
-    # discord member reference
+    # discord member name reference
     def get_user_by_name(self, name: str) -> any:
          return self.users.get(Query().name == to_name(name))
+
+
+    # get a user based on the passed
+    # discord member id reference
+    def get_user_by_id(self, id: str) -> any:
+         return self.users.get(Query().id == id)
 
 
     # check if a user exists in the database - if not,
@@ -54,7 +68,7 @@ class BunkDB:
         user: Table = self.users.search(Query().name == to_name(member.name))
 
         if len(user) == 0:
-            self.users.insert({"name": to_name(member.name), "member_name": member.name, "xp": 0, "level": 1})
+            self.users.insert({"name": to_name(member.name), "id": member.id, "member_name": member.name, "xp": 0, "level": 1})
             if not str(member.status) == "offline":
                 self.update_user_last_online(to_name(member.name))
             return True

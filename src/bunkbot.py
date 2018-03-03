@@ -9,7 +9,6 @@ import time
 import traceback
 import urllib.request
 from urllib.request import HTTPError, URLError, socket
-from re import sub
 from os import walk
 from os.path import join, splitext, sep
 from discord import Channel, Member, Message, Reaction, Server, VoiceState, Embed
@@ -167,7 +166,7 @@ class BunkBot(commands.Bot):
             if len(new_users) > 0:
                 new_user_list: str = "\n".join(new_users)
                 new_user_msg: str = "Users synced. The following users have been added to the database: \n{0}".format(new_user_list)
-                await self.say_to_channel(self.mod_chat, new_user_msg)
+                #await self.say_to_channel(self.mod_chat, new_user_msg)
             else:
                 await self.say_to_channel(self.bot_logs, "Users synced. No new users added to database.")
         except Exception as e:

@@ -11,6 +11,8 @@ CHANNEL_VIP_CHAT: str = "vip-chat"
 DB_CLEVERBOT: str = "cleverbot"
 DB_SERVER_ID: str = "serverid"
 DB_WEATHER: str = "weather"
+DB_TWITCH_ID: str = "twitch_id"
+DB_TWITCH_SECRET: str = "twitch_secret"
 
 ROLE_ADMIN: str = "admin"
 ROLE_MODERATOR: str = "moderator"
@@ -19,3 +21,4 @@ ROLE_NEW: str = "new"
 ROLE_STREAMING: str = "streaming"
 ROLE_VIP: str = "vip"
 ROLE_VIP_PERMS: str = "vip_perms"
+
