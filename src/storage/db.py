@@ -68,7 +68,7 @@ class BunkDB:
         user: Table = self.users.search(Query().id == member.id)
 
         if len(user) == 0:
-            self.users.insert({"name": to_name(member.name), "id": member.id, "member_name": member.name, "xp": 0, "level": 1})
+            self.users.insert({"name": to_name(member.name), "id": member.id, "xp": 0, "level": 1})
             if not str(member.status) == "offline":
                 self.update_user_last_online(member.id)
             return True

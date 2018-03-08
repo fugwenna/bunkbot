@@ -26,7 +26,6 @@ class BunkUser:
         self.member: Member = None
         self.id = -1
         self.name = ""
-        self.member_name = ""
 
         if member is not None:
             self.from_server(member)
@@ -188,7 +187,6 @@ class BunkUser:
         if db_user is not None:
             try:
                 self.last_online = db_user["last_online"]
-                self.member_name = db_user["member_name"]
             except KeyError:
                 pass #user never online
         else:
@@ -199,7 +197,6 @@ class BunkUser:
     # and remap with the server equivalent
     def from_database(self, db_user: any, server: Server = None) -> None:
         self.last_online = db_user["last_online"]
-        self.member_name = db_user["member_name"]
 
         if server is not None:
             member_search = [m for m in server.members if m.name == db_user.id == m.id]
