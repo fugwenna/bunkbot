@@ -15,8 +15,8 @@ class Admin:
     @command(pass_context=True, cls=None, help="Link source code url", aliases=["src"])
     async def source(self, ctx) -> None:
         try:
-            await self.bot.send_typing(ctx)
-            await self.bot.send_message(ctx.message.channel, "https://github.com/fugwenna/bunkbot/")
+            await self.bot.send_typing(ctx.message.channel)
+            await self.bot.say("https://github.com/fugwenna/bunkbot/")
         except Exception as e:
             await self.bot.handle_error(e, "source")
 
