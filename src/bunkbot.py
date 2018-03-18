@@ -63,41 +63,44 @@ class BunkBot(commands.Bot):
     # lifecycle hook - set up all
     # of the necessary and useful channels
     async def on_init(self):
-        if self.init is False:
-            self.init = True
-            self.server = self.get_server(database.get(DB_SERVER_ID))
+        try:
+            if self.init is False:
+                self.init = True
+                self.server = self.get_server(database.get(DB_SERVER_ID))
 
-            for ro in self.server.roles:
-                if ro.name == ROLE_STREAMING:
-                    self.role_streaming = ro
-                elif ro.name == ROLE_NEW:
-                    self.role_new = ro
-                elif ro.name == ROLE_ADMIN:
-                    self.role_admin = ro
-                elif ro.name == ROLE_MODERATOR:
-                    self.role_moderator = ro
-                elif ro.name == ROLE_MODERATOR_PERMS:
-                    self.role_moderator_perms = ro
-                elif ro.name == ROLE_VIP:
-                    self.role_vip = ro
-                elif ro.name == ROLE_VIP_PERMS:
-                    self.role_vip_perms = ro
+                for ro in self.server.roles:
+                    if ro.name == ROLE_STREAMING:
+                        self.role_streaming = ro
+                    elif ro.name == ROLE_NEW:
+                        self.role_new = ro
+                    elif ro.name == ROLE_ADMIN:
+                        self.role_admin = ro
+                    elif ro.name == ROLE_MODERATOR:
+                        self.role_moderator = ro
+                    elif ro.name == ROLE_MODERATOR_PERMS:
+                        self.role_moderator_perms = ro
+                    elif ro.name == ROLE_VIP:
+                        self.role_vip = ro
+                    elif ro.name == ROLE_VIP_PERMS:
+                        self.role_vip_perms = ro
 
-            for ch in self.server.channels:
-                if ch.name == CHANNEL_BOT_TESTING:
-                    self.bot_testing = ch
-                elif ch.name == CHANNEL_BOT_LOGS:
-                    self.bot_logs = ch
-                elif ch.name == CHANNEL_MOD_CHAT:
-                    self.mod_chat = ch
-                elif ch.name == CHANNEL_GENERAL:
-                    self.general = ch
+                for ch in self.server.channels:
+                    if ch.name == CHANNEL_BOT_TESTING:
+                        self.bot_testing = ch
+                    elif ch.name == CHANNEL_BOT_LOGS:
+                        self.bot_logs = ch
+                    elif ch.name == CHANNEL_MOD_CHAT:
+                        self.mod_chat = ch
+                    elif ch.name == CHANNEL_GENERAL:
+                        self.general = ch
 
-            self.chat_bot = CleverWrap(database.get(DB_CLEVERBOT))
-            await self.say_to_channel(self.bot_logs, "Bot and database initialized. Syncing users and channels...")
-            await self.sync_users()
-            await Holiday.start_timer()
-            await BunkBot.on_bot_initialized.fire()
+                self.chat_bot = CleverWrap(database.get(DB_CLEVERBOT))
+                await self.say_to_channel(self.bot_logs, "Bot and database initialized. Syncing users and channels...")
+                await self.sync_users()
+                await Holiday.start_timer()
+                await BunkBot.on_bot_initialized.fire()
+        except Exception as e:
+            await self.handle_error(e, "on_init")
 
 
     # retrieve an array of the passed
@@ -221,16 +224,19 @@ class BunkBot(commands.Bot):
     # have a cleverbot conversation with
     # a user if they say the name 'bunkbot'
     async def chat(self, message: Message) -> None:
-        await self.send_typing(message.channel)
-        content = re.sub(r'bunkbot', "", str(message.content), flags=re.IGNORECASE).strip()
+        try:
+            await self.send_typing(message.channel)
+            content = re.sub(r'bunkbot', "", str(message.content), flags=re.IGNORECASE).strip()
 
-        # if the user just says 'bunkbot'
-        # treat it as a greeting
-        if content == "":
-            content = "Hello!"
+            # if the user just says 'bunkbot'
+            # treat it as a greeting
+            if content == "":
+                content = "Hello!"
 
-        await self.send_message(message.channel, self.chat_bot.say(content))
-        self.last_message_at = time.time()
+            await self.send_message(message.channel, self.chat_bot.say(content))
+            self.last_message_at = time.time()
+        except Exception as e:
+            await self.bot.say("Sorry, I cannot talk right now :(")
 
 
     # greet a new member with a simple message,
