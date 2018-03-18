@@ -235,8 +235,8 @@ class BunkBot(commands.Bot):
 
             await self.send_message(message.channel, self.chat_bot.say(content))
             self.last_message_at = time.time()
-        except Exception as e:
-            await self.bot.say("Sorry, I cannot talk right now :(")
+        except Exception:
+            await self.say("Sorry, I cannot talk right now :(")
 
 
     # greet a new member with a simple message,
