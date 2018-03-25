@@ -168,7 +168,7 @@ class BunkBot(commands.Bot):
                         self.VIPS.append(user)
 
                     await self.check_member_streaming(user, user)
-                    await self.check_member_gaming(user, user)
+                    #await self.check_member_gaming(user, user)
 
             if len(new_users) > 0:
                 new_user_list: str = "\n".join(new_users)
@@ -283,7 +283,7 @@ class BunkBot(commands.Bot):
             return
 
         await self.check_member_streaming(before_user, bunk_user)
-        await self.check_member_gaming(before_user, bunk_user)
+        #await self.check_member_gaming(before_user, bunk_user)
         await self.check_member_last_online(before_user, bunk_user)
 
 
