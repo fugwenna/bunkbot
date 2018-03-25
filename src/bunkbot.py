@@ -45,6 +45,7 @@ class BunkBot(commands.Bot):
         self.mod_chat: Channel = None
         self.general: Channel = None
         self.role_admin = None
+        self.role_gaming = None
         self.role_streaming = None
         self.role_new = None
         self.role_vip = None
@@ -71,6 +72,8 @@ class BunkBot(commands.Bot):
                 for ro in self.server.roles:
                     if ro.name == ROLE_STREAMING:
                         self.role_streaming = ro
+                    elif ro.name == ROLE_GAMING:
+                        self.role_gaming = ro
                     elif ro.name == ROLE_NEW:
                         self.role_new = ro
                     elif ro.name == ROLE_ADMIN:
@@ -165,6 +168,7 @@ class BunkBot(commands.Bot):
                         self.VIPS.append(user)
 
                     await self.check_member_streaming(user, user)
+                    await self.check_member_gaming(user, user)
 
             if len(new_users) > 0:
                 new_user_list: str = "\n".join(new_users)
@@ -279,6 +283,7 @@ class BunkBot(commands.Bot):
             return
 
         await self.check_member_streaming(before_user, bunk_user)
+        await self.check_member_gaming(before_user, bunk_user)
         await self.check_member_last_online(before_user, bunk_user)
 
 
@@ -345,6 +350,24 @@ class BunkBot(commands.Bot):
             await self.say_to_channel(self.bot_testing, be.message)
         except Exception as e:
             await self.handle_error(e, "check_member_streaming")
+
+
+    # check if a member is gaming and
+    # add the 'gaming' role for whatever reason
+    async def check_member_gaming(self, before: BunkUser, after: BunkUser) -> None:
+        try:
+            bunk_user: BunkUser = self.get_user_by_id(after.id)
+            if bunk_user is not None:
+                if not bunk_user.is_vip and not bunk_user.is_moderator and not bunk_user.is_streaming:
+                    if bunk_user.is_gaming and not bunk_user.has_role(self.role_gaming):
+                        await self.add_roles(bunk_user.member, self.role_gaming)
+                    elif not bunk_user.is_gaming:
+                        await self.remove_roles(bunk_user.member, self.role_gaming)
+
+            if bunk_user is not None:
+                return
+        except Exception as e:
+            await self.handle_error(e, "check_member_gaming")
 
 
     # update the users "last online"

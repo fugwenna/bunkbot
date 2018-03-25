@@ -164,6 +164,16 @@ class BunkUser:
         return self.member.game is not None and self.member.game.type == 1
 
 
+    # check if the member is
+    # currently playing a game
+    @property
+    def is_gaming(self) -> bool:
+        if not self.member:
+            return False
+
+        return self.member.game is not None
+
+
     # id reference for hotslogs
     @property
     def hots_ref(self) -> int:
