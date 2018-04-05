@@ -22,6 +22,7 @@ from src.util.bunk_exception import BunkException
 from src.util.holidays import Holiday
 from src.util.event_hook import EventHook
 from src.util.constants import *
+from src.util.helpers import roll
 
 
 BOT_DESCRIPTION = """
@@ -211,6 +212,16 @@ class BunkBot(commands.Bot):
             await self.handle_error(e, "process_message")
 
 
+    # send a message to a random person 60% every day
+    async def annoy_someone(self):
+        try:
+            pct = int(roll(1, 10))
+            if pct > 4:
+                return
+        except Exception as e:
+            await self.handle_error(e, "annoy_someone")
+
+
     # send a message to a specific channel instead
     # of the normal channel of the message context object
     async def say_to_channel(self, channel: Channel, message: str or None, embed: Embed = None) -> None:
@@ -362,11 +373,8 @@ class BunkBot(commands.Bot):
                 if after.is_gaming and not after.is_streaming:
                     if not after.has_role(self.role_gaming):
                         await self.add_roles(bunk_user.member, self.role_gaming)
-                elif before.is_gaming:
+                elif before.is_gaming and bunk_user.has_role(self.role.gaming):
                     await self.remove_roles(bunk_user.member, self.role_gaming)
-
-            if bunk_user is not None:
-                return
         except Exception as e:
             await self.handle_error(e, "check_member_gaming")
 

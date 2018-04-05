@@ -6,6 +6,7 @@ from src.cogs.rpg.duel import Duel
 from src.util.helpers import TIMER_MINUTES, UPDATE_CAP, calc_req_xp
 from src.util.functions import to_name
 from src.util.event_hook import EventHook
+from src.util.constants import *
 
 
 """
@@ -39,9 +40,9 @@ class BunkUser:
             return False
 
         return len([m for m in self.member.roles if
-                    m.name == "moderator" or
-                    m.name == "moderator_perms" or
-                    m.name == "admin"]) > 0
+                    m.name == ROLE_MODERATOR or
+                    m.name == ROLE_MODERATOR_PERMS or
+                    m.name == ROLE_ADMIN]) > 0
 
 
     # check if the current
@@ -51,7 +52,7 @@ class BunkUser:
         if self.member is None:
             return False
 
-        return len([m for m in self.member.roles if m.name == "vip" or m.name == "vip_perms"]) > 0
+        return len([m for m in self.member.roles if m.name == ROLE_VIP or m.name == ROLE_VIP_PERMS]) > 0
 
 
     # current database user last xp updated date
