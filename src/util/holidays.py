@@ -77,8 +77,8 @@ class Holiday:
     @staticmethod
     async def start_timer() -> None:
         scheduler = AsyncIOScheduler()
-        scheduler.add_job(Holiday.send_midnight_greeting, trigger="cron", hour=12, misfire_grace_time=60, timezone=EST)
-        scheduler.add_job(Holiday.send_evening_greeting, trigger="cron", hour=8, misfire_grace_time=60, timezone=EST)
+        scheduler.add_job(Holiday.send_midnight_greeting, trigger="cron", hour=0, misfire_grace_time=60, timezone=EST)
+        scheduler.add_job(Holiday.send_evening_greeting, trigger="cron", hour=12, misfire_grace_time=60, timezone=EST)
         scheduler.start()
         try:
             asyncio.get_event_loop().run_forever()
