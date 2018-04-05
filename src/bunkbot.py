@@ -36,7 +36,7 @@ class BunkBot(commands.Bot):
     def __init__(self):
         super().__init__("!", None, BOT_DESCRIPTION, True)
         self.init: bool = False
-        self.chat_timer = 9
+        self.chat_timer = 15
         self.last_message_at = -1
         self.chat_bot: CleverWrap = None
         self.server: Server = None
@@ -168,7 +168,7 @@ class BunkBot(commands.Bot):
                         self.VIPS.append(user)
 
                     await self.check_member_streaming(user, user)
-                    #await self.check_member_gaming(user, user)
+                    await self.check_member_gaming(user, user)
 
             if len(new_users) > 0:
                 new_user_list: str = "\n".join(new_users)
@@ -283,7 +283,7 @@ class BunkBot(commands.Bot):
             return
 
         await self.check_member_streaming(before_user, bunk_user)
-        #await self.check_member_gaming(before_user, bunk_user)
+        await self.check_member_gaming(before_user, bunk_user)
         await self.check_member_last_online(before_user, bunk_user)
 
 
@@ -357,12 +357,13 @@ class BunkBot(commands.Bot):
     async def check_member_gaming(self, before: BunkUser, after: BunkUser) -> None:
         try:
             bunk_user: BunkUser = self.get_user_by_id(after.id)
+
             if bunk_user is not None:
-                if not bunk_user.is_vip and not bunk_user.is_moderator and not bunk_user.is_streaming:
-                    if bunk_user.is_gaming and not bunk_user.has_role(self.role_gaming):
+                if after.is_gaming and not after.is_streaming:
+                    if not after.has_role(self.role_gaming):
                         await self.add_roles(bunk_user.member, self.role_gaming)
-                    elif not bunk_user.is_gaming:
-                        await self.remove_roles(bunk_user.member, self.role_gaming)
+                elif before.is_gaming:
+                    await self.remove_roles(bunk_user.member, self.role_gaming)
 
             if bunk_user is not None:
                 return
