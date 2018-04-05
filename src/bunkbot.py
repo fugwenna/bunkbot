@@ -373,7 +373,7 @@ class BunkBot(commands.Bot):
                 if after.is_gaming and not after.is_streaming:
                     if not after.has_role(self.role_gaming):
                         await self.add_roles(bunk_user.member, self.role_gaming)
-                elif before.is_gaming and bunk_user.has_role(self.role.gaming):
+                elif before.is_gaming and bunk_user.has_role(self.role_gaming):
                     await self.remove_roles(bunk_user.member, self.role_gaming)
         except Exception as e:
             await self.handle_error(e, "check_member_gaming")
