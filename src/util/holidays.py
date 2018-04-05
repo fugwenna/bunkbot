@@ -7,6 +7,7 @@ import pytz, asyncio
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from datetime import datetime
 from .event_hook import EventHook
+from .helpers import EST
 
 now_year = datetime.now(tz=pytz.timezone("US/Eastern")).year
 
@@ -45,7 +46,7 @@ class Holiday:
     async def send_midnight_greeting() -> None:
         global now_year
 
-        now = datetime.now(tz=pytz.timezone("US/Eastern"))
+        now = datetime.now(tz=EST)
         now_year = now.year
         formatted = "{0:%m/%d/%Y}".format(now)
 
@@ -62,7 +63,7 @@ class Holiday:
     async def send_evening_greeting() -> None:
         global now_year
 
-        now = datetime.now(tz=pytz.timezone("US/Eastern"))
+        now = datetime.now(tz=EST)
         now_year = now.year
         formatted = "{0:%m/%d/%Y}".format(now)
 
@@ -76,8 +77,8 @@ class Holiday:
     @staticmethod
     async def start_timer() -> None:
         scheduler = AsyncIOScheduler()
-        scheduler.add_job(Holiday.send_midnight_greeting, trigger="cron", hour=5, misfire_grace_time=60)
-        scheduler.add_job(Holiday.send_evening_greeting, trigger="cron", hour=18, misfire_grace_time=60)
+        scheduler.add_job(Holiday.send_midnight_greeting, trigger="cron", hour=12, misfire_grace_time=60, timezone=EST)
+        scheduler.add_job(Holiday.send_evening_greeting, trigger="cron", hour=8, misfire_grace_time=60, timezone=EST)
         scheduler.start()
         try:
             asyncio.get_event_loop().run_forever()

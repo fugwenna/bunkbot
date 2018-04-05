@@ -13,6 +13,7 @@ from src.cogs.weather.weather_result import WeatherResult
 from src.cogs.weather.radar_result import RadarResult
 from src.storage.db import database
 from src.util.constants import DB_WEATHER
+from src.util.helpers import EST
 
 WEATHER_DESCRIPTION = """Retrieve a current snapshot of todays weather based on zip code.\n
     param: zip - optionally pass a zip code. Default is Baltimore (21201).
@@ -55,7 +56,7 @@ class Weather:
     async def wire_daily_forecast(self) -> None:
         try:
             scheduler = AsyncIOScheduler()
-            scheduler.add_job(self.send_daily_forecast, trigger="cron", hour=14, misfire_grace_time=120)
+            scheduler.add_job(self.send_daily_forecast, trigger="cron", hour=8, misfire_grace_time=120, timezone=EST)
             scheduler.start()
 
             if not scheduler.running:
