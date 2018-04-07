@@ -19,7 +19,7 @@ class BunkDB:
         self.config: Table = self.db.table("config")
         self.users: Table = self.db.table("users")
         self.rpg: Table = self.db.table("rpg")
-        self.holiday: Table = self.db.table("holiday")
+        self.holidays: Table = self.db.table("holiday")
         self.streams: Table = self.db.table("streams")
         self.check_defaults()
 

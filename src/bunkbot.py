@@ -56,6 +56,7 @@ class BunkBot(commands.Bot):
         self.SERVER_LOCKED = False
         self.ADMIN: BunkUser = None
         self.MODERATORS: list = []
+        self.BB_PROMPT: str = "tell me a fact"
         self.VIPS: list = []
         self.users = []
         self.load_cogs()

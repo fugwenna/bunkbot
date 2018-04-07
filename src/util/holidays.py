@@ -31,9 +31,11 @@ HOLIDAYS = [{
     "date": "11/23/{0}".format(now_year),
     "midnight": False,
     "message": "@everyone :turkey: :poultry_leg: :sweet_potato: HAPPY THANKSGIVING!!!!!!111!!! :sweet_potato: :poultry_leg: :turkey:"
+}, {
+    "date": "4/20/{0}".format(now_year),
+    "midnight": False,
+    "message": "yoooo 4/20 lolol"
 }]
-
-#["1/1", "7/4", "10/31", "12/24", "12/25"]
 
 class Holiday:
     on_holiday = EventHook()
@@ -77,8 +79,8 @@ class Holiday:
     @staticmethod
     async def start_timer() -> None:
         scheduler = AsyncIOScheduler()
-        scheduler.add_job(Holiday.send_midnight_greeting, trigger="cron", hour=0, misfire_grace_time=60, timezone=EST)
-        scheduler.add_job(Holiday.send_evening_greeting, trigger="cron", hour=12, misfire_grace_time=60, timezone=EST)
+        scheduler.add_job(Holiday.send_midnight_greeting, trigger="cron", hour=0, misfire_grace_time=120, timezone=EST)
+        scheduler.add_job(Holiday.send_evening_greeting, trigger="cron", hour=12, misfire_grace_time=120, timezone=EST)
         scheduler.start()
         try:
             asyncio.get_event_loop().run_forever()
