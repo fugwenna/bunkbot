@@ -172,7 +172,7 @@ class BunkUser:
         if not self.member:
             return False
 
-        return self.member.game is not None
+        return self.member.game is not None and self.member.game.type == 0
 
 
     # id reference for hotslogs
