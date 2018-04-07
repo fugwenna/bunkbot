@@ -11,18 +11,18 @@ PLAYER_MAIN_GRID_ID: str = "ctl00_MainContent_RadGridGeneralInformation"
 class HotslogsResult:
     # scrape the player id site
     # and find the primary info table
-    def get_player_by_id(self, id: int, table: str = None):
+    def get_player_by_id(self, pid: int, table: str = None):
         # no table passed, assume
         # an id lookup
         if table is None:
-            html = self.scrape(HOTS_PLAYER_ID_URL + str(id))
+            html = self.scrape(HOTS_PLAYER_ID_URL + str(pid))
             table = BeautifulSoup(html, "html.parser").find("table", class_="rgMasterTable", id=PLAYER_MAIN_GRID_ID)
 
         tbody = BeautifulSoup(str(table), "html.parser").find_all("tbody")
         trows = BeautifulSoup(str(tbody), "html.parser").find_all("tr")
 
         if len(trows) == 0:
-            raise BunkException("Error parsing information for player {}".format(str(id)))
+            raise BunkException("Error parsing information for player {}".format(str(pid)))
 
         for ind in range(0, len(trows)-1):
             tds = BeautifulSoup(str(trows[ind]), "html.parser").find_all("td")

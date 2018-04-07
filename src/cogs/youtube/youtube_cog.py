@@ -18,7 +18,7 @@ class Youtube:
         self.bot: BunkBot = bot
         self.message: Message = None
         self.yt_result: YoutubeResult = YoutubeResult()
-        self.yt_link: str = "";
+        self.yt_link: str = ""
 
 
     # perform a basic youtube search with a given
@@ -62,7 +62,7 @@ class Youtube:
     #youtube search
     @command(pass_context=True, clas=None, help="Get a list of related videos from the last youtube search")
     async def more(self, ctx) -> None:
-        e_title = "Type !ytl 1-5 to link another video\nType !ytl or !ytl 0 to relink the original result\n";
+        e_title = "Type !ytl 1-5 to link another video\nType !ytl or !ytl 0 to relink the original result\n"
         e_message = "\n".join(self.yt_result.titles)
         embed = Embed(title=e_title, description=e_message, color=int("CC181E", 16))
 

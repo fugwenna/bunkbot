@@ -62,6 +62,7 @@ class BunkUser:
             return None
 
         db_user = database.get_user_by_id(self.id)
+
         try:
             return db_user["last_xp_updated"]
         except:

@@ -51,9 +51,3 @@ class Duel:
 
             #self.winner = self.challenger if self.challenger.duel_roll > self.opponent.duel_roll else self.opponent
             #self.loser = self.challenger if self.challenger.duel_roll < self.opponent.duel_roll else self.opponent
-
-
-    # after a duel, update each individual
-    # xp gain
-    async def update_xp(self):
-        return
