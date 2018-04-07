@@ -375,6 +375,9 @@ class BunkBot(commands.Bot):
                         await self.add_roles(bunk_user.member, self.role_gaming)
                 elif before.is_gaming:
                     await self.remove_roles(bunk_user.member, self.role_gaming)
+
+        except BunkException as be:
+            await self.say_to_channel(self.bot_testing, be.message)
         except Exception as e:
             await self.handle_error(e, "check_member_gaming")
 
