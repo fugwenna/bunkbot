@@ -50,7 +50,7 @@ class HolidayCog:
             await self.bot.handle_error(e, "wire_holiday_check")
 
 
-    @command(pass_context=True, cls=None, help=DESCRIPTION)
+    #@command(pass_context=True, cls=None, help=DESCRIPTION)
     async def holiday(self, ctx: Context) -> None:
         try:
             await self.bot.send_typing(ctx.message.channel)
@@ -83,7 +83,7 @@ class HolidayCog:
             await self.bot.handle_error(e, "holiday")
 
 
-    @command(pass_context=True, cls=None, help="Get a list of holidays")
+    #@command(pass_context=True, cls=None, help="Get a list of holidays")
     async def holidays(self, ctx: Context) -> None:
         try:
             await self.bot.send_typing(ctx.message.channel)
@@ -112,5 +112,5 @@ class HolidayCog:
     async def send_holiday_greeting(self) -> None:
         holidays = database.holidays.all()
 
-def setup(bot) -> None:
-    bot.add_cog(HolidayCog(bot))
+#def setup(bot) -> None:
+#    bot.add_cog(HolidayCog(bot))
