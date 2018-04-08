@@ -223,8 +223,9 @@ class BunkUser:
     async def update_last_online(self):
         database.update_user_last_online(self.id)
 
-        if self.xp_holder > 0:
-            await self.update_xp(0, None, True)
+        # causing weird stuff
+        #if self.xp_holder > 0:
+        #    await self.update_xp(0, None, True)
 
 
     # update the bunk user xp
