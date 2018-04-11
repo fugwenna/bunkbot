@@ -6,6 +6,7 @@ from discord.ext.commands import command, Context
 from src.bunkbot import BunkBot
 from src.util.bunk_user import BunkUser
 from src.util.bunk_exception import BunkException
+from src.util.constants import ROLE_ADMIN, ROLE_MODERATOR, ROLE_VIP
 
 class Mod:
     def __init__(self, bot: BunkBot):
@@ -13,7 +14,7 @@ class Mod:
 
 
     # unlock the server and do not allow invitations
-    @commands.has_any_role("admin", "moderator")
+    @commands.has_any_role(ROLE_ADMIN, ROLE_MODERATOR)
     @command(pass_context=True, cls=None, help="Lock the server")
     async def lock(self, ctx: Context) -> None:
         if self.bot.SERVER_LOCKED:
@@ -28,7 +29,7 @@ class Mod:
 
 
     # unlock the server and allow invitations
-    @commands.has_any_role("admin", "moderator")
+    @commands.has_any_role(ROLE_ADMIN, ROLE_MODERATOR)
     @command(pass_context=True, cls=None, help="Unlock the server")
     async def unlock(self, ctx: Context) -> None:
         if not self.bot.SERVER_LOCKED:
@@ -43,7 +44,7 @@ class Mod:
 
 
     # last_online
-    @commands.has_any_role("admin", "moderator")
+    @commands.has_any_role(ROLE_ADMIN, ROLE_MODERATOR)
     @command(pass_context=True, cls=None, help="Find the last online of a user", aliases=["online", "lo"])
     async def lastonline(self, ctx: Context) -> None:
         try:
@@ -67,7 +68,7 @@ class Mod:
             await self.bot.handle_error(e, "lastonline")
 
     # last_xp
-    @commands.has_any_role("admin", "moderator")
+    @commands.has_any_role(ROLE_ADMIN, ROLE_MODERATOR)
     @command(pass_context=True, cls=None, help="Find the last online of a user", aliases=["lastxp", "lx", "active", "lastactive"])
     async def lastxpupdate(self, ctx: Context) -> None:
         try:

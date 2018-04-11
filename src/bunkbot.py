@@ -37,7 +37,7 @@ class BunkBot(commands.Bot):
     def __init__(self):
         super().__init__("!", None, BOT_DESCRIPTION, True)
         self.init: bool = False
-        self.chat_timer = 15
+        self.chat_timer = 11
         self.last_message_at = -1
         self.chat_bot: CleverWrap = None
         self.server: Server = None
@@ -53,6 +53,7 @@ class BunkBot(commands.Bot):
         self.role_vip_perms = None
         self.role_moderator = None
         self.role_moderator_perms = None
+        self.lowest_role_position: int = 0
         self.SERVER_LOCKED = False
         self.ADMIN: BunkUser = None
         self.MODERATORS: list = []
@@ -65,7 +66,7 @@ class BunkBot(commands.Bot):
 
     # lifecycle hook - set up all
     # of the necessary and useful channels
-    async def on_init(self):
+    async def on_init(self) -> None:
         try:
             if self.init is False:
                 self.init = True
@@ -78,6 +79,7 @@ class BunkBot(commands.Bot):
                         self.role_gaming = ro
                     elif ro.name == ROLE_NEW:
                         self.role_new = ro
+                        self.lowest_role_position = ro.position
                     elif ro.name == ROLE_ADMIN:
                         self.role_admin = ro
                     elif ro.name == ROLE_MODERATOR:

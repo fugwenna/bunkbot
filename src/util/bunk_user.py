@@ -176,6 +176,17 @@ class BunkUser:
         return self.member.game is not None and self.member.game.type == 0
 
 
+    # vip users can have
+    # their own channel
+    @property
+    def channel(self) -> str or None:
+        if not self.member:
+            return None
+
+        db_user = database.get_user_by_id(self.id)
+        return db_user["channel"]
+
+
     # id reference for hotslogs
     @property
     def hots_ref(self) -> int:

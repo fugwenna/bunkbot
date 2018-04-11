@@ -4,6 +4,7 @@ Commands only allowable by admin
 from discord.ext import commands
 from discord.ext.commands import command
 from src.bunkbot import BunkBot
+from src.util.constants import ROLE_ADMIN, ROLE_MODERATOR, ROLE_VIP
 
 class Admin:
     def __init__(self, bot: BunkBot):
@@ -11,7 +12,7 @@ class Admin:
 
 
     # link bunkbot source code
-    @commands.has_any_role("admin")
+    @commands.has_any_role(ROLE_ADMIN)
     @command(pass_context=True, cls=None, help="Link source code url", aliases=["src"])
     async def source(self, ctx) -> None:
         try:
@@ -23,7 +24,7 @@ class Admin:
 
     # clear a role for ALL users ...
     # be careful with this, basically an rm -rf
-    @commands.has_any_role("admin")
+    @commands.has_any_role(ROLE_ADMIN)
     @command(pass_context=True, cls=None, help="Clear a role from all users")
     async def clear(self, ctx) -> None:
         try:
