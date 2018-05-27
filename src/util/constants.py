@@ -7,6 +7,7 @@ CHANNEL_GAMING: str = "gaming"
 CHANNEL_HOTS: str = "hots"
 CHANNEL_MOD_CHAT: str = "mod-chat"
 CHANNEL_VIP_CHAT: str = "vip-chat"
+CHANNEL_WEATHER: str = "weather"
 
 DB_CLEVERBOT: str = "cleverbot"
 DB_SERVER_ID: str = "serverid"
@@ -22,6 +23,7 @@ ROLE_GAMING: str = "gaming"
 ROLE_STREAMING: str = "streaming"
 ROLE_VIP: str = "vip"
 ROLE_VIP_PERMS: str = "vip_perms"
+ROLE_BUNKBOT: str = "bunky"
 
 ROLE_MAX: int = 250
 ROLE_MAX_PRIMARY: int = 11

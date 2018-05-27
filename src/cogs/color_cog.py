@@ -64,7 +64,7 @@ class Color:
                 await self.prune_color_roles()
 
         except BunkException as be:
-            await self.say(be.message)
+            await self.bot.say(be.message)
         except Exception as e:
             await self.bot.handle_error(e, "color")
             await self.bot.say("Color '{0}' is not recognized. Type !colors for help".format(color))

@@ -81,7 +81,7 @@ class Weather:
                 embed.set_footer(text=weather.credit, icon_url=weather.wu_icon)
                 embed.set_thumbnail(url=weather.thumb)
 
-                await self.bot.say_to_channel(self.bot.general, None, embed)
+                await self.bot.say_to_channel(self.bot.weather, None, embed)
         except Exception as e:
             await self.bot.handle_error(e, "send_daily_forecast")
 

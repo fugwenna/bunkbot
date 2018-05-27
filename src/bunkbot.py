@@ -11,7 +11,7 @@ import urllib.request
 from urllib.request import HTTPError, URLError, socket
 from os import walk
 from os.path import join, splitext, sep
-from discord import Channel, Member, Message, Reaction, Server, VoiceState, Embed
+from discord import Channel, Member, Message, Reaction, Server, VoiceState, Embed, Role
 from discord.ext.commands import Context
 from cleverwrap import CleverWrap
 from discord.ext import commands
@@ -23,6 +23,7 @@ from src.util.holidays import Holiday
 from src.util.event_hook import EventHook
 from src.util.constants import *
 from src.util.helpers import roll
+from src.util.bunkbot_convo import BunkbotConversation
 
 
 BOT_DESCRIPTION = """
@@ -37,7 +38,7 @@ class BunkBot(commands.Bot):
     def __init__(self):
         super().__init__("!", None, BOT_DESCRIPTION, True)
         self.init: bool = False
-        self.chat_timer = 11
+        self.chat_timer = 9
         self.last_message_at = -1
         self.chat_bot: CleverWrap = None
         self.server: Server = None
@@ -45,6 +46,7 @@ class BunkBot(commands.Bot):
         self.bot_logs: Channel = None
         self.mod_chat: Channel = None
         self.general: Channel = None
+        self.weather: Channel = None
         self.role_admin = None
         self.role_gaming = None
         self.role_streaming = None
@@ -53,12 +55,14 @@ class BunkBot(commands.Bot):
         self.role_vip_perms = None
         self.role_moderator = None
         self.role_moderator_perms = None
+        self.role_bunky = None
         self.lowest_role_position: int = 0
         self.SERVER_LOCKED = False
         self.ADMIN: BunkUser = None
         self.MODERATORS: list = []
         self.BB_PROMPT: str = "tell me a fact"
         self.VIPS: list = []
+        self.conversations = []
         self.users = []
         self.load_cogs()
         Holiday.on_holiday += self.send_greeting
@@ -90,6 +94,8 @@ class BunkBot(commands.Bot):
                         self.role_vip = ro
                     elif ro.name == ROLE_VIP_PERMS:
                         self.role_vip_perms = ro
+                    elif ro.name == ROLE_BUNKBOT:
+                        self.role_bunky = ro
 
                 for ch in self.server.channels:
                     if ch.name == CHANNEL_BOT_TESTING:
@@ -100,6 +106,8 @@ class BunkBot(commands.Bot):
                         self.mod_chat = ch
                     elif ch.name == CHANNEL_GENERAL:
                         self.general = ch
+                    elif ch.name == CHANNEL_WEATHER:
+                        self.weather = ch
 
                 self.chat_bot = CleverWrap(database.get(DB_CLEVERBOT))
                 await self.say_to_channel(self.bot_logs, "Bot and database initialized. Syncing users and channels...")
@@ -131,6 +139,23 @@ class BunkBot(commands.Bot):
             self.last_message_at = -1
 
         return still_chatting
+
+
+    # member reference for
+    # bunkbot to add roles
+    @property
+    def member_ref(self) -> Member or None:
+        mem = [u for u in self.users if u.has_role(self.role_bunky)]
+        if len(mem) > 0:
+            return mem[0].member
+
+        return None
+
+
+    # check if bunkbot is chatting with
+    # a specific bunk user
+    def is_chatting_with(self, user: BunkUser) -> bool:
+        return False
 
 
     # retrieve the author of the
@@ -200,7 +225,7 @@ class BunkBot(commands.Bot):
 
             if not is_reset and (self.is_chatting or (is_bunk_mention or "BUNKBOT" in content)):
                 await self.chat(message)
-                await bunk_user.update_xp(0.5, message.channel)
+                await bunk_user.update_xp(0.05, message.channel)
             else:
                 await self.process_commands(message)
                 await bunk_user.update_xp(1.0, message.channel)
@@ -237,6 +262,15 @@ class BunkBot(commands.Bot):
                 await self.send_message(channel, None, embed=embed)
         except Exception as e:
             await self.handle_error(e, "say_to_channel")
+
+
+    # get a role based on the name
+    async def get_role(self, role_name: str) -> Role or None:
+        role = [r for r in self.server.roles if r == role_name]
+        if len(role) > 0:
+            return role[0]
+
+        return None
 
 
     # have a cleverbot conversation with
@@ -376,7 +410,7 @@ class BunkBot(commands.Bot):
                 if after.is_gaming:
                     if not after.has_role(self.role_gaming.name):
                         await self.add_roles(bunk_user.member, self.role_gaming)
-                elif before.is_gaming and before.has_role(self.role_gaming.name):
+                elif before.is_gaming:
                     await self.remove_roles(bunk_user.member, self.role_gaming)
 
         except BunkException as be:
