@@ -1,6 +1,6 @@
 import datetime, pytz
 from time import time
-from discord import Member, Server, Channel
+from discord import Member, Server, Channel, Game
 from src.storage.db import database
 from src.cogs.rpg.duel import Duel
 from src.util.helpers import TIMER_MINUTES, UPDATE_CAP, calc_req_xp
@@ -191,6 +191,18 @@ class BunkUser:
     @property
     def hots_ref(self) -> int:
         return -1
+
+
+    # current played game
+    @property
+    def current_game(self) -> Game or None:
+        if self.member is None:
+            return None
+
+        if self.member.game is None:
+            return None
+
+        return self.member.game
 
 
     # check if the  bunk user

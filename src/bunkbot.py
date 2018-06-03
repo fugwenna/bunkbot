@@ -2,16 +2,12 @@
 Discord.py wrapper class which inherits the
 Bot class as it's parent
 """
-import json
-import re
-import sys
-import time
-import traceback
-import urllib.request
+import json, asyncio, re, sys, time, traceback, urllib.request
 from urllib.request import HTTPError, URLError, socket
 from os import walk
 from os.path import join, splitext, sep
-from discord import Channel, Member, Message, Reaction, Server, VoiceState, Embed, Role
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from discord import Channel, Member, Message, Reaction, Server, VoiceState, Embed, Role, Game
 from discord.ext.commands import Context
 from cleverwrap import CleverWrap
 from discord.ext import commands
@@ -22,7 +18,7 @@ from src.util.bunk_exception import BunkException
 from src.util.holidays import Holiday
 from src.util.event_hook import EventHook
 from src.util.constants import *
-from src.util.helpers import roll
+from src.util.helpers import roll, roll_int, EST
 from src.util.bunkbot_convo import BunkbotConversation
 
 
@@ -114,6 +110,8 @@ class BunkBot(commands.Bot):
                 await self.sync_users()
                 await Holiday.start_timer()
                 await BunkBot.on_bot_initialized.fire()
+                await self.set_random_game(False)
+                await self.wire_random_game()
         except Exception as e:
             await self.handle_error(e, "on_init")
 
@@ -208,6 +206,18 @@ class BunkBot(commands.Bot):
         except Exception as e:
             await self.handle_error(e, "sync_users")
 
+
+    # update bunkbot's random game every hour
+    async def wire_random_game(self) -> None:
+        try:
+            scheduler = AsyncIOScheduler()
+            scheduler.add_job(self.set_random_game(), trigger="interval", minutes=60, misfire_grace_time=120, timezone=EST)
+            scheduler.start()
+
+            if not scheduler.running:
+                asyncio.get_event_loop().run_forever()
+        except Exception as e:
+            await self.bot.handle_error(e, "wire_random_game")
 
     # process each message that is sent
     # to the server - if bunkbot is chatting, continue to chat
@@ -423,6 +433,8 @@ class BunkBot(commands.Bot):
                 elif before.is_gaming:
                     await self.remove_roles(bunk_user.member, self.role_gaming)
 
+                await self.sync_member_game(bunk_user)
+
         except BunkException as be:
             await self.say_to_channel(self.bot_testing, be.message)
         except Exception as e:
@@ -449,6 +461,14 @@ class BunkBot(commands.Bot):
                 return
         except Exception as e:
             await self.handle_error(e, "check_member_last_online")
+
+
+    # sync a members game with the database
+    async def sync_member_game(self, user: BunkUser) -> None:
+        if user.current_game is not None:
+            game_name = database.get_game_name(user.current_game.name)
+            if game_name is None:
+                database.game_names.insert({"name": user.current_game.name})
 
 
     # get a member from the
@@ -484,6 +504,27 @@ class BunkBot(commands.Bot):
             await self.say_to_channel(self.general, message)
         except Exception as e:
             self.handle_error(e, "send_greeting")
+
+
+    # check a game name with the database list
+    # and randomly pick one
+    async def set_random_game(self, roll_for_game: bool = True) -> None:
+        if roll_for_game is True:
+            roll_result = roll_int()
+            if roll_result > 50:
+                game = self.get_game()
+                await self.change_presence(game=Game(name=game["name"]))
+        else:
+            game = self.get_game()
+            await self.change_presence(game=Game(name=game["name"]))
+
+
+    # get a game from the db
+    @staticmethod
+    def get_game() -> any:
+        games = database.game_names.all()
+        index = roll_int(0, len(games))
+        return games[index]
 
 
     # make a basic http call

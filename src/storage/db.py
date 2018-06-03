@@ -21,6 +21,7 @@ class BunkDB:
         self.rpg: Table = self.db.table("rpg")
         self.holidays: Table = self.db.table("holiday")
         self.streams: Table = self.db.table("streams")
+        self.game_names: Table = self.db.table("game_names")
         self.check_defaults()
 
 
@@ -60,6 +61,12 @@ class BunkDB:
     # discord member id reference
     def get_user_by_id(self, uid: str) -> any:
          return self.users.get(Query().id == uid)
+
+
+    # get a game name
+    def get_game_name(self, name: str) -> any:
+        db_game = self.game_names.get(Query().name == name)
+        return db_game
 
 
     # check if a user exists in the database - if not,

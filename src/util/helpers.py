@@ -16,3 +16,7 @@ def calc_req_xp(level: int) -> float:
 # roll a random value within a range
 def roll(min_val: int = 0, max_val: int = 100) -> str:
     return str(randint(min_val, max_val))
+
+# roll a random value within a range
+def roll_int(min_val: int = 0, max_val: int = 100) -> int:
+    return randint(min_val, max_val)
