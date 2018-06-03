@@ -211,7 +211,7 @@ class BunkBot(commands.Bot):
     async def wire_random_game(self) -> None:
         try:
             scheduler = AsyncIOScheduler()
-            scheduler.add_job(self.set_random_game(), trigger="interval", minutes=60, misfire_grace_time=120, timezone=EST)
+            scheduler.add_job(self.set_random_game, trigger="interval", minutes=60, misfire_grace_time=120, timezone=EST)
             scheduler.start()
 
             if not scheduler.running:
