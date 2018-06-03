@@ -110,8 +110,8 @@ class BunkBot(commands.Bot):
                 await self.sync_users()
                 await Holiday.start_timer()
                 await BunkBot.on_bot_initialized.fire()
-                await self.set_random_game(False)
                 await self.wire_random_game()
+                await self.set_random_game(False)
         except Exception as e:
             await self.handle_error(e, "on_init")
 
