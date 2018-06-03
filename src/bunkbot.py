@@ -523,7 +523,7 @@ class BunkBot(commands.Bot):
     @staticmethod
     def get_game() -> any:
         games = database.game_names.all()
-        index = roll_int(0, len(games))
+        index = roll_int(0, len(games)-1)
         return games[index]
 
 
