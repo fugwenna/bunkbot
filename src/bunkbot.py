@@ -217,7 +217,7 @@ class BunkBot(commands.Bot):
             if not scheduler.running:
                 asyncio.get_event_loop().run_forever()
         except Exception as e:
-            await self.bot.handle_error(e, "wire_random_game")
+            await self.handle_error(e, "wire_random_game")
 
     # process each message that is sent
     # to the server - if bunkbot is chatting, continue to chat
