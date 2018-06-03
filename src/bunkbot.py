@@ -513,11 +513,9 @@ class BunkBot(commands.Bot):
             roll_result = roll_int()
             if roll_result > 50:
                 game = self.get_game()
-                await self.debug("Changing game " + game["name"])
                 await self.change_presence(game=Game(name=game["name"]))
         else:
             game = self.get_game()
-            await self.debug("Changing game " + game["name"])
             await self.change_presence(game=Game(name=game["name"]))
 
 
