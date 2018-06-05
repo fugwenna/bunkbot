@@ -464,11 +464,12 @@ class BunkBot(commands.Bot):
 
 
     # sync a members game with the database
-    async def sync_member_game(self, user: BunkUser) -> None:
-        if user.current_game is not None:
+    @staticmethod
+    async def sync_member_game(user: BunkUser) -> None:
+        if user.current_game is not None and user.current_game.type != 1:
             game_name = database.get_game_name(user.current_game.name)
-            if game_name is None:
-                database.game_names.insert({"name": user.current_game.name})
+            if game_name is None :
+                database.game_names.insert({"name": user.current_game.name, "type": user.current_game.type})
 
 
     # get a member from the
@@ -513,10 +514,10 @@ class BunkBot(commands.Bot):
             roll_result = roll_int()
             if roll_result > 50:
                 game = self.get_game()
-                await self.change_presence(game=Game(name=game["name"], type=0))
+                await self.change_presence(game=Game(name=game["name"], type=int(game["type"])))
         else:
             game = self.get_game()
-            await self.change_presence(game=Game(name=game["name"], type=0))
+            await self.change_presence(game=Game(name=game["name"], type=int(game["type"])))
 
 
     # get a game from the db
