@@ -39,10 +39,7 @@ class BunkUser:
         if self.member is None:
             return False
 
-        return len([m for m in self.member.roles if
-                    m.name == ROLE_MODERATOR or
-                    m.name == ROLE_MODERATOR_PERMS or
-                    m.name == ROLE_ADMIN]) > 0
+        return self.has_role(ROLE_MODERATOR_PERMS) or self.has_role(ROLE_ADMIN)
 
 
     # check if the current
@@ -52,7 +49,7 @@ class BunkUser:
         if self.member is None:
             return False
 
-        return len([m for m in self.member.roles if m.name == ROLE_VIP or m.name == ROLE_VIP_PERMS]) > 0
+        return self.has_role(ROLE_VIP_PERMS)
 
 
     # current database user last xp updated date
