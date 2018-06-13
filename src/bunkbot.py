@@ -409,9 +409,9 @@ class BunkBot(commands.Bot):
                     await bunk_user.update_xp(0.1)
                     await self.remove_roles(bunk_user.member, self.role_streaming)
 
-                    if bunk_user.is_vip and not bunk_user.has_role(self.role_vip.name):
+                    if bunk_user.is_vip:
                         await self.add_roles(bunk_user.member, self.role_vip)
-                    elif bunk_user.is_moderator and not bunk_user.has_role(self.role_moderator.name):
+                    elif bunk_user.is_moderator:
                         await self.add_roles(bunk_user.member, self.role_moderator)
 
         except BunkException as be:
