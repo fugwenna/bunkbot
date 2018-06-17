@@ -3,7 +3,6 @@ Zip-code driven weather forecast and current conditions
 based on data retrieved from weather underground
 """
 import uuid, asyncio
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from bs4 import BeautifulSoup
 from urllib import request
 from discord import Embed
@@ -13,7 +12,7 @@ from src.cogs.weather.weather_result import WeatherResult
 from src.cogs.weather.radar_result import RadarResult
 from src.storage.db import database
 from src.util.constants import DB_WEATHER
-from src.util.helpers import EST
+from src.util.async import AsyncSchedulerHelper
 
 WEATHER_DESCRIPTION = """Retrieve a current snapshot of todays weather based on zip code.\n
     param: zip - optionally pass a zip code. Default is Baltimore (21201).
@@ -55,12 +54,7 @@ class Weather:
     # 9AM UTC - 13
     async def wire_daily_forecast(self) -> None:
         try:
-            scheduler = AsyncIOScheduler()
-            scheduler.add_job(self.send_daily_forecast, trigger="cron", hour=8, misfire_grace_time=120, timezone=EST)
-            scheduler.start()
-
-            if not scheduler.running:
-                asyncio.get_event_loop().run_forever()
+            AsyncSchedulerHelper.add_job(self.send_daily_forecast, trigger="cron", hour=8)
         except Exception as e:
             await self.bot.handle_error(e, "wire_daily_forecast")
 

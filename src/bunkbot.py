@@ -6,8 +6,7 @@ import json, asyncio, re, sys, time, traceback, urllib.request
 from urllib.request import HTTPError, URLError, socket
 from os import walk
 from os.path import join, splitext, sep
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from discord import Channel, Member, Message, Reaction, Server, VoiceState, Embed, Role, Game
+from discord import Channel, Member, Message, Reaction, Server, VoiceState, Embed, Role, Game, Status
 from discord.ext.commands import Context
 from cleverwrap import CleverWrap
 from discord.ext import commands
@@ -19,6 +18,7 @@ from src.util.holidays import Holiday
 from src.util.event_hook import EventHook
 from src.util.constants import *
 from src.util.helpers import roll, roll_int, EST
+from src.util.async import AsyncSchedulerHelper
 from src.util.bunkbot_convo import BunkbotConversation
 
 
@@ -210,14 +210,18 @@ class BunkBot(commands.Bot):
     # update bunkbot's random game every hour
     async def wire_random_game(self) -> None:
         try:
-            scheduler = AsyncIOScheduler()
-            scheduler.add_job(self.set_random_game, trigger="interval", minutes=60, misfire_grace_time=120, timezone=EST)
-            scheduler.start()
-
-            if not scheduler.running:
-                asyncio.get_event_loop().run_forever()
+            AsyncSchedulerHelper.add_job(self.set_random_game, trigger="interval", minutes=60)
         except Exception as e:
             await self.handle_error(e, "wire_random_game")
+
+
+    # annoy a random person during the day
+    async def wire_annoy_someone(self) -> None:
+        try:
+            AsyncSchedulerHelper.add_job(self.annoy_someone, trigger="cron", hour=9)
+        except Exception as e:
+            await self.handle_error(e, "wire_annoy_someone")
+
 
     # process each message that is sent
     # to the server - if bunkbot is chatting, continue to chat
@@ -253,9 +257,13 @@ class BunkBot(commands.Bot):
     # send a message to a random person 60% every day
     async def annoy_someone(self):
         try:
-            pct = int(roll(1, 10))
-            if pct > 4:
-                return
+            pct = int(roll(1, 100))
+            if pct >= 10:
+                avail_mem_len = len([u for u in self.users if u.status == Status.online])
+                if avail_mem_len > 0:
+                    user: BunkUser = self.users[int(roll(0, avail_mem_len))]
+                    # todo ignore list
+                    await self.debug("Say something to " + user.name)
         except Exception as e:
             await self.handle_error(e, "annoy_someone")
 
