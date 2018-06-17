@@ -1,6 +1,6 @@
 import datetime, pytz
 from time import time
-from discord import Member, Server, Channel, Game
+from discord import Member, Server, Channel, Game, Status
 from src.storage.db import database
 from src.cogs.rpg.duel import Duel
 from src.util.helpers import TIMER_MINUTES, UPDATE_CAP, calc_req_xp
@@ -200,6 +200,15 @@ class BunkUser:
             return None
 
         return self.member.game
+
+
+    # current discord member status
+    @property
+    def status(self) -> Status:
+        if self.member is None:
+            return Status.offline
+
+        return self.member.status
 
 
     # check if the  bunk user
