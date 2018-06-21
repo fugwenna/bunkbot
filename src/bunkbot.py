@@ -414,7 +414,7 @@ class BunkBot(commands.Bot):
                         await self.remove_roles(bunk_user.member, self.role_vip)
                     elif bunk_user.is_moderator:
                         await self.remove_roles(bunk_user.member, self.role_moderator)
-                elif before.is_streaming and bunk_user.has_role(self.role_streaming.name):
+                elif not after.is_streaming and before.is_streaming and bunk_user.has_role(self.role_streaming.name):
                     await self.debug(bunk_user.name + " is no longer streaming")
                     await bunk_user.update_xp(0.1)
                     await self.remove_roles(bunk_user.member, self.role_streaming)
@@ -438,10 +438,11 @@ class BunkBot(commands.Bot):
             bunk_user: BunkUser = self.get_user_by_id(after.id)
 
             if bunk_user is not None:
-                if after.is_gaming:
-                    if not after.has_role(self.role_gaming.name):
-                        await self.add_roles(bunk_user.member, self.role_gaming)
-                elif before.is_gaming:
+                if after.is_gaming and not after.has_role(self.role_gaming.name):
+                    await self.debug(bunk_user.name + " is now gaming")
+                    await self.add_roles(bunk_user.member, self.role_gaming)
+                elif not after.is_gaming and before.is_gaming and bunk_user.has_role(self.role_gaming.name):
+                    await self.debug(bunk_user.name + " is no longer gaming")
                     await self.remove_roles(bunk_user.member, self.role_gaming)
 
                 await self.sync_member_game(bunk_user)
