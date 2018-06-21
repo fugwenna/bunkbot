@@ -405,19 +405,22 @@ class BunkBot(commands.Bot):
 
             if bunk_user is not None:
                 if after.is_streaming:
-                    if not after.has_role(self.role_streaming.name):
-                        await bunk_user.update_xp(0.1)
-                        await self.add_roles(bunk_user.member, self.role_streaming)
+                    await self.debug(bunk_user.name + " is now streaming");
+                    await bunk_user.update_xp(0.1)
+                    await self.add_roles(bunk_user.member, self.role_streaming)
 
-                        if bunk_user.is_vip:
-                            await self.remove_roles(bunk_user.member, self.role_vip)
-                        elif bunk_user.is_moderator:
-                            await self.remove_roles(bunk_user.member, self.role_moderator)
+                    if bunk_user.is_vip:
+                        await self.debug(bunk_user.name + " vip is role removed for streaming");
+                        await self.remove_roles(bunk_user.member, self.role_vip)
+                    elif bunk_user.is_moderator:
+                        await self.remove_roles(bunk_user.member, self.role_moderator)
                 elif before.is_streaming:
+                    await self.debug(bunk_user.name + " is no longer streaming");
                     await bunk_user.update_xp(0.1)
                     await self.remove_roles(bunk_user.member, self.role_streaming)
 
                     if bunk_user.is_vip:
+                        await self.debug(bunk_user.name + " vip role re-added");
                         await self.add_roles(bunk_user.member, self.role_vip)
                     elif bunk_user.is_moderator:
                         await self.add_roles(bunk_user.member, self.role_moderator)
