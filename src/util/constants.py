@@ -1,4 +1,5 @@
 USER_NAME_REGEX = r"[^\x00-\x7F]+"
+URL_REGEX = r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
 
 CHANNEL_BOT_LOGS: str = "bot-logs"
 CHANNEL_BOT_TESTING: str = "bot-testing"
