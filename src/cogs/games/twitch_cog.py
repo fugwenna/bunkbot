@@ -95,7 +95,7 @@ class TwitchCog:
             stream = database.streams.get(Query().name == sname)
 
             if stream is not None:
-                raise BunkException("Stream '{0}' has already been added to the database {0}".format(sname))
+                raise BunkException("Stream '{0}' has already been added to the database!".format(sname))
 
             stream_ids = self.twitch_client.users.translate_usernames_to_ids([sname])
             if len(stream_ids) == 0:
