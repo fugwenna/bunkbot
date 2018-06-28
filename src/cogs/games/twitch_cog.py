@@ -84,7 +84,7 @@ class TwitchCog:
     @command(pass_context=True, cls=None, help="Add a stream to the database")
     async def stream(self, ctx) -> None:
         try:
-            await self.bot.send_typing(ctx)
+            await self.bot.send_typing(ctx.message.channel)
 
             params = self.bot.get_cmd_params(ctx)
             if len(params) == 0:
@@ -122,7 +122,7 @@ class TwitchCog:
     @command(pass_context=True, cls=None, help="List currently followed streams")
     async def streams(self, ctx) -> None:
         try:
-            await self.bot.send_typing(ctx)
+            await self.bot.send_typing(ctx.message.channel)
 
             stream_names = []
             added_bys = []
