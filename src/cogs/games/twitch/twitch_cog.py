@@ -12,6 +12,7 @@ from src.util.async import AsyncSchedulerHelper
 from src.util.helpers import EST
 from src.util.bunk_exception import BunkException
 from src.util.constants import CHANNEL_GENERAL, ROLE_ADMIN, DB_TWITCH_ID, URL_REGEX
+from .stream_alert import StreamAlert, StreamAlertCollection
 
 TWITCH_URL: str = "https://api.twitch.tv/helix/streams"
 TWITCH_ICON: str = "https://vignette.wikia.nocookie.net/fallout/images/4/43/Twitch_icon.png/revision/latest?cb=20180507131302"
@@ -24,6 +25,7 @@ class TwitchCog:
     def __init__(self, bot: BunkBot):
         self.bot: BunkBot = bot
         self.current_stream_ids = []
+        self.stream_alerts = StreamAlertCollection()
         self.twitch_client = TwitchClient(client_id=database.get(DB_TWITCH_ID))
         BunkBot.on_bot_initialized += self.wire_stream_listener
 
@@ -32,7 +34,7 @@ class TwitchCog:
     # search for twitch streams
     async def wire_stream_listener(self) -> None:
         try:
-            AsyncSchedulerHelper.add_job(self.get_streams, trigger="interval", hours=1)
+            AsyncSchedulerHelper.add_job(self.get_streams, trigger="interval", minutes=30)
         except Exception as e:
             await self.bot.handle_error(e, "wire_stream_listener")
 
@@ -57,15 +59,18 @@ class TwitchCog:
                             self.current_stream_ids.append(stream.id)
                             ch = strm.channel
 
-                            embed = Embed(title=ch.display_name, description=ch.status + "\n" + ch.url, color=int("392e5c", 16))
-                            embed.set_footer(text="Currently playing {0}".format(strm.game), icon_url=TWITCH_ICON)
+                            embed = Embed(title="{0} - streaming {1}".format(ch.display_name, strm.game),
+                                          description=ch.status + "\n{0}".format(ch.url),
+                                          color=int("392e5c", 16))
+
+                            embed.set_footer(text="type !streams to get followed streams", icon_url=TWITCH_ICON)
                             embed.set_thumbnail(url=ch.logo)
 
-                            await self.bot.say_to_channel(self.bot.bot_logs, None, embed)
+                            await self.bot.say_to_channel(self.bot.general, None, embed)
                     else:
                         if stream.id in self.current_stream_ids:
                             self.current_stream_ids.remove(stream.id)
-                            await self.bot.say_to_channel(self.bot.bot_logs, "{0} is no longer streaming".format(stream.display_name))
+                            await self.bot.say_to_channel(self.bot.general, "{0} is no longer streaming".format(stream.display_name))
             else:
                 self.current_stream_ids = []
 
@@ -90,12 +95,12 @@ class TwitchCog:
             if len(params) == 0:
                 raise BunkException("Enter a stream name")
 
-            paramSplit = params[0].split("/")
-            sname = paramSplit[len(paramSplit)-1]
+            param_split = params[0].split("/")
+            sname = param_split[len(param_split)-1]
             stream = database.streams.get(Query().name == sname)
 
             if stream is not None:
-                raise BunkException("Stream '{0}' has already been added to the database {0}".format(sname))
+                raise BunkException("Stream '{0}' has already been added to the database!".format(sname))
 
             stream_ids = self.twitch_client.users.translate_usernames_to_ids([sname])
             if len(stream_ids) == 0:
@@ -125,19 +130,30 @@ class TwitchCog:
             await self.bot.send_typing(ctx.message.channel)
 
             stream_names = []
+            stream_statuses = []
             added_bys = []
 
-            for s in database.streams.all():
+            for s in sorted(database.streams.all(), key=lambda x: x["name"]):
                 stream_names.append(s["name"])
                 added_bys.append(s["added_by"])
 
+            stream_ids = self.twitch_client.users.translate_usernames_to_ids(stream_names)
+
+            for stream in stream_ids:
+                strm = self.twitch_client.streams.get_stream_by_user(stream.id)
+                if strm is not None:
+                    stream_statuses.append(strm.channel.url)
+                else:
+                    stream_statuses.append("Not streaming")
+
+
             embed = Embed(title="Currently Followed Streams", color=int("19CF3A", 16))
             embed.add_field(name="Stream", value="\n".join(stream_names), inline=True)
-            embed.add_field(name="Added By", value="\n".join(added_bys), inline=True)
+            embed.add_field(name="Status", value="\n".join(stream_statuses), inline=True)
+            #embed.add_field(name="Added By", value="\n".join(added_bys), inline=True)
             embed.set_thumbnail(url=TWITCH_ICON)
 
             await self.bot.say(embed=embed)
-
         except Exception as e:
             await self.bot.handle_error(e, "streams")
 
