@@ -152,6 +152,7 @@ class TwitchCog:
             embed.add_field(name="Status", value="\n".join(stream_statuses), inline=True)
             #embed.add_field(name="Added By", value="\n".join(added_bys), inline=True)
             embed.set_thumbnail(url=TWITCH_ICON)
+            embed.set_footer(text="type !stream <stream name> to add a stream to the list", icon_url=TWITCH_ICON)
 
             await self.bot.say(embed=embed)
         except Exception as e:
