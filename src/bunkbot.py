@@ -408,7 +408,6 @@ class BunkBot(commands.Bot):
                     await bunk_user.update_xp(0.1)
                     await self.add_roles(bunk_user.member, self.role_streaming)
 
-                    self.debug("VIP?" + bunk_user.name + " " + str(bunk_user.is_vip))
                     if bunk_user.is_vip:
                         await self.remove_roles(bunk_user.member, self.role_vip)
                     elif bunk_user.is_moderator:
