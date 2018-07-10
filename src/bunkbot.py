@@ -408,7 +408,9 @@ class BunkBot(commands.Bot):
                     await bunk_user.update_xp(0.1)
                     await self.add_roles(bunk_user.member, self.role_streaming)
 
+                    await self.debug("Streaming, VIP CHECK: " + bunk_user.name)
                     if bunk_user.is_vip:
+                        await self.debug("Removing VIP from " + bunk_user.name)
                         await self.remove_roles(bunk_user.member, self.role_vip)
                     elif bunk_user.is_moderator:
                         await self.remove_roles(bunk_user.member, self.role_moderator)
@@ -416,7 +418,9 @@ class BunkBot(commands.Bot):
                     await bunk_user.update_xp(0.1)
                     await self.remove_roles(bunk_user.member, self.role_streaming)
 
+                    await self.debug("No longer treaming, VIP CHECK: " + bunk_user.name)
                     if bunk_user.is_vip:
+                        await self.debug("Adding VIP back to " + bunk_user.name)
                         await self.add_roles(bunk_user.member, self.role_vip)
                     elif bunk_user.is_moderator:
                         await self.add_roles(bunk_user.member, self.role_moderator)
