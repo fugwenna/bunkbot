@@ -27,7 +27,7 @@ class TwitchCog:
         self.current_stream_ids = []
         self.stream_alerts = StreamAlertCollection()
         self.twitch_client = TwitchClient(client_id=database.get(DB_TWITCH_ID))
-        BunkBot.on_bot_initialized += self.wire_stream_listener
+        #BunkBot.on_bot_initialized += self.wire_stream_listener
 
 
     # wire up the hourly even that will
