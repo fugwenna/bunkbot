@@ -9,6 +9,7 @@ CHANNEL_HOTS: str = "hots"
 CHANNEL_MOD_CHAT: str = "mod-chat"
 CHANNEL_VIP_CHAT: str = "vip-chat"
 CHANNEL_WEATHER: str = "weather"
+CHANNEL_STREAMS: str = "streams"
 
 DB_CLEVERBOT: str = "cleverbot"
 DB_SERVER_ID: str = "serverid"

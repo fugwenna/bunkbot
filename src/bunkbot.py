@@ -17,9 +17,8 @@ from src.util.bunk_exception import BunkException
 from src.util.holidays import Holiday
 from src.util.event_hook import EventHook
 from src.util.constants import *
-from src.util.helpers import roll, roll_int, EST
+from src.util.helpers import roll, roll_int
 from src.util.async import AsyncSchedulerHelper
-from src.util.bunkbot_convo import BunkbotConversation
 
 
 BOT_DESCRIPTION = """
@@ -43,6 +42,7 @@ class BunkBot(commands.Bot):
         self.mod_chat: Channel = None
         self.general: Channel = None
         self.weather: Channel = None
+        self.streams: Channel = None
         self.role_admin = None
         self.role_gaming = None
         self.role_streaming = None
@@ -104,6 +104,8 @@ class BunkBot(commands.Bot):
                         self.general = ch
                     elif ch.name == CHANNEL_WEATHER:
                         self.weather = ch
+                    elif ch.name == CHANNEL_STREAMS:
+                        self.streams = ch
 
                 self.chat_bot = CleverWrap(database.get(DB_CLEVERBOT))
                 await self.say_to_channel(self.bot_logs, "Bot and database initialized. Syncing users and channels...")
@@ -270,14 +272,17 @@ class BunkBot(commands.Bot):
 
     # send a message to a specific channel instead
     # of the normal channel of the message context object
-    async def say_to_channel(self, channel: Channel, message: str or None, embed: Embed = None) -> None:
+    async def say_to_channel(self, channel: Channel, message: str or None, embed: Embed = None) -> Message:
         try:
+            msg: Message = None
             self.send_typing(channel)
 
             if message is not None:
-                await self.send_message(channel, message)
+                msg = await self.send_message(channel, message)
             elif embed is not None:
-                await self.send_message(channel, None, embed=embed)
+                msg = await self.send_message(channel, None, embed=embed)
+
+            return msg
         except Exception as e:
             await self.handle_error(e, "say_to_channel")
 
@@ -405,25 +410,36 @@ class BunkBot(commands.Bot):
 
             if bunk_user is not None:
                 if after.is_streaming and not bunk_user.has_role(self.role_streaming.name):
+                    roles = after.roles.copy()
+                    roles.append(self.role_streaming)
+
                     await bunk_user.update_xp(0.1)
                     await self.add_roles(bunk_user.member, self.role_streaming)
 
-                    await self.debug("Streaming, VIP CHECK: " + bunk_user.name)
                     if bunk_user.is_vip:
-                        await self.debug("Removing VIP from " + bunk_user.name)
-                        await self.remove_roles(bunk_user.member, self.role_vip)
-                    elif bunk_user.is_moderator:
-                        await self.remove_roles(bunk_user.member, self.role_moderator)
-                elif not after.is_streaming and before.is_streaming and bunk_user.has_role(self.role_streaming.name):
-                    await bunk_user.update_xp(0.1)
-                    await self.remove_roles(bunk_user.member, self.role_streaming)
+                        #await self.remove_roles(bunk_user.member, self.role_vip)
+                        roles = [r for r in roles if r.name != self.role_vip.name]
 
-                    await self.debug("No longer treaming, VIP CHECK: " + bunk_user.name)
+                    if bunk_user.is_moderator:
+                        #await self.remove_roles(bunk_user.member, self.role_moderator)
+                        roles = [r for r in roles if r.name != self.role_moderator.name]
+
+                    await self.bot.replace_roles(bunk_user.member, *roles)
+
+                elif not after.is_streaming and before.is_streaming and bunk_user.has_role(self.role_streaming.name):
+                    roles = [r for r in after.roles.copy() if r.name != self.role_streaming.name]
+
+                    await bunk_user.update_xp(0.1)
+                    #await self.remove_roles(bunk_user.member, self.role_streaming)
+
                     if bunk_user.is_vip:
-                        await self.debug("Adding VIP back to " + bunk_user.name)
-                        await self.add_roles(bunk_user.member, self.role_vip)
+                        roles.append(self.role_vip)
+                        #await self.add_roles(bunk_user.member, self.role_vip)
                     elif bunk_user.is_moderator:
-                        await self.add_roles(bunk_user.member, self.role_moderator)
+                        #await self.add_roles(bunk_user.member, self.role_moderator)
+                        roles.append(self.role_moderator)
+
+                    await self.bot.replace_roles(bunk_user.member, *roles)
 
         except BunkException as be:
             await self.say_to_channel(self.bot_testing, be.message)
@@ -478,7 +494,7 @@ class BunkBot(commands.Bot):
     async def sync_member_game(user: BunkUser) -> None:
         if user.current_game is not None and user.current_game.type != 1:
             game_name = database.get_game_name(user.current_game.name)
-            if game_name is None :
+            if game_name is None:
                 database.game_names.insert({"name": user.current_game.name, "type": user.current_game.type})
 
 
