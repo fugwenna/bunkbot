@@ -414,7 +414,7 @@ class BunkBot(commands.Bot):
                     roles.append(self.role_streaming)
 
                     await bunk_user.update_xp(0.1)
-                    await self.add_roles(bunk_user.member, self.role_streaming)
+                    #await self.add_roles(bunk_user.member, self.role_streaming)
 
                     if bunk_user.is_vip:
                         #await self.remove_roles(bunk_user.member, self.role_vip)
