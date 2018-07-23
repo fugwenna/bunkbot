@@ -178,7 +178,7 @@ class BunkRPG:
     @command(pass_context=True, help="Accept a duel")
     async def accept(self, ctx) -> None:
         try:
-            bunk_user = self.bot.get_user_by_id(ctx.message.author.id)
+            bunk_user: BunkUser = self.bot.get_user_by_id(ctx.message.author.id)
             duels = [d for d in self.duels if d.opponent.name == bunk_user.name]
 
             if len(duels) == 0:
@@ -197,6 +197,11 @@ class BunkRPG:
                             inline=True)
 
             await self.bot.say(embed=embed)
+
+            if duel.tie:
+                await self.bot.say("{0}.mention {1}.mention - :necktie: It's a tie! :necktie:"
+                                   .format(duel.challenger.mention, duel.opponent.mention))
+                return
 
             xp_lost = 5.0
             if duel.loser.xp > 5.0:
