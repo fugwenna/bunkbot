@@ -47,7 +47,6 @@ class TwitchCog:
 
 
     # list currently followed streams
-    @commands.has_any_role(ROLE_ADMIN, ROLE_MODERATOR)
     @command(pass_context=True, cls=None, help="List currently followed streams", aliases=["update", "refresh"])
     async def streams(self, ctx) -> None:
         await self.bot.send_typing(ctx.message.channel)
