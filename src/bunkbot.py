@@ -29,6 +29,7 @@ on a command (i.e. !help color)\n
 
 class BunkBot(commands.Bot):
     on_bot_initialized = EventHook()
+    on_msg_received = EventHook()
 
     def __init__(self):
         super().__init__("!", None, BOT_DESCRIPTION, True)
@@ -248,6 +249,8 @@ class BunkBot(commands.Bot):
 
             if is_reset:
                 await self.delete_message(message)
+
+            await BunkBot.on_msg_received.fire(message)
 
         except BunkException as be:
             await self.say_to_channel(self.bot_testing, be.message)

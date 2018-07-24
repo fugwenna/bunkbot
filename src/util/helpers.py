@@ -1,3 +1,4 @@
+import datetime
 from pytz import timezone
 from random import randint
 from src.storage.db import database
@@ -20,3 +21,8 @@ def roll(min_val: int = 0, max_val: int = 100) -> str:
 # roll a random value within a range
 def roll_int(min_val: int = 0, max_val: int = 100) -> int:
     return randint(min_val, max_val)
+
+# get now as a string
+def now() -> str:
+    var_now = datetime.datetime.now(tz=EST)
+    return "{0:%m/%d/%Y %I:%M:%S %p}".format(var_now)

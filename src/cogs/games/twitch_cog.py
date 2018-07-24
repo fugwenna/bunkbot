@@ -1,17 +1,16 @@
 import datetime
-from re import sub
 from urllib.request import HTTPError, URLError, socket
 from twitch import TwitchClient
-from discord import Embed
+from discord import Embed, Message
 from discord.ext import commands
 from discord.ext.commands import command
 from tinydb import Query
 from src.bunkbot import BunkBot
 from src.storage.db import database
 from src.util.async import AsyncSchedulerHelper
-from src.util.helpers import EST
+from src.util.helpers import EST, now
 from src.util.bunk_exception import BunkException
-from src.util.constants import ROLE_ADMIN, DB_TWITCH_ID
+from src.util.constants import *
 
 TWITCH_URL: str = "https://api.twitch.tv/helix/streams"
 TWITCH_ICON: str = "https://vignette.wikia.nocookie.net/fallout/images/4/43/Twitch_icon.png/revision/latest?cb=20180507131302"
@@ -27,32 +26,32 @@ class TwitchCog:
         self.msg_stream_list = None
         self.msg_help = None
         self.twitch_client = TwitchClient(client_id=database.get(DB_TWITCH_ID))
-        #BunkBot.on_bot_initialized += self.wire_stream_listener
+        self.init_check = True
+        BunkBot.on_bot_initialized += self.wire_stream_listener
+        BunkBot.on_msg_received += self.rm_msg
 
 
     # wire up the hourly even that will
     # search for twitch streams
     async def wire_stream_listener(self) -> None:
         try:
-            # clear out the channel
+            # clear out the channel if it
+            # is the initial check
+            if self.init_check:
+                await self.bot.purge_from(self.bot.streams, check=self.rm_unwanted_messages_predicate)
 
-            self.update_stream_list()
+            await self.update_stream_list()
             AsyncSchedulerHelper.add_job(self.update_stream_list, trigger="interval", minutes=30)
         except Exception as e:
             await self.bot.handle_error(e, "wire_stream_listener")
 
 
     # list currently followed streams
-    @commands.has_any_role(ROLE_ADMIN)
+    @commands.has_any_role(ROLE_ADMIN, ROLE_MODERATOR)
     @command(pass_context=True, cls=None, help="List currently followed streams", aliases=["update", "refresh"])
     async def streams(self, ctx) -> None:
         await self.bot.send_typing(ctx.message.channel)
         await self.update_stream_list()
-        await self.bot.delete_message(ctx.message)
-
-        if ctx.message.channel.id != self.bot.streams.id:
-            msg = await self.bot.say_to_channel(self.bot.streams, "{0} streams updated".format(ctx.message.author.mention))
-            await self.bot.delete_message(msg)
 
 
     # helper fn to update current stream list - used by
@@ -83,16 +82,46 @@ class TwitchCog:
             embed.set_footer(text="type !stream <stream name> to add a stream to the list", icon_url=TWITCH_ICON)
 
             if not self.msg_stream_list:
-                self.msg_stream_list = await self.bot.say(embed=embed)
-            else:
-                self.bot.edit_message(self.msg_stream_list, self.bot.say(embed=embed))
 
+
+                if self.init_check:
+                    self.init_check = False
+                    self.msg_stream_list = await self.bot.say_to_channel(self.bot.streams, None, embed)
+                else:
+                    self.msg_stream_list = await self.bot.say(embed=embed)
+            else:
+                self.msg_stream_list = await self.bot.edit_message(self.msg_stream_list, None, embed=embed)
+
+            h_text = "Type !refresh or !update to refresh the current stream list";
             if not self.msg_help:
-                self.msg_help = self.bot.say_to_channel(self.bot.streams,
-                                                        "Type !refresh or !update to refresh the current stream list")
+                self.msg_help = await self.bot.say_to_channel(self.bot.streams, h_text)
+            else:
+                h_text += " (last updated {0})".format(now())
+                self.msg_help = await self.bot.edit_message(self.msg_help, h_text)
+
 
         except Exception as e:
             await self.bot.handle_error(e, "streams")
+
+
+    # on event emission delete a message
+    # that is not a twitch cog command
+    async def rm_msg(self, msg: Message) -> None:
+        if msg.channel.id == self.bot.streams.id:
+            if msg.id != self.msg_stream_list.id and msg.id != self.msg_help.id:
+                await self.bot.delete_message(msg)
+
+
+    # when purging messages from the streaming channel
+    # persist the self/streams messages
+    def rm_unwanted_messages_predicate(self, message: Message) -> bool:
+        if not self.msg_stream_list:
+            return True
+
+        if not self.msg_help:
+            return True
+
+        return message.id != self.msg_stream_list.id and message.id != self.msg_help.id
 
 
     # executable command which will
@@ -103,6 +132,7 @@ class TwitchCog:
     async def stream(self, ctx) -> None:
         try:
             await self.bot.send_typing(ctx.message.channel)
+            self.msg_help = await self.bot.edit_message(self.msg_help, "Updating...");
 
             params = self.bot.get_cmd_params(ctx)
             if len(params) == 0:
@@ -113,6 +143,8 @@ class TwitchCog:
             stream = database.streams.get(Query().name == sname)
 
             if stream is not None:
+                self.msg_help = await self.bot.edit_message(self.msg_help,
+                                                            "Type !refresh or !update to refresh the current stream list")
                 raise BunkException("Stream '{0}' has already been added to the database!".format(sname))
 
             stream_ids = self.twitch_client.users.translate_usernames_to_ids([sname])
@@ -122,17 +154,19 @@ class TwitchCog:
             database.streams.insert({"name": sname, "added_by": ctx.message.author.name})
             strm = self.twitch_client.streams.get_stream_by_user(stream_ids[0].id)
 
-            if strm is None:
+            if strm is None and ctx.message.channel.id != self.bot.streams.id:
                 await self.bot.say("Stream '{0}' has been added to the database, but is not currently streaming."
                                    .format(sname))
             else:
-                await self.bot.say("Stream '{0}' has been added to the database and is now streaming: {1}"
-                                   .format(sname, strm.channel.url))
+                if ctx.message.channel.id != self.bot.streams.id:
+                    await self.bot.say("Stream '{0}' has been added to the database and is now streaming: {1}"
+                                       .format(sname, strm.channel.url))
 
-            self.update_stream_list()
+            await self.update_stream_list()
 
         except BunkException as be:
-            await self.bot.say(be.message)
+            if ctx.message.channel.id != self.bot.streams.id:
+                await self.bot.say(be.message)
         except Exception as e:
             await self.bot.handle_error(e, "stream")
 
@@ -179,6 +213,7 @@ class TwitchCog:
             await self.bot.handle_error(uhe, "get_streams")
         except Exception as e:
             await self.bot.handle_error(e, "get_streams")
+
 
 def setup(bot: BunkBot) -> None:
     bot.add_cog(TwitchCog(bot))
