@@ -417,32 +417,25 @@ class BunkBot(commands.Bot):
                     roles.append(self.role_streaming)
 
                     await bunk_user.update_xp(0.1)
-                    #await self.add_roles(bunk_user.member, self.role_streaming)
 
                     if bunk_user.is_vip:
-                        #await self.remove_roles(bunk_user.member, self.role_vip)
                         roles = [r for r in roles if r.name != self.role_vip.name]
 
                     if bunk_user.is_moderator:
-                        #await self.remove_roles(bunk_user.member, self.role_moderator)
                         roles = [r for r in roles if r.name != self.role_moderator.name]
 
-                    await self.bot.replace_roles(bunk_user.member, *roles)
+                    await self.replace_roles(bunk_user.member, *roles)
 
                 elif not after.is_streaming and before.is_streaming and bunk_user.has_role(self.role_streaming.name):
                     roles = [r for r in after.roles.copy() if r.name != self.role_streaming.name]
 
                     await bunk_user.update_xp(0.1)
-                    #await self.remove_roles(bunk_user.member, self.role_streaming)
-
                     if bunk_user.is_vip:
                         roles.append(self.role_vip)
-                        #await self.add_roles(bunk_user.member, self.role_vip)
                     elif bunk_user.is_moderator:
-                        #await self.add_roles(bunk_user.member, self.role_moderator)
                         roles.append(self.role_moderator)
 
-                    await self.bot.replace_roles(bunk_user.member, *roles)
+                    await self.replace_roles(bunk_user.member, *roles)
 
         except BunkException as be:
             await self.say_to_channel(self.bot_testing, be.message)

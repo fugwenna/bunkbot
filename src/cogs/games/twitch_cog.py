@@ -41,7 +41,7 @@ class TwitchCog:
                 await self.bot.purge_from(self.bot.streams, check=self.rm_unwanted_messages_predicate)
 
             await self.update_stream_list()
-            AsyncSchedulerHelper.add_job(self.update_stream_list, trigger="interval", minutes=30)
+            AsyncSchedulerHelper.add_job(self.update_stream_list, trigger="interval", minutes=60)
         except Exception as e:
             await self.bot.handle_error(e, "wire_stream_listener")
 
@@ -57,48 +57,47 @@ class TwitchCog:
     # the 30 minute interval and !streams or !update command
     async def update_stream_list(self) -> None:
         try:
-            stream_names = []
-            stream_statuses = []
-            added_bys = []
+            this_moment = datetime.datetime.now(EST)
 
-            for s in sorted(database.streams.all(), key=lambda x: x["name"]):
-                stream_names.append(s["name"])
-                added_bys.append(s["added_by"])
+            if 23 >= this_moment.hour >= 10:
+                stream_names = []
+                stream_statuses = []
+                added_bys = []
 
-            stream_ids = self.twitch_client.users.translate_usernames_to_ids(stream_names)
+                for s in sorted(database.streams.all(), key=lambda x: x["name"]):
+                    stream_names.append(s["name"])
+                    added_bys.append(s["added_by"])
 
-            for stream in stream_ids:
-                strm = self.twitch_client.streams.get_stream_by_user(stream.id)
-                if strm is not None:
-                    stream_statuses.append(strm.channel.url)
+                stream_ids = self.twitch_client.users.translate_usernames_to_ids(stream_names)
+
+                for stream in stream_ids:
+                    strm = self.twitch_client.streams.get_stream_by_user(stream.id)
+                    if strm is not None:
+                        stream_statuses.append(strm.channel.url)
+                    else:
+                        stream_statuses.append("Not streaming")
+
+                embed = Embed(title="Currently Followed Streams", color=int("19CF3A", 16))
+                embed.add_field(name="Stream", value="\n".join(stream_names), inline=True)
+                embed.add_field(name="Status", value="\n".join(stream_statuses), inline=True)
+                embed.set_thumbnail(url=TWITCH_ICON)
+                embed.set_footer(text="type !stream <stream name> to add a stream to the list", icon_url=TWITCH_ICON)
+
+                if not self.msg_stream_list:
+                    if self.init_check:
+                        self.init_check = False
+                        self.msg_stream_list = await self.bot.say_to_channel(self.bot.streams, None, embed)
+                    else:
+                        self.msg_stream_list = await self.bot.say(embed=embed)
                 else:
-                    stream_statuses.append("Not streaming")
+                    self.msg_stream_list = await self.bot.edit_message(self.msg_stream_list, None, embed=embed)
 
-            embed = Embed(title="Currently Followed Streams", color=int("19CF3A", 16))
-            embed.add_field(name="Stream", value="\n".join(stream_names), inline=True)
-            embed.add_field(name="Status", value="\n".join(stream_statuses), inline=True)
-            embed.set_thumbnail(url=TWITCH_ICON)
-            embed.set_footer(text="type !stream <stream name> to add a stream to the list", icon_url=TWITCH_ICON)
-
-            if not self.msg_stream_list:
-
-
-                if self.init_check:
-                    self.init_check = False
-                    self.msg_stream_list = await self.bot.say_to_channel(self.bot.streams, None, embed)
+                h_text = "Type !refresh or !update to refresh the current stream list";
+                if not self.msg_help:
+                    self.msg_help = await self.bot.say_to_channel(self.bot.streams, h_text)
                 else:
-                    self.msg_stream_list = await self.bot.say(embed=embed)
-            else:
-                self.msg_stream_list = await self.bot.edit_message(self.msg_stream_list, None, embed=embed)
-
-            h_text = "Type !refresh or !update to refresh the current stream list";
-            if not self.msg_help:
-                self.msg_help = await self.bot.say_to_channel(self.bot.streams, h_text)
-            else:
-                h_text += " (last updated {0})".format(now())
-                self.msg_help = await self.bot.edit_message(self.msg_help, h_text)
-
-
+                    h_text += " (last updated {0})".format(now())
+                    self.msg_help = await self.bot.edit_message(self.msg_help, h_text)
         except Exception as e:
             await self.bot.handle_error(e, "streams")
 
