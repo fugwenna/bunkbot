@@ -130,7 +130,7 @@ class TwitchCog:
     async def stream(self, ctx) -> None:
         try:
             await self.bot.send_typing(ctx.message.channel)
-            self.msg_help = await self.bot.edit_message(self.msg_help, "Updating...");
+            self.msg_help = await self.bot.edit_message(self.msg_help, "Updating...")
 
             params = self.bot.get_cmd_params(ctx)
             if len(params) == 0:
