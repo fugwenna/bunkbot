@@ -10,7 +10,7 @@ class AsyncSchedulerHelper:
     # create a simple job
     # with available kwargs from the scheduler
     @staticmethod
-    def add_job(job_fn, **kwargs):
+    def add_job(job_fn, **kwargs) -> None:
         scheduler = AsyncIOScheduler()
         scheduler.add_job(job_fn, misfire_grace_time=120, timezone=EST, **kwargs)
         scheduler.start()

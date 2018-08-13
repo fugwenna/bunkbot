@@ -276,10 +276,11 @@ class BunkUser:
             # increase the user level percentage and
             # check if they have leveled up
             elif force or min_diff > TIMER_MINUTES:
-                self.from_database(database.update_user_xp(self.id, self.xp_holder))
+                return
+                #self.from_database(database.update_user_xp(self.id, self.xp_holder))
 
-                if self.has_leveled_up:
-                    await BunkUser.on_level_up.fire(self.member, self.level, channel)
+                #if self.has_leveled_up:
+                #    await BunkUser.on_level_up.fire(self.member, self.level, channel)
 
-                self.xp_last_update = time()
-                self.xp_holder = value
+                #self.xp_last_update = time()
+                #self.xp_holder = value
