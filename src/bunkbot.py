@@ -450,10 +450,14 @@ class BunkBot(commands.Bot):
             bunk_user: BunkUser = self.get_user_by_id(after.id)
 
             if bunk_user is not None:
+                roles = after.roles.copy()
+
                 if after.is_gaming and not after.has_role(self.role_gaming.name):
-                    await self.add_roles(bunk_user.member, self.role_gaming)
+                    roles.append(self.role_gaming)
+                    await self.replace_roles(bunk_user.member, *roles)
                 elif not after.is_gaming and before.is_gaming and bunk_user.has_role(self.role_gaming.name):
-                    await self.remove_roles(bunk_user.member, self.role_gaming)
+                    roles = [r for r in roles if r.name != self.role_gaming.name]
+                    await self.replace_roles(bunk_user.member, *roles)
 
                 await self.sync_member_game(bunk_user)
 
