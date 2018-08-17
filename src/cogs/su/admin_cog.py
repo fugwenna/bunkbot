@@ -26,7 +26,7 @@ class Admin:
     # be careful with this, basically an rm -rf
     @commands.has_any_role(ROLE_ADMIN)
     @command(pass_context=True, cls=None, help="Clear a role from all users")
-    async def clear(self, ctx) -> None:
+    async def clearrole(self, ctx) -> None:
         try:
             param = self.bot.get_cmd_params(ctx)[0]
             role = [r for r in self.bot.server.roles if r.name == param][0]
