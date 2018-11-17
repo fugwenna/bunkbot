@@ -59,7 +59,7 @@ class TwitchCog:
         try:
             this_moment = datetime.datetime.now(EST)
 
-            if 23 >= this_moment.hour >= 10:
+            if 23 >= this_moment.hour >= 8:
                 stream_names = []
                 stream_statuses = []
                 added_bys = []
