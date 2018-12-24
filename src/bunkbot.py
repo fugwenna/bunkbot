@@ -121,6 +121,7 @@ class BunkBot(commands.Bot):
 
     # retrieve an array of the passed
     # message command arguments
+    # TODO - rm in place of decorator
     @staticmethod
     def get_cmd_params(ctx: commands.Context) -> list:
         if ctx is not None:

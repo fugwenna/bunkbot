@@ -2,6 +2,8 @@ from discord import Message, Embed
 from discord.ext.commands import command
 from src.cogs.youtube.youtube_result import YoutubeResult
 from src.bunkbot import BunkBot
+from src.util.bunk_exception import BunkException
+from src.util.decorators import bunk_arguments
 
 YOUTUBE_DESCRIPTION = """
     Search for a youtube video with a given query. Display related videos with !more and re-link a related video with !ytl
@@ -24,19 +26,20 @@ class Youtube:
     # perform a basic youtube search with a given
     # keyword - use beautiful soup to scrape HTML and return the result
     @command(pass_context=True, cls=None, help=YOUTUBE_DESCRIPTION, aliases=["youtube"])
+    @bunk_arguments(required=True, error_message="No youtube query given")
     async def yt(self, ctx) -> None:
         try:
             params: list = self.bot.get_cmd_params(ctx)
-
             if len(params) == 0:
                 await self.bot.say("No youtube query given")
                 return
 
             await self.bot.send_typing(ctx.message.channel)
-
             self.yt_link = self.yt_result.query(params)
 
             self.message = await self.bot.say(self.yt_link)
+        except BunkException as be:
+            await self.bot.say(be.message)
         except Exception as e:
             await self.bot.handle_error(e, "yt")
 

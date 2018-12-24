@@ -1,8 +1,9 @@
 import discord
-from discord.ext.commands import command
+from discord.ext.commands import command, Context
 from src.bunkbot import BunkBot
 from src.util.bunk_exception import BunkException
 from src.util.bunk_user import BunkUser
+from src.util.decorators import bunk_arguments
 
 COLOR_DESCRIPTION = """Change the color of your name in the chat by using the command !color followed by either a basic
     default color, or a hex code.  '!color none' will remove your color.  For assistance with available colors, type !colors \n
@@ -18,7 +19,7 @@ class Color:
 
     # get a list of colors as well as
     # a link to hex color codes
-    @command(pass_context=False, cls=None, help="Link to discord API color list and hex code editor")
+    @command(help="Link to discord API color list and hex code editor")
     async def colors(self) -> None:
         try:
             reg_colors = "Use the classmethod names for a default color (!color red, blue, dark_green, etc) \nhttp://discordpy.readthedocs.io/en/latest/api.html?#discord.Colour.teal"
@@ -30,19 +31,20 @@ class Color:
 
     # executable command method which will
     # search and parse out the youtube html
-    @command(pass_context=True, cls=None, help=COLOR_DESCRIPTION, aliases=["c"])
-    async def color(self, ctx) -> None:
+    @command(pass_context=True, help=COLOR_DESCRIPTION, aliases=["c"])
+    @bunk_arguments()
+    async def color(self, ctx: Context, args) -> None:
+        color = None
+
         try:
             await self.bot.send_typing(ctx.message.channel)
-
-            params = self.bot.get_cmd_params(ctx)
             user: BunkUser = self.bot.get_user_by_id(ctx.message.author.id)
 
-            if len(params) == 0:
+            if len(args) == 0:
                 if user.color is None: await self.bot.say("You do not have a color role assigned to you")
                 else: await self.bot.say("Your current color is '{0}'".format(user.color))
             else:
-                color = params[0].lower()
+                color = args[0].lower()
 
                 if color == "none":
                     await self.remove_color_from(user.member)
