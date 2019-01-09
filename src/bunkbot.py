@@ -1,13 +1,13 @@
 from discord.ext import commands
-from .services.user_service import UserService
-from .services.role_service import RoleService
-from .services.channel_service import ChannelService
-from .services.chat_service import ChatService
-from .services.sudo_service import SudoService
+from src.util.cog_loader import get_cogs
+from src.models.event_hook import EventHook
 
 """
 Main extended bot from discord.py which 
 is the primary loaded instance from main.py
+
+The primary use for this bot is essentially an event
+emitter to the services which use this instance
 """
 
 BOT_DESCRIPTION = """
@@ -15,43 +15,26 @@ The bunkest bot - type '!help' for my commands, or say my name to chat with me.
 Type '!help [command] for more info on a command (i.e. !help color)\n
 """
 class BunkBot(commands.Bot):
-    def __init__(self,
-                 users: UserService,
-                 roles: RoleService,
-                 channels: ChannelService,
-                 chat: ChatService,
-                 sudo: SudoService):
+    def __init__(self):
         super().__init__("!", None, BOT_DESCRIPTION, True)
-
-        self.users: UserService = users
-        self.roles: RoleService = roles
-        self.channels: ChannelService = channels
-        self.chat: ChatService = chat
-        self.sudo: SudoService = sudo
-
+        self.on_initialized = EventHook()
 
     # lifecycle hook - set up all
     # of the necessary and useful channels
     async def on_init(self) -> None:
-        try:
-            server = self.get_server("")#database.get(DB_SERVER_ID))
-            self.users.load(server)
-            self.role.load(server)
-            self.channels.load(server)
-            self.chat.load(server)
-            self.sudo.load(server)
-        except Exception:
-            return
+        for cog in get_cogs():
+            self.load_extension(cog)
+
+        await self.on_initialized.fire()
+
+    # handle an error from a cog and
+    # send a basic error message back
+    async def handle_error(self, error: Exception, command: str):
+        pass
 
 
 """
 Main instance which will be loaded into
 the main.py __init__ function
 """
-bunkbot = BunkBot(
-    UserService(),
-    RoleService(),
-    ChannelService(),
-    ChatService(),
-    SudoService()
-)
+bunkbot = BunkBot()
