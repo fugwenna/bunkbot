@@ -1,4 +1,5 @@
 from discord import Channel
+from discord.ext.commands import Context
 from ..bunkbot import BunkBot
 from ..models.service import Service
 from ..util.constants import \
@@ -27,3 +28,7 @@ class ChannelService(Service):
     # no name is specified, the general chat is assumed
     async def get(self, name: str = CHANNEL_GENERAL) -> Channel:
         return next(iter(c for c in self.server.channels if c.name == name))
+
+    # send the 'typing' event to a channel based on a context message
+    async def type(self, ctx: Context) -> None:
+        await self.bot.send_typing(ctx.message.channel)
