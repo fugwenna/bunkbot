@@ -1,5 +1,5 @@
-from .src.bunkbot import bunkbot
-from .src.util.registry import initialize
+from src.bunkbot import bunkbot
+from src.util.registry import initialize
 
 """
 Primary entry file for the discord bot which

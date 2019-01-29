@@ -12,9 +12,10 @@ class Service:
         self.database = database
         self.bot: BunkBot = bot
         self.server: Server = None
+        bot.on_initialized += self.load
 
     # When bunkbot is loaded, all services
     # will load the server instance and other
     # default utils
     async def load(self) -> None:
-        self.server = self.database.get(DB_SERVER_ID)
+        self.server = self.bot.get_server(self.database.get(DB_SERVER_ID))

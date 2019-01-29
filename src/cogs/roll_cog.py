@@ -37,3 +37,7 @@ class Roll:
             #await self.bot.say(embed=Embed(title=title, description=message, color=ctx.message.author.color))
         except Exception as e:
             await self.bot.handle_error(e, "roll")
+
+
+def setup(bot: BunkBot) -> None:
+    bot.add_cog(Roll(bot))
