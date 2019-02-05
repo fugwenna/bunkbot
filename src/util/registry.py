@@ -7,6 +7,7 @@ from ..services.role_service import RoleService
 from ..services.sudo_service import SudoService
 from ..services.user_service import UserService
 
+
 """
 'DI' singletons for cogs so that stored refs are persisted
 """
