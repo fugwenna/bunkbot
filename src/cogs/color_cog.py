@@ -2,7 +2,7 @@ from discord.ext.commands import command
 from ..bunkbot import BunkBot
 from ..models.bunk_exception import BunkException
 from ..services.role_service import RoleService
-from ..util.registry import ROLE_SERVICE
+from src.services.registry import ROLE_SERVICE
 
 COLOR_DESCRIPTION = """
 Change the color of your name in the chat by using the command !color followed by either a basic

@@ -1,10 +1,11 @@
-from ..models.service import Service
-from ..bunkbot import BunkBot
+from src.bunkbot import BunkBot
+from src.models.service import Service
+from src.services.database_service import DatabaseService
 
 """
 Service responsible for dealing with
 CleverBot and responding to
 """
 class ChatService(Service):
-    def __init__(self, bot: BunkBot):
-        super().__init__(bot)
+    def __init__(self, bot: BunkBot, database: DatabaseService):
+        super().__init__(bot, database)

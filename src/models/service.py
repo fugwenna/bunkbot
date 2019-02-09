@@ -1,14 +1,14 @@
 from discord import Server
-from src.db.db import database
-from src.util.constants import DB_SERVER_ID
 from src.bunkbot import BunkBot
+from src.util.constants import DB_SERVER_ID
+from src.services.database_service import DatabaseService
 
 """
 Base class which all services should extend - this will
 hold base information for BunkBot - server ref, database ref, etc
 """
 class Service:
-    def __init__(self, bot: BunkBot):
+    def __init__(self, bot: BunkBot, database: DatabaseService = None):
         self.database = database
         self.bot: BunkBot = bot
         self.server: Server = None
@@ -18,4 +18,5 @@ class Service:
     # will load the server instance and other
     # default utils
     async def load(self) -> None:
-        self.server = self.bot.get_server(self.database.get(DB_SERVER_ID))
+        if self.database:
+            self.server = self.bot.get_server(self.database.get(DB_SERVER_ID))

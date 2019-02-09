@@ -1,16 +1,6 @@
 from discord import Member
-from src.util.dates import get_now
-
-
-"""
-'Interface' like object to
-assist in type mapping
-"""
-class DatabaseUser:
-    def __init__(self):
-        self.level: int = 0
-        self.last_online: str = get_now()
-
+from src.util.functions import simple_string
+from src.models.database_user import DatabaseUser
 
 """
 Simple wrapper class which will take 
@@ -19,7 +9,7 @@ the primary DI variable and maps an existing
 database user
 """
 class BunkUser:
-    def __init__(self, member: Member, db_user: DatabaseUser = None) -> None:
+    def __init__(self, member: Member, db_user: DatabaseUser) -> None:
         self.member: Member = member
         self.db_user: DatabaseUser = db_user
 
@@ -30,6 +20,10 @@ class BunkUser:
     @property
     def name(self) -> str:
         return self.member.name
+
+    @property
+    def simple_name(self) -> str:
+        return simple_string(self.member.name)
 
     @property
     def level(self) -> int:

@@ -1,4 +1,5 @@
 from discord.ext import commands
+from discord.ext.commands import Context
 from src.util.cog_loader import get_cogs
 from src.models.event_hook import EventHook
 
@@ -17,7 +18,8 @@ Type '!help [command] for more info on a command (i.e. !help color)\n
 class BunkBot(commands.Bot):
     def __init__(self):
         super().__init__("!", None, BOT_DESCRIPTION, True)
-        self.on_initialized = EventHook()
+        self.on_initialized: EventHook = EventHook()
+        self.on_error: EventHook = EventHook()
 
     # lifecycle hook - set up all
     # of the necessary and useful channels
@@ -29,8 +31,8 @@ class BunkBot(commands.Bot):
 
     # handle an error from a cog and
     # send a basic error message back
-    async def handle_error(self, error: Exception, command: str):
-        pass
+    async def handle_error(self, error: Exception, command: str, ctx: Context):
+        await self.on_error.fire(error, command, ctx)
 
 
 """
