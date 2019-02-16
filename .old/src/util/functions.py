@@ -1,7 +1,7 @@
 from re import sub
 from src.util.constants import USER_NAME_REGEX
 
-def simple_string(name: str) -> str:
+def to_name(name: str) -> str:
     if name is None:
         name = ""
 

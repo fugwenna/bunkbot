@@ -1,5 +1,4 @@
-from discord.ext import commands
-from discord.ext.commands import Context
+from discord.ext.commands import Context, Bot
 from src.util.cog_loader import get_cogs
 from src.models.event_hook import EventHook
 
@@ -15,7 +14,7 @@ BOT_DESCRIPTION = """
 The bunkest bot - type '!help' for my commands, or say my name to chat with me. 
 Type '!help [command] for more info on a command (i.e. !help color)\n
 """
-class BunkBot(commands.Bot):
+class BunkBot(Bot):
     def __init__(self):
         super().__init__("!", None, BOT_DESCRIPTION, True)
         self.on_initialized: EventHook = EventHook()
