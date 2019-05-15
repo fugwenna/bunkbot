@@ -27,5 +27,5 @@ class UserService(Service):
 
     # retrieve a user based on the member
     # identifier
-    def get(self, mid: int) -> BunkUser:
+    def get_by_id(self, mid: int) -> BunkUser:
         return next(u for u in self.users if u.id == mid)

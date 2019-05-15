@@ -22,7 +22,7 @@ class BunkBot(Bot):
 
     # lifecycle hook - set up all
     # of the necessary and useful channels
-    async def on_init(self) -> None:
+    async def load(self) -> None:
         for cog in get_cogs():
             self.load_extension(cog)
 

@@ -1,6 +1,7 @@
 from tinydb import TinyDB, Query
 from tinydb.database import Table
 from discord import Member
+from discord import Game
 from src.util.constants import DB_SERVER_ID, DB_PATH, DB_CONFIG, DB_USERS, DB_RPG, DB_HOLIDAYS, DB_STREAMS, DB_GAMES
 from src.util.functions import simple_string
 from src.models.service import Service
@@ -33,12 +34,15 @@ class DatabaseService(Service):
         else:
             return None
 
-    # get a user by the passed member id
+    # get a user by the passed discord member reference - this should
+    # only be used when loading a user once - either at bot load, or
+    # new users
     def get_user_by_member_ref(self, member: Member) -> DatabaseUser:
         db_user = self.users.get(Query().id == member.id)
         if db_user is None:
             self.users.insert({
                 "name": simple_string(member.name),
+                "member_name": member.name,
                 "id": member.id,
                 "xp": 0,
                 "level": 1
@@ -49,3 +53,14 @@ class DatabaseService(Service):
         user = DatabaseUser(db_user)
 
         return user
+
+    # try to locate a relatively unique game when a user
+    # starts playing a random game - if the game does not
+    # exist, add it to the database
+    def collect_game(self, game: Game) -> any:
+        db_game = self.game_names.get(Query().name == game.name)
+
+        if db_game is None:
+            self.game_names.insert({"name": game.name, "type": game.type})
+
+        return db_game

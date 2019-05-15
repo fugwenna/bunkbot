@@ -11,7 +11,7 @@ initializes the one and only BunkBot
 
 @bunkbot.event
 async def on_ready() -> None:
-    await bunkbot.on_init()
+    await bunkbot.load()
 
 
 if __name__ == "__main__":
