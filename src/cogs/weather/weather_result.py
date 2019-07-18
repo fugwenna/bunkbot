@@ -50,6 +50,7 @@ class WeatherResult:
 
     # parse the weather result into properties
     def set_weather(self, weather) -> None:
+        print(weather)
         weather_obs = weather["current_observation"]
         self.thumb = weather_obs["icon_url"]
         self.temp_actual = "{0} F ({1} C)".format(str(weather_obs["temp_f"]), str(weather_obs["temp_c"]))
@@ -91,6 +92,7 @@ class WeatherResult:
 
     # parse the meta data result into properties
     def set_meta_data(self, metadata) -> None:
+        print(metadata)
         meta_obs = metadata["current_observation"]
         self.location = meta_obs["display_location"]["full"]
         self.time = " ".join(meta_obs["observation_time"].split(" ")[3:7])

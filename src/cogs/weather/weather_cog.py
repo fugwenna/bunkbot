@@ -32,7 +32,7 @@ class Weather:
         self.bot = bot
         self.zip = "20201"
         self.token = database.get(DB_WEATHER)
-        BunkBot.on_bot_initialized += self.wire_daily_forecast
+        #BunkBot.on_bot_initialized += self.wire_daily_forecast
 
 
     # dynamic property that will be used to
@@ -54,6 +54,8 @@ class Weather:
     # 9AM UTC - 13
     async def wire_daily_forecast(self) -> None:
         try:
+            await self.bot.purge_from(self.bot.weather)
+            await self.send_daily_forecast()
             AsyncSchedulerHelper.add_job(self.send_daily_forecast, trigger="cron", hour=8)
         except Exception as e:
             await self.bot.handle_error(e, "wire_daily_forecast")

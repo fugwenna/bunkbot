@@ -59,23 +59,28 @@ class TwitchCog:
         try:
             this_moment = datetime.datetime.now(EST)
 
-            if 23 >= this_moment.hour >= 8:
+            if 23 >= this_moment.hour >= 16:
                 stream_names = []
                 stream_statuses = []
                 added_bys = []
 
-                for s in sorted(database.streams.all(), key=lambda x: x["name"]):
+                all_streams = database.streams.all()
+
+                for s in sorted(all_streams, key=lambda x: x["name"]):
                     stream_names.append(s["name"])
                     added_bys.append(s["added_by"])
 
                 stream_ids = self.twitch_client.users.translate_usernames_to_ids(stream_names)
 
+                stream_count = 1
                 for stream in stream_ids:
                     strm = self.twitch_client.streams.get_stream_by_user(stream.id)
                     if strm is not None:
                         stream_statuses.append(strm.channel.url)
                     else:
                         stream_statuses.append("Not streaming")
+
+                    stream_count += 1
 
                 embed = Embed(title="Currently Followed Streams", color=int("19CF3A", 16))
                 embed.add_field(name="Stream", value="\n".join(stream_names), inline=True)
