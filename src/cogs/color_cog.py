@@ -32,7 +32,7 @@ class Color:
     # executable command method which will
     # search and parse out the youtube html
     @command(pass_context=True, help=COLOR_DESCRIPTION, aliases=["c"])
-    @bunk_arguments()
+    #@bunk_arguments()
     async def color(self, ctx: Context, args) -> None:
         color = None
 
