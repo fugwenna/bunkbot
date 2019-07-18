@@ -33,18 +33,19 @@ class Color:
     # search and parse out the youtube html
     @command(pass_context=True, help=COLOR_DESCRIPTION, aliases=["c"])
     #@bunk_arguments()
-    async def color(self, ctx: Context, args) -> None:
+    async def color(self, ctx: Context) -> None:
         color = None
 
         try:
             await self.bot.send_typing(ctx.message.channel)
+            params = self.bot.get_cmd_params(ctx)
             user: BunkUser = self.bot.get_user_by_id(ctx.message.author.id)
 
-            if len(args) == 0:
+            if len(params) == 0:
                 if user.color is None: await self.bot.say("You do not have a color role assigned to you")
                 else: await self.bot.say("Your current color is '{0}'".format(user.color))
             else:
-                color = args[0].lower()
+                color = params[0].lower()
 
                 if color == "none":
                     await self.remove_color_from(user.member)
