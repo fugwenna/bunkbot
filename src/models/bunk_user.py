@@ -1,6 +1,6 @@
 from discord import Member
-from src.util.functions import simple_string
-from src.models.database_user import DatabaseUser
+from ..models.database_user import DatabaseUser
+from ..util.functions import simple_string
 
 """
 Simple wrapper class which will take 

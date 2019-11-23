@@ -1,6 +1,6 @@
 import asyncio
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from src.util.dates import EASTERN_STANDARD_TIME
+from ..util.dates import EASTERN_STANDARD_TIME
 
 """
 Simple wrapper class to wire up cron 

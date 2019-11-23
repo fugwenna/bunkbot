@@ -1,7 +1,7 @@
 from discord import Server
-from src.bunkbot import BunkBot
-from src.util.constants import DB_SERVER_ID
-from src.services.database_service import DatabaseService
+from ..bunkbot import BunkBot
+from ..services.database_service import DatabaseService
+from ..util.constants import DB_SERVER_ID
 
 """
 Base class which all services should extend - this will

@@ -1,7 +1,7 @@
-from src.bunkbot import BunkBot
-from src.models.service import Service
-from src.models.bunk_user import BunkUser
-from src.services.database_service import DatabaseService
+from ..bunkbot import BunkBot
+from ..models.service import Service
+from ..models.bunk_user import BunkUser
+from ..services.database_service import DatabaseService
 
 """
 Service responsible for handling any
@@ -24,6 +24,8 @@ class UserService(Service):
             # a new instance of a bunk user
             db_user = self.database.get_user_by_member_ref(member)
             self.users.append(BunkUser(member, db_user))
+
+        print(len(self.users))
 
     # retrieve a user based on the member
     # identifier

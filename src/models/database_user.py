@@ -1,4 +1,4 @@
-from src.util.dates import get_now
+from ..util.dates import get_now
 
 """
 'Interface' like object to

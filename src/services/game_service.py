@@ -1,7 +1,7 @@
-from src.bunkbot import BunkBot
-from src.models.service import Service
-from src.services.database_service import DatabaseService
-from src.services.channel_service import ChannelService
+from ..bunkbot import BunkBot
+from ..models.service import Service
+from ..services.database_service import DatabaseService
+from ..services.channel_service import ChannelService
 
 """
 Service specifically designed to deal with things like

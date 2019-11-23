@@ -1,6 +1,6 @@
 import json, urllib.request
 from urllib.request import HTTPError, URLError, socket
-from src.models.bunk_exception import BunkException
+from ..models.bunk_exception import BunkException
 
 # make a basic http call
 async def http_get(self, url: str) -> json:

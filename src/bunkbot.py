@@ -1,6 +1,6 @@
 from discord.ext.commands import Context, Bot
-from src.util.cog_loader import get_cogs
-from src.models.event_hook import EventHook
+from models.event_hook import EventHook
+from util.cog_loader import get_cogs
 
 """
 Main extended bot from discord.py which 

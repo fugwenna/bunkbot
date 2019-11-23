@@ -1,9 +1,9 @@
 from discord import Channel, Message
 from discord.ext.commands import Context
-from src.bunkbot import BunkBot
-from src.models.service import Service
-from src.services.database_service import DatabaseService
-from src.util.constants import CHANNEL_GENERAL, CHANNEL_BOT_LOGS, CHANNEL_BOT_TESTING
+from ..bunkbot import BunkBot
+from ..models.service import Service
+from ..services.database_service import DatabaseService
+from ..util.constants import CHANNEL_GENERAL, CHANNEL_BOT_LOGS, CHANNEL_BOT_TESTING
 
 """
 Service responsible for handling channel references
@@ -45,7 +45,6 @@ class ChannelService(Service):
     # channel based on the given name - if
     # no name is specified, the general chat is assumed
     async def get(self, name: str = CHANNEL_GENERAL) -> Channel:
-        #return next(iter(c for c in self.server.channels if c.name == name))
         return next(c for c in self.server.channels if c.name == name)
 
     # send the 'typing' event to a channel based on a context message

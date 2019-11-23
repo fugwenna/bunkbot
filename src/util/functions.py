@@ -1,5 +1,5 @@
 from re import sub
-from src.util.constants import USER_NAME_REGEX
+from ..util.constants import USER_NAME_REGEX
 
 """
 Remove bad characters that aren't allowed 

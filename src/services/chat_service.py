@@ -1,6 +1,6 @@
-from src.bunkbot import BunkBot
-from src.models.service import Service
-from src.services.database_service import DatabaseService
+from ..bunkbot import BunkBot
+from ..models.service import Service
+from ..services.database_service import DatabaseService
 
 """
 Service responsible for dealing with

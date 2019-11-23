@@ -2,11 +2,11 @@ from tinydb import TinyDB, Query
 from tinydb.database import Table
 from discord import Member
 from discord import Game
-from src.util.constants import DB_SERVER_ID, DB_PATH, DB_CONFIG, DB_USERS, DB_RPG, DB_HOLIDAYS, DB_STREAMS, DB_GAMES
-from src.util.functions import simple_string
-from src.models.service import Service
-from src.models.database_user import DatabaseUser
-from src.bunkbot import BunkBot
+from ..bunkbot import BunkBot
+from ..models.service import Service
+from ..models.database_user import DatabaseUser
+from ..util.constants import DB_SERVER_ID, DB_PATH, DB_CONFIG, DB_USERS, DB_RPG, DB_HOLIDAYS, DB_STREAMS, DB_GAMES
+from ..util.functions import simple_string
 
 CONFIG = Query()
 
@@ -40,13 +40,14 @@ class DatabaseService(Service):
     def get_user_by_member_ref(self, member: Member) -> DatabaseUser:
         db_user = self.users.get(Query().id == member.id)
         if db_user is None:
-            self.users.insert({
-                "name": simple_string(member.name),
-                "member_name": member.name,
-                "id": member.id,
-                "xp": 0,
-                "level": 1
-            })
+            print("can't find " + member.name)
+            #self.users.insert({
+            #    "name": simple_string(member.name),
+            #    "member_name": member.name,
+            #    "id": member.id,
+            #    "xp": 0,
+            #    "level": 1
+            #})
 
             db_user = self.users.get(Query().id == member.id)
 
