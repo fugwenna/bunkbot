@@ -9,7 +9,7 @@ hold base information for BunkBot - server ref, database ref, etc
 """
 class Service:
     def __init__(self, bot: BunkBot, database: DatabaseService = None):
-        self.database = database
+        self.database: DatabaseService = database
         self.bot: BunkBot = bot
         self.server: Server = None
         bot.on_initialized += self.load

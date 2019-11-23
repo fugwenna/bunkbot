@@ -5,7 +5,7 @@ from ..util.dates import get_now
 assist in type mapping
 """
 class DatabaseUser:
-    def __init__(self, db_user):
+    def __init__(self, db_user: any):
         self.last_online: str = get_now()
         self.id: int = int(db_user["id"])
         self.level: int = int(db_user["level"])

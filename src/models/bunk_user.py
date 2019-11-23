@@ -19,11 +19,15 @@ class BunkUser:
 
     @property
     def name(self) -> str:
+        return simple_string(self.member.name)
+
+    @property
+    def full_name(self) -> str:
         return self.member.name
 
     @property
-    def simple_name(self) -> str:
-        return simple_string(self.member.name)
+    def mention(self) -> str:
+        return self.member.mention
 
     @property
     def level(self) -> int:

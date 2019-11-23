@@ -1,3 +1,4 @@
+from typing import List
 from ..bunkbot import BunkBot
 from ..models.service import Service
 from ..models.bunk_user import BunkUser
@@ -9,15 +10,15 @@ bunk user references + syncing with database
 """
 class UserService(Service):
     def __init__(self, bot: BunkBot, database: DatabaseService):
-        super().__init__(bot)
-        self.users: list = []
-        self.bot.on_initialized += self.load_users
-        self.database: DatabaseService = database
+        super().__init__(bot, database)
+        self.users: List[BunkUser] = []
 
     # when the main bot is loaded, collect
     # members from the server and initialize
     # bunkuser instances for future use
-    async def load_users(self) -> None:
+    async def load(self) -> None:
+        await super().load()
+
         for member in self.server.members:
             # check the database if this user
             # has been added before collecting

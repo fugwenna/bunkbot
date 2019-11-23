@@ -20,7 +20,7 @@ class Roll:
     @command(pass_context=True, help=ROLE_DESCRIPTION)
     async def roll(self, ctx: Context) -> None:
         try:
-            await self.channels.type(ctx)
+            await self.channels.typing(ctx)
 
             min_val = 0
             max_val = 100
@@ -39,7 +39,7 @@ class Roll:
             title = "Rolling ({0}-{1})".format(min_val, max_val)
             message = "{0} rolls {1}".format(user.name, str(randint(min_val, max_val)))
 
-            #await self.bot.say(embed=Embed(title=title, description=message, color=ctx.message.author.color))
+            await self.bot.say(embed=Embed(title=title, description=message, color=ctx.message.author.color))
         except Exception as e:
             await self.bot.handle_error(e, "roll")
 
