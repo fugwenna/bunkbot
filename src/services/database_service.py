@@ -42,6 +42,7 @@ class DatabaseService:
     # only be used when loading a user once - either at bot load, or
     # new users
     def get_user_by_member_ref(self, member: Member) -> DatabaseUser:
+        is_being_added: bool = False
         db_user = self.users.get(Query().id == member.id)
 
         if not member.bot and db_user is None:
@@ -54,11 +55,15 @@ class DatabaseService:
             })
 
             db_user = self.users.get(Query().id == member.id)
+            is_being_added = True
 
         # ignore bot users
-        user = None
+        user: DatabaseUser = None
         if db_user is not None:
             user = DatabaseUser(db_user)
+
+        if user is not None:
+            user.was_added = is_being_added
 
         return user
 

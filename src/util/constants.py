@@ -10,6 +10,7 @@ CHANNEL_MOD_CHAT: str = "mod-chat"
 CHANNEL_VIP_CHAT: str = "vip-chat"
 CHANNEL_WEATHER: str = "weather"
 CHANNEL_STREAMS: str = "streams"
+CHANNEL_NEW_USERS: str = "new-user-log"
 
 DB_PATH: str = "src/storage/db.json"
 DB_TOKEN: str = "token"

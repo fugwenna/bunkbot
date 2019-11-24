@@ -4,6 +4,7 @@ from ..bunkbot import BunkBot
 from ..models.service import Service
 from ..models.bunk_user import BunkUser
 from ..models.event_hook import EventHook
+from ..services.channel_service import ChannelService
 from ..services.database_service import DatabaseService
 from ..services.role_service import RoleService
 from ..util.constants import ROLE_GAMING, ROLE_STREAMING
@@ -13,10 +14,11 @@ Service responsible for handling any
 bunk user references + syncing with database
 """
 class UserService(Service):
-    def __init__(self, bot: BunkBot, database: DatabaseService, roles: RoleService):
+    def __init__(self, bot: BunkBot, database: DatabaseService, roles: RoleService, channels: ChannelService):
         super().__init__(bot, database)
         self.users: List[BunkUser] = []
         self.roles: RoleService = roles
+        self.channels: ChannelService = channels
         self.bot.on_user_update += self.handle_user_update
         self.on_user_gaming: EventHook = EventHook()
 
@@ -26,6 +28,8 @@ class UserService(Service):
     # bunkuser instances for future use
     async def load(self) -> None:
         await super().load()
+
+        new_users: List[str] = []
 
         for member in self.server.members:
             # check the database if this user
@@ -38,6 +42,13 @@ class UserService(Service):
                 user: BunkUser = BunkUser(member, db_user)
                 self.users.append(user)
                 await self.update_current_member_state(user, user, True)
+
+                if db_user.was_added:
+                    new_users.append(user.full_name)
+
+        if len(new_users) > 0:
+            new_user_msg = "New users: {0}".format(", ".join(new_users)) 
+            await self.channels.log_info(new_user_msg, self.channels.NEW_USER_LOG)
 
 
     # retrieve a user based on the member

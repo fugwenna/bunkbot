@@ -11,3 +11,4 @@ class DatabaseUser:
         self.level: int = int(db_user["level"])
         self.name: str = db_user["name"]
         self.xp: float = float(db_user["xp"])
+        self.was_added: bool = False

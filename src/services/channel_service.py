@@ -1,11 +1,12 @@
-from discord import Channel, Message
+from discord import Channel, Message, Embed
 from discord.ext.commands import Context
 from ..bunkbot import BunkBot
 from ..models.service import Service
 from ..services.database_service import DatabaseService
 from ..services.error_log_service import ErrorLogService
-from ..util.constants import CHANNEL_GENERAL, CHANNEL_BOT_LOGS, CHANNEL_BOT_TESTING
+from ..util.constants import CHANNEL_GENERAL, CHANNEL_BOT_LOGS, CHANNEL_BOT_TESTING, CHANNEL_NEW_USERS
 
+INFO: str = ":information_source:"
 EXCLAMATION: str = ":exclamation:"
 ROBOT: str = ":robot:"
 
@@ -17,10 +18,12 @@ class ChannelService(Service):
         super().__init__(bot, database)
         self.BOT_TESTING: Channel = None
         self.BOT_LOGS: Channel = None
+        self.NEW_USER_LOG: Channel = None
         self.GENERAL: Channel = None
         self.WEATHER: Channel = None
         self.MOD_CHAT: Channel = None
         self.logger: ErrorLogService = logger
+
 
     # locate specific channels setup through
     # user and code config
@@ -29,23 +32,30 @@ class ChannelService(Service):
 
         self.BOT_LOGS = await self.get(CHANNEL_BOT_LOGS)
         self.BOT_TESTING = await self.get(CHANNEL_BOT_TESTING)
+        self.NEW_USER_LOG = await self.get(CHANNEL_NEW_USERS)
         self.bot.on_error += self.log_error
 
+        await self.bot.purge_from(self.BOT_LOGS)
         await self.bot.send_message(self.BOT_LOGS, "{0} Bot loaded {1}".format(ROBOT, ROBOT))
+
 
     # log a simple information message to 
     # the bot logs channel
-    async def log_info(self, message: str) -> None:
+    async def log_info(self, message: str, channel: Channel = None) -> None:
         try:
-            await self.bot.send_message(self.BOT_LOGS, message)
+            if channel is None:
+                channel = self.BOT_LOGS
+
+            await self.bot.send_message(channel, "{0} {1}".format(INFO, message))
         except Exception as e:
             self.logger.log_error(e)
+
 
     # log an error in the bot_logs channel when
     # BunkBot emits the error event
     async def log_error(self, error: Exception, command: str, ctx: Context) -> None:
         try:
-            error_message: str = ":exclamation: Error occurred from command '{0}': {1}".format(command, error)
+            error_message: str = "{0} Error occurred from command '{1}': {2}".format(EXCLAMATION, command, error)
 
             if ctx is not None:
                 msg: Message = ctx.message
@@ -56,11 +66,13 @@ class ChannelService(Service):
         except Exception as e:
             self.logger.log_error(e)
 
+
     # get an instance of a
     # channel based on the given name - if
     # no name is specified, the general chat is assumed
     async def get(self, name: str) -> Channel:
         return next(c for c in self.server.channels if c.name == name)
+
 
     # send the 'typing' event to a channel based on a context message
     async def start_typing(self, ctx: Context) -> None:

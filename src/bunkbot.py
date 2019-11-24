@@ -21,6 +21,7 @@ class BunkBot(Bot):
         self.on_initialized: EventHook = EventHook()
         self.on_error: EventHook = EventHook()
         self.on_user_update: EventHook = EventHook()
+        self.on_user_remove: EventHook = EventHook()
 
 
     # lifecycle hook - set up all
@@ -37,6 +38,10 @@ class BunkBot(Bot):
     async def handle_member_update(self, old: Member, new: Member) -> None:
         await self.on_user_update.emit(old, new)
 
+    # handle the event where a user
+    # is removed from the server (self or otherwise)
+    async def handle_member_remove(self, member: Member) -> None:
+        await self.on_user_remove.emit(member)
 
     # handle an error from a cog and
     # send a basic error message back
