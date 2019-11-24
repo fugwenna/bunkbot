@@ -35,10 +35,10 @@ def initialize(bot: BunkBot) -> None:
 
     DATABASE_SERVICE = DatabaseService(bot)
     CHANNEL_SERVICE = ChannelService(bot, DATABASE_SERVICE, ErrorLogService())
-    GAME_SERVICE = GameService(bot, DATABASE_SERVICE, CHANNEL_SERVICE)
-    CHAT_SERVICE = ChatService(bot, DATABASE_SERVICE)
     ROLE_SERVICE = RoleService(bot, DATABASE_SERVICE)
+    USER_SERVICE = UserService(bot, DATABASE_SERVICE, ROLE_SERVICE)
     SUDO_SERVICE = SudoService(bot, DATABASE_SERVICE)
-    USER_SERVICE = UserService(bot, DATABASE_SERVICE)
+    GAME_SERVICE = GameService(bot, DATABASE_SERVICE, CHANNEL_SERVICE, USER_SERVICE)
+    CHAT_SERVICE = ChatService(bot, DATABASE_SERVICE)
 
     bot.run(DATABASE_SERVICE.get(DB_TOKEN))

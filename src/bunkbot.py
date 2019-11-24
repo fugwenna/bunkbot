@@ -1,6 +1,7 @@
+from discord import Member
 from discord.ext.commands import Context, Bot
-from models.event_hook import EventHook
-from util.cog_loader import get_cogs
+from .models.event_hook import EventHook
+from .util.cog_loader import get_cogs
 
 """
 Main extended bot from discord.py which 
@@ -19,6 +20,8 @@ class BunkBot(Bot):
         super().__init__("!", None, BOT_DESCRIPTION, True)
         self.on_initialized: EventHook = EventHook()
         self.on_error: EventHook = EventHook()
+        self.on_user_update: EventHook = EventHook()
+
 
     # lifecycle hook - set up all
     # of the necessary and useful channels
@@ -26,12 +29,19 @@ class BunkBot(Bot):
         for cog in get_cogs():
             self.load_extension(cog)
 
-        await self.on_initialized.fire()
+        await self.on_initialized.emit()
+
+
+    # handle the event where discord 
+    # updates a member
+    async def handle_member_update(self, old: Member, new: Member) -> None:
+        await self.on_user_update.emit(old, new)
+
 
     # handle an error from a cog and
     # send a basic error message back
-    async def handle_error(self, error: Exception, command: str, ctx: Context):
-        await self.on_error.fire(error, command, ctx)
+    async def handle_error(self, error: Exception, command: str, ctx: Context) -> None:
+        await self.on_error.emit(error, command, ctx)
 
 
 """

@@ -14,6 +14,6 @@ class EventHook(object):
         self.__handlers.remove(handler)
         return self
 
-    async def fire(self, *args, **keywargs):
+    async def emit(self, *args, **keywargs):
         for handler in self.__handlers:
             await handler(*args, **keywargs)

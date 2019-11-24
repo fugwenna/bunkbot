@@ -59,9 +59,9 @@ class ChannelService(Service):
     # get an instance of a
     # channel based on the given name - if
     # no name is specified, the general chat is assumed
-    async def get(self, name: str = CHANNEL_GENERAL) -> Channel:
+    async def get(self, name: str) -> Channel:
         return next(c for c in self.server.channels if c.name == name)
 
     # send the 'typing' event to a channel based on a context message
-    async def typing(self, ctx: Context) -> None:
+    async def start_typing(self, ctx: Context) -> None:
         await self.bot.send_typing(ctx.message.channel)

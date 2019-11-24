@@ -10,7 +10,7 @@ class ChatContext:
         self.user: BunkUser = user
 
     # Reply to a message from the bunk user
-    def reply(self, message: str, user: BunkUser) -> None|str:
+    def reply(self, message: str, user: BunkUser) -> None or str:
         if (user.id != self.user.id):
             return
 

@@ -1,17 +1,25 @@
 from typing import List
+from discord import Member
 from ..bunkbot import BunkBot
 from ..models.service import Service
 from ..models.bunk_user import BunkUser
+from ..models.event_hook import EventHook
 from ..services.database_service import DatabaseService
+from ..services.role_service import RoleService
+from ..util.constants import ROLE_GAMING, ROLE_STREAMING
 
 """
 Service responsible for handling any
 bunk user references + syncing with database
 """
 class UserService(Service):
-    def __init__(self, bot: BunkBot, database: DatabaseService):
+    def __init__(self, bot: BunkBot, database: DatabaseService, roles: RoleService):
         super().__init__(bot, database)
         self.users: List[BunkUser] = []
+        self.roles: RoleService = roles
+        self.bot.on_user_update += self.handle_user_update
+        self.on_user_gaming: EventHook = EventHook()
+
 
     # when the main bot is loaded, collect
     # members from the server and initialize
@@ -24,11 +32,67 @@ class UserService(Service):
             # has been added before collecting
             # a new instance of a bunk user
             db_user = self.database.get_user_by_member_ref(member)
-            self.users.append(BunkUser(member, db_user))
 
-        print(len(self.users))
+            # ignore bot users
+            if db_user is not None:
+                user: BunkUser = BunkUser(member, db_user)
+                self.users.append(user)
+                await self.update_current_member_state(user, user, True)
+
 
     # retrieve a user based on the member
     # identifier
     def get_by_id(self, mid: int) -> BunkUser:
         return next(u for u in self.users if u.id == mid)
+
+
+    # send out various events to other services when
+    # a user has been updated in some way
+    async def handle_user_update(self, old_ref: Member, member: Member, force: bool = False) -> None:
+        # create a fake user to check the is_gaming status
+        old_usr: BunkUser = BunkUser(old_ref, None)
+        user: BunkUser = self.get_by_id(member.id)
+        await self.update_current_member_state(old_usr, user, force)
+
+    
+    # resuable function for updating states
+    async def update_current_member_state(self, old_usr: BunkUser, user: BunkUser, force: bool = False) -> None:
+        await self.check_user_gaming(old_usr, user, force)
+        await self.check_user_streaming(old_usr, user, force)
+
+
+    # check if the user is/was gaming and update their 
+    # role accordingly
+    async def check_user_gaming(self, old_usr: BunkUser, user: BunkUser, force: bool = False) -> None:
+        is_gaming = False
+        was_gaming = False
+
+        if force:
+            is_gaming = user.is_gaming
+        else:
+            was_gaming = old_usr.is_gaming and not user.is_gaming
+            is_gaming = not old_usr.is_gaming and user.is_gaming
+
+        if is_gaming:
+            await self.on_user_gaming.emit(user)
+            await self.roles.add_role(user, ROLE_GAMING)
+        elif was_gaming:
+            await self.roles.rm_role(user, ROLE_GAMING)
+
+
+    # check if the user is/was streaming and update their 
+    # role accordingly
+    async def check_user_streaming(self, old_usr: BunkUser, user: BunkUser, force: bool = False) -> None:
+        is_streaming = False
+        was_streaming = False
+
+        if force:
+            is_streaming = user.is_streaming
+        else:
+            was_streaming = old_usr.is_streaming and not user.is_streaming
+            is_streaming = not old_usr.is_streaming and user.is_streaming
+
+        if is_streaming:
+            await self.roles.add_role(user, ROLE_STREAMING)
+        elif was_streaming:
+            await self.roles.rm_role(user, ROLE_STREAMING)

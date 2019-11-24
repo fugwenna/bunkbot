@@ -3,16 +3,16 @@ from tinydb.database import Table
 from discord import Member, Game, Server
 from ..bunkbot import BunkBot
 from ..models.database_user import DatabaseUser
-from ..models.service import Service
+from ..models.bunk_user import BunkUser
 from ..util.constants import DB_SERVER_ID, DB_PATH, DB_CONFIG, DB_USERS, DB_RPG, DB_HOLIDAYS, DB_STREAMS, DB_GAMES
 from ..util.functions import simple_string
 
 """
 Injectable service used for accessing the local database
 """
-class DatabaseService(Service):
+class DatabaseService:
     def __init__(self, bot: BunkBot):
-        super().__init__(bot)
+        self.bot: BunkBot = bot
         self.db: TinyDB = TinyDB(DB_PATH)
         self.config: Table = self.db.table(DB_CONFIG)
         self.users: Table = self.db.table(DB_USERS)
@@ -20,7 +20,12 @@ class DatabaseService(Service):
         self.holidays: Table = self.db.table(DB_HOLIDAYS)
         self.streams: Table = self.db.table(DB_STREAMS)
         self.game_names: Table = self.db.table(DB_GAMES)
+        self.bot.on_initialized += self.set_bot_props
+
+
+    async def set_bot_props(self) -> None:
         self.server: Server = self.bot.get_server(self.get(DB_SERVER_ID))
+
 
     # helper method that will query the requested table
     # and property name - default table as config
@@ -32,24 +37,31 @@ class DatabaseService(Service):
         else:
             return None
 
+
     # get a user by the passed discord member reference - this should
     # only be used when loading a user once - either at bot load, or
     # new users
     def get_user_by_member_ref(self, member: Member) -> DatabaseUser:
         db_user = self.users.get(Query().id == member.id)
-        if db_user is None:
-            print("can't find " + member.name)
-            #db_user = self.users.insert({
-            #    "name": simple_string(member.name),
-            #    "member_name": member.name,
-            #    "id": member.id,
-            #    "xp": 0,
-            #    "level": 1
-            #})
 
-        user = DatabaseUser(db_user)
+        if not member.bot and db_user is None:
+            self.users.insert({
+                "name": simple_string(member.name),
+                "member_name": member.name,
+                "id": member.id,
+                "xp": 0,
+                "level": 1
+            })
+
+            db_user = self.users.get(Query().id == member.id)
+
+        # ignore bot users
+        user = None
+        if db_user is not None:
+            user = DatabaseUser(db_user)
 
         return user
+
 
     # try to locate a relatively unique game when a user
     # starts playing a random game - if the game does not

@@ -20,7 +20,7 @@ class Roll:
     @command(pass_context=True, help=ROLE_DESCRIPTION)
     async def roll(self, ctx: Context) -> None:
         try:
-            await self.channels.typing(ctx)
+            await self.channels.start_typing(ctx)
 
             min_val = 0
             max_val = 100
