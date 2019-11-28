@@ -1,6 +1,6 @@
+from .database_service import DatabaseService
 from ..bunkbot import BunkBot
 from ..models.service import Service
-from ..services.database_service import DatabaseService
 
 """
 Service responsible for anything superuser

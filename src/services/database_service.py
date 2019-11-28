@@ -1,6 +1,7 @@
+from discord import Member, Game, Server
 from tinydb import TinyDB, Query
 from tinydb.database import Table
-from discord import Member, Game, Server
+
 from ..bunkbot import BunkBot
 from ..models.database_user import DatabaseUser
 from ..models.bunk_user import BunkUser

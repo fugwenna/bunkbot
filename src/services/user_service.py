@@ -1,13 +1,14 @@
 from typing import List
 from discord import Member
+
+from .channel_service import ChannelService
+from .database_service import DatabaseService
+from .role_service import RoleService
 from ..bunkbot import BunkBot
 from ..models.service import Service
 from ..models.bunk_user import BunkUser
 from ..models.event_hook import EventHook
-from ..services.channel_service import ChannelService
-from ..services.database_service import DatabaseService
-from ..services.role_service import RoleService
-from ..util.constants import ROLE_GAMING, ROLE_STREAMING
+from ..util.constants import ROLE_GAMING, ROLE_STREAMING, ROLE_MODERATOR, ROLE_VIP
 
 """
 Service responsible for handling any
@@ -105,5 +106,23 @@ class UserService(Service):
 
         if is_streaming:
             await self.roles.add_role(user, ROLE_STREAMING)
+            await self.update_elevated_user_roles(user, True)
         elif was_streaming:
             await self.roles.rm_role(user, ROLE_STREAMING)
+            await self.update_elevated_user_roles(user, False)
+
+
+    # when coming back from something like streaming, make sure
+    # aesthetic roles are reapplied
+    async def update_elevated_user_roles(self, user: BunkUser, rm: bool) -> None:
+        if user.is_moderator:
+            if rm:
+                self.roles.rm_role(user, ROLE_MODERATOR)
+            else:
+                self.roles.add_role(user, ROLE_MODERATOR)
+
+        if user.is_vip:
+            if rm:
+                self.roles.rm_role(user, ROLE_VIP)
+            else:
+                self.roles.add_role(user, ROLE_VIP)

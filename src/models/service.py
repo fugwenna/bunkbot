@@ -1,4 +1,5 @@
 from discord import Server
+
 from ..bunkbot import BunkBot
 from ..services.database_service import DatabaseService
 from ..util.constants import DB_SERVER_ID

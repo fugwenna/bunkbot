@@ -1,10 +1,11 @@
 from discord import Embed
 from discord.ext.commands import command, Context
+
 from ..bunkbot import BunkBot
 from ..models.bunk_user import BunkUser
-from ..services.user_service import UserService
 from ..services.channel_service import ChannelService
 from ..services.registry import USER_SERVICE, CHANNEL_SERVICE
+from ..services.user_service import UserService
 
 ROLE_DESCRIPTION = """Roll a random value between 0 and 100.  Optionally, you may pass a value range.\n
     Example: !roll

@@ -1,4 +1,5 @@
 from discord.ext.commands import command
+
 from ..bunkbot import BunkBot
 from ..models.bunk_exception import BunkException
 from ..services.channel_service import ChannelService

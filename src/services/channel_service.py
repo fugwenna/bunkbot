@@ -1,9 +1,10 @@
 from discord import Channel, Message, Embed
 from discord.ext.commands import Context
+
+from .database_service import DatabaseService
+from .error_log_service import ErrorLogService
 from ..bunkbot import BunkBot
 from ..models.service import Service
-from ..services.database_service import DatabaseService
-from ..services.error_log_service import ErrorLogService
 from ..util.constants import CHANNEL_GENERAL, CHANNEL_BOT_LOGS, CHANNEL_BOT_TESTING, CHANNEL_NEW_USERS
 
 INFO: str = ":information_source:"

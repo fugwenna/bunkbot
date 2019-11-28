@@ -1,8 +1,9 @@
 from discord import Role
+
+from .database_service import DatabaseService
 from ..bunkbot import BunkBot
 from ..models.bunk_user import BunkUser
 from ..models.service import Service
-from ..services.database_service import DatabaseService
 
 """
 Service responsible for handling role references

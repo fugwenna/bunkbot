@@ -1,10 +1,11 @@
 from discord import Game, Member
+
+from .database_service import DatabaseService
+from .channel_service import ChannelService
+from .user_service import UserService
 from ..bunkbot import BunkBot
 from ..models.service import Service
 from ..models.bunk_user import BunkUser
-from ..services.database_service import DatabaseService
-from ..services.channel_service import ChannelService
-from ..services.user_service import UserService
 
 """
 Service specifically designed to deal with things like

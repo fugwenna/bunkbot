@@ -1,12 +1,12 @@
+from .channel_service import ChannelService
+from .chat_service import ChatService
+from .database_service import DatabaseService
+from .game_service import GameService
+from .error_log_service import ErrorLogService
+from .role_service import RoleService
+from .sudo_service import SudoService
+from .user_service import UserService
 from ..bunkbot import BunkBot
-from ..services.database_service import DatabaseService
-from ..services.channel_service import ChannelService
-from ..services.chat_service import ChatService
-from ..services.role_service import RoleService
-from ..services.sudo_service import SudoService
-from ..services.user_service import UserService
-from ..services.game_service import GameService
-from ..services.error_log_service import ErrorLogService
 from ..util.constants import DB_TOKEN
 
 """
@@ -37,8 +37,8 @@ def initialize(bot: BunkBot) -> None:
     CHANNEL_SERVICE = ChannelService(bot, DATABASE_SERVICE, ErrorLogService())
     ROLE_SERVICE = RoleService(bot, DATABASE_SERVICE)
     USER_SERVICE = UserService(bot, DATABASE_SERVICE, ROLE_SERVICE, CHANNEL_SERVICE)
-    SUDO_SERVICE = SudoService(bot, DATABASE_SERVICE)
     GAME_SERVICE = GameService(bot, DATABASE_SERVICE, CHANNEL_SERVICE, USER_SERVICE)
     CHAT_SERVICE = ChatService(bot, DATABASE_SERVICE)
+    SUDO_SERVICE = SudoService(bot, DATABASE_SERVICE)
 
     bot.run(DATABASE_SERVICE.get(DB_TOKEN))
