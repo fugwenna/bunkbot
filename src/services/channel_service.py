@@ -5,7 +5,7 @@ from .database_service import DatabaseService
 from .error_log_service import ErrorLogService
 from ..bunkbot import BunkBot
 from ..models.service import Service
-from ..util.constants import CHANNEL_GENERAL, CHANNEL_BOT_LOGS, CHANNEL_BOT_TESTING, CHANNEL_NEW_USERS
+from ..util.constants import CHANNEL_GENERAL, CHANNEL_BOT_LOGS, CHANNEL_BOT_TESTING, CHANNEL_NEW_USERS, CHANNEL_MOD_CHAT
 
 INFO: str = ":information_source:"
 EXCLAMATION: str = ":exclamation:"
@@ -31,10 +31,10 @@ class ChannelService(Service):
     async def load(self) -> None:
         await super().load()
 
-        self.BOT_LOGS = await self.get(CHANNEL_BOT_LOGS)
-        self.BOT_TESTING = await self.get(CHANNEL_BOT_TESTING)
-        self.NEW_USER_LOG = await self.get(CHANNEL_NEW_USERS)
-        self.bot.on_error += self.log_error
+        self.BOT_LOGS = await self._get(CHANNEL_BOT_LOGS)
+        self.BOT_TESTING = await self._get(CHANNEL_BOT_TESTING)
+        self.NEW_USER_LOG = await self._get(CHANNEL_NEW_USERS)
+        self.MOD_CHAT = await self._get(CHANNEL_MOD_CHAT)
 
         await self.bot.purge_from(self.BOT_LOGS)
         await self.bot.send_message(self.BOT_LOGS, "{0} Bot loaded {1}".format(ROBOT, ROBOT))
@@ -68,13 +68,13 @@ class ChannelService(Service):
             self.logger.log_error(e)
 
 
-    # get an instance of a
-    # channel based on the given name - if
-    # no name is specified, the general chat is assumed
-    async def get(self, name: str) -> Channel:
-        return next(c for c in self.server.channels if c.name == name)
-
-
     # send the 'typing' event to a channel based on a context message
     async def start_typing(self, ctx: Context) -> None:
         await self.bot.send_typing(ctx.message.channel)
+
+
+    # get an instance of a
+    # channel based on the given name - if
+    # no name is specified, the general chat is assumed
+    async def _get(self, name: str) -> Channel:
+        return next(c for c in self.server.channels if c.name == name)

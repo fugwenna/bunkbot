@@ -1,5 +1,6 @@
 from discord import Member
 from discord.ext.commands import Context, Bot
+
 from .models.event_hook import EventHook
 from .util.cog_loader import get_cogs
 
@@ -19,7 +20,6 @@ class BunkBot(Bot):
     def __init__(self):
         super().__init__("!", None, BOT_DESCRIPTION, True)
         self.on_initialized: EventHook = EventHook()
-        self.on_error: EventHook = EventHook()
         self.on_user_update: EventHook = EventHook()
         self.on_user_remove: EventHook = EventHook()
 
@@ -38,15 +38,11 @@ class BunkBot(Bot):
     async def handle_member_update(self, old: Member, new: Member) -> None:
         await self.on_user_update.emit(old, new)
 
+
     # handle the event where a user
     # is removed from the server (self or otherwise)
     async def handle_member_remove(self, member: Member) -> None:
         await self.on_user_remove.emit(member)
-
-    # handle an error from a cog and
-    # send a basic error message back
-    async def handle_error(self, error: Exception, command: str, ctx: Context) -> None:
-        await self.on_error.emit(error, command, ctx)
 
 
 """
