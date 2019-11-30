@@ -28,51 +28,51 @@ class Youtube:
 
     # perform a basic youtube search with a given
     # keyword - use beautiful soup to scrape HTML and return the result
-    @command(pass_context=True, help=YOUTUBE_DESCRIPTION, aliases=["youtube"])
+    @command(help=YOUTUBE_DESCRIPTION, aliases=["youtube"])
     async def yt(self, ctx: Context) -> None:
         try:
             params: list = get_cmd_params(ctx)
 
             if len(params) == 0:
-                await self.bot.say("No youtube query given")
+                await ctx.send("No youtube query given")
                 return
 
-            await self.channels.start_typing(ctx)
+            await ctx.trigger_typing()
 
             self.yt_link = self.yt_result.query(params)
 
-            self.message = await self.bot.say(self.yt_link)
+            self.message = await ctx.send(self.yt_link)
         except Exception as e:
             await self.bot.handle_error(e, "yt")
 
 
     # replace the video from the previous search based
     # on the value entered (1-5)
-    @command(pass_context=True, help="Link another youtube result from the last search", aliases=["ytl"])
+    @command(help="Link another youtube result from the last search", aliases=["ytl"])
     async def link(self, ctx: Context) -> None:
         try:
             params = get_cmd_params(ctx)
 
             if len(params) < 1 or not params[0].isdigit() or int(params[0]) > len(self.yt_result.ids):
-                await self.bot.say("Please enter a valid video number from 0 to 5")
+                await ctx.send("Please enter a valid video number from 0 to 5")
                 return
 
-            self.yt_link = await self.bot.edit_message(self.message, self.yt_result.get_link(int(params[0])))
-            await self.bot.delete_message(ctx.message)
+            self.yt_link = await self.message.edit(self.yt_result.get_link(int(params[0])))
+            await ctx.message.delete()
         except Exception as e:
             await self.bot.handle_error(e, "ytl")
 
 
     # get a list of related videos from the last
     #youtube search
-    @command(pass_context=True, help="Get a list of related videos from the last youtube search")
-    async def more(self, ctx) -> None:
+    @command(help="Get a list of related videos from the last youtube search")
+    async def more(self, ctx: Context) -> None:
         e_title = "Type !ytl 1-5 to link another video\nType !ytl or !ytl 0 to relink the original result\n"
         e_message = "\n".join(self.yt_result.titles)
         embed = Embed(title=e_title, description=e_message, color=int("CC181E", 16))
 
-        await self.bot.say(embed=embed)
-        await self.bot.delete_message(ctx.message)
+        await ctx.send(embed=embed)
+        await ctx.message.delete()
 
 
 def setup(bot: BunkBot) -> None:

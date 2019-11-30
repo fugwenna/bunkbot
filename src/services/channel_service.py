@@ -1,4 +1,4 @@
-from discord import Channel, Message, Embed
+from discord import TextChannel, Message, Embed
 from discord.ext.commands import Context
 
 from .database_service import DatabaseService
@@ -17,12 +17,12 @@ Service responsible for handling channel references
 class ChannelService(Service):
     def __init__(self, bot: BunkBot, database: DatabaseService, logger: ErrorLogService):
         super().__init__(bot, database)
-        self.BOT_TESTING: Channel = None
-        self.BOT_LOGS: Channel = None
-        self.NEW_USER_LOG: Channel = None
-        self.GENERAL: Channel = None
-        self.WEATHER: Channel = None
-        self.MOD_CHAT: Channel = None
+        self.BOT_TESTING: TextChannel = None
+        self.BOT_LOGS: TextChannel = None
+        self.NEW_USER_LOG: TextChannel = None
+        self.GENERAL: TextChannel = None
+        self.WEATHER: TextChannel = None
+        self.MOD_CHAT: TextChannel = None
         self.logger: ErrorLogService = logger
 
 
@@ -42,12 +42,12 @@ class ChannelService(Service):
 
     # log a simple information message to 
     # the bot logs channel
-    async def log_info(self, message: str, channel: Channel = None) -> None:
+    async def log_info(self, message: str, channel: TextChannel = None) -> None:
         try:
             if channel is None:
                 channel = self.BOT_LOGS
 
-            await self.bot.send_message(channel, "{0} {1}".format(INFO, message))
+            await channel.send("{0} {1}".format(INFO, message))
         except Exception as e:
             self.logger.log_error(e)
 
@@ -61,20 +61,20 @@ class ChannelService(Service):
             if ctx is not None:
                 msg: Message = ctx.message
                 err: str = "{0} An error has occurred! {0} @fugwenna help ahhhh".format(EXCLAMATION, EXCLAMATION)
-                await self.bot.say_to_channel(msg.channel, err)
+                await msg.channel.send(err)
 
-            await self.bot.say_to_channel(self.BOT_LOGS, error_message)
+            await self.BOT_LOGS.send(error_message)
         except Exception as e:
             self.logger.log_error(e)
 
 
     # send the 'typing' event to a channel based on a context message
     async def start_typing(self, ctx: Context) -> None:
-        await self.bot.send_typing(ctx.message.channel)
+        await ctx.message.channel.trigger_typing()
 
 
     # get an instance of a
     # channel based on the given name - if
     # no name is specified, the general chat is assumed
-    async def _get(self, name: str) -> Channel:
+    async def _get(self, name: str) -> TextChannel:
         return next(c for c in self.server.channels if c.name == name)

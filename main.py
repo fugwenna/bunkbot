@@ -17,9 +17,11 @@ initializes the one and only BunkBot
 async def on_ready() -> None:
     await bunkbot.load()
 
+
 @bunkbot.event
 async def on_member_update(old: Member, new: Member) -> None:
     await bunkbot.handle_member_update(old, new)
+
 
 @bunkbot.event
 async def on_member_remove(member: Member) -> None:

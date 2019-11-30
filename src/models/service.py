@@ -1,4 +1,4 @@
-from discord import Server
+from discord import Guild
 
 from ..bunkbot import BunkBot
 from ..services.database_service import DatabaseService
@@ -12,7 +12,7 @@ class Service:
     def __init__(self, bot: BunkBot, database: DatabaseService = None):
         self.database: DatabaseService = database
         self.bot: BunkBot = bot
-        self.server: Server = None
+        self.server: Guild = None
         bot.on_initialized += self.load
 
     # When bunkbot is loaded, all services

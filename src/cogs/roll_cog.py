@@ -16,17 +16,18 @@ class Roll:
         self.channels: ChannelService = channels
         self.users: UserService = users
 
+
     # roll a random number
     # optionally specify a value range with default 0-100
-    @command(pass_context=True, help=ROLE_DESCRIPTION)
+    @command(help=ROLE_DESCRIPTION)
     async def roll(self, ctx: Context) -> None:
         try:
-            await self.channels.start_typing(ctx)
+            await ctx.trigger_typing()
 
             min_val = 0
             max_val = 100
             params = self.bot.get_cmd_params(ctx)
-            user: BunkUser = self.users.get(ctx.message.author.id)
+            user: BunkUser = self.users.get(ctx.author.id)
 
             if len(params) > 0:
                 if "-" in params[0]:
@@ -40,7 +41,7 @@ class Roll:
             title = "Rolling ({0}-{1})".format(min_val, max_val)
             message = "{0} rolls {1}".format(user.name, str(randint(min_val, max_val)))
 
-            await self.bot.say(embed=Embed(title=title, description=message, color=ctx.message.author.color))
+            await ctx.send(embed=Embed(title=title, description=message, color=ctx.author.color))
         except Exception as e:
             await self.bot.handle_error(e, "roll")
 
