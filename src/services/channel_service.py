@@ -36,8 +36,8 @@ class ChannelService(Service):
         self.NEW_USER_LOG = await self._get(CHANNEL_NEW_USERS)
         self.MOD_CHAT = await self._get(CHANNEL_MOD_CHAT)
 
-        await self.bot.purge_from(self.BOT_LOGS)
-        await self.bot.send_message(self.BOT_LOGS, "{0} Bot loaded {1}".format(ROBOT, ROBOT))
+        await self.BOT_LOGS.purge()
+        await self.BOT_LOGS.send("{0} Bot loaded {1}".format(ROBOT, ROBOT))
 
 
     # log a simple information message to 

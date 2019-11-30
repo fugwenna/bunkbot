@@ -5,9 +5,10 @@ from .channel_service import ChannelService
 from .database_service import DatabaseService
 from .role_service import RoleService
 from ..bunkbot import BunkBot
-from ..models.service import Service
+from ..models.database_user import DatabaseUser
 from ..models.bunk_user import BunkUser
 from ..models.event_hook import EventHook
+from ..models.service import Service
 from ..util.constants import ROLE_GAMING, ROLE_STREAMING, ROLE_MODERATOR, ROLE_VIP
 
 """
@@ -36,7 +37,7 @@ class UserService(Service):
             # check the database if this user
             # has been added before collecting
             # a new instance of a bunk user
-            db_user = self.database.get_user_by_member_ref(member)
+            db_user: DatabaseUser = self.database.get_user_by_member_ref(member)
 
             # ignore bot users
             if db_user is not None:
@@ -76,8 +77,8 @@ class UserService(Service):
     # check if the user is/was gaming and update their 
     # role accordingly
     async def check_user_gaming(self, old_usr: BunkUser, user: BunkUser, force: bool = False) -> None:
-        is_gaming = False
-        was_gaming = False
+        is_gaming: bool = False
+        was_gaming: bool = False
 
         if force:
             is_gaming = user.is_gaming
@@ -95,8 +96,8 @@ class UserService(Service):
     # check if the user is/was streaming and update their 
     # role accordingly
     async def check_user_streaming(self, old_usr: BunkUser, user: BunkUser, force: bool = False) -> None:
-        is_streaming = False
-        was_streaming = False
+        is_streaming: bool = False
+        was_streaming: bool = False
 
         if force:
             is_streaming = user.is_streaming

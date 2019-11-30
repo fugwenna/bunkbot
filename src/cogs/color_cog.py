@@ -35,11 +35,11 @@ class Color:
     @command(help="Link to discord API color list and hex code editor")
     async def colors(self, ctx: Context) -> None:
         try:
-            reg_colors = "Use the classmethod names for a default color (!color red, blue, dark_green, etc) \nhttp://discordpy.readthedocs.io/en/latest/api.html?#discord.Colour.teal"
-            hex_colors = "For hex codes, copy the value above the color picker (with the #) and use that value (!color #F70AE8)\nhttps://www.webpagefx.com/web-design/color-picker/"
+            reg_colors: str = "Use the classmethod names for a default color (!color red, blue, dark_green, etc) \nhttp://discordpy.readthedocs.io/en/latest/api.html?#discord.Colour.teal"
+            hex_colors: str = "For hex codes, copy the value above the color picker (with the #) and use that value (!color #F70AE8)\nhttps://www.webpagefx.com/web-design/color-picker/"
             await ctx.send("\n{}\n\n{}".format(reg_colors, hex_colors))
         except Exception as e:
-            await self.bot.handle_error(e, "colors")
+            await self.channels.log_error(e, "colors")
 
 
 def setup(bot: BunkBot) -> None:

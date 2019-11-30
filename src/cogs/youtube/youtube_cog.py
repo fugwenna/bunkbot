@@ -1,3 +1,4 @@
+from typing import List
 from discord import Message, Embed
 from discord.ext.commands import command, Context
 
@@ -31,7 +32,7 @@ class Youtube:
     @command(help=YOUTUBE_DESCRIPTION, aliases=["youtube"])
     async def yt(self, ctx: Context) -> None:
         try:
-            params: list = get_cmd_params(ctx)
+            params: List[str] = get_cmd_params(ctx)
 
             if len(params) == 0:
                 await ctx.send("No youtube query given")
@@ -43,7 +44,7 @@ class Youtube:
 
             self.message = await ctx.send(self.yt_link)
         except Exception as e:
-            await self.bot.handle_error(e, "yt")
+            await self.channels.log_error(e, "yt")
 
 
     # replace the video from the previous search based
@@ -51,7 +52,7 @@ class Youtube:
     @command(help="Link another youtube result from the last search", aliases=["ytl"])
     async def link(self, ctx: Context) -> None:
         try:
-            params = get_cmd_params(ctx)
+            params: List[str] = get_cmd_params(ctx)
 
             if len(params) < 1 or not params[0].isdigit() or int(params[0]) > len(self.yt_result.ids):
                 await ctx.send("Please enter a valid video number from 0 to 5")
@@ -60,16 +61,16 @@ class Youtube:
             self.yt_link = await self.message.edit(self.yt_result.get_link(int(params[0])))
             await ctx.message.delete()
         except Exception as e:
-            await self.bot.handle_error(e, "ytl")
+            await self.channels.log_error(e, "ytl")
 
 
     # get a list of related videos from the last
     #youtube search
     @command(help="Get a list of related videos from the last youtube search")
     async def more(self, ctx: Context) -> None:
-        e_title = "Type !ytl 1-5 to link another video\nType !ytl or !ytl 0 to relink the original result\n"
-        e_message = "\n".join(self.yt_result.titles)
-        embed = Embed(title=e_title, description=e_message, color=int("CC181E", 16))
+        e_title: str = MORE_TITLE
+        e_message: str = "\n".join(self.yt_result.titles)
+        embed: Embed = Embed(title=e_title, description=e_message, color=int("CC181E", 16))
 
         await ctx.send(embed=embed)
         await ctx.message.delete()
