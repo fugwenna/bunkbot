@@ -21,8 +21,9 @@ class UserService(Service):
         self.users: List[BunkUser] = []
         self.roles: RoleService = roles
         self.channels: ChannelService = channels
-        self.bot.on_user_update += self.handle_user_update
         self.bot.on_user_joined += self.add_new_user
+        self.bot.on_user_update += self.handle_user_update
+        self.bot.on_user_remove += self.handle_user_removal
         self.on_user_gaming: EventHook = EventHook()
 
 
@@ -53,8 +54,8 @@ class UserService(Service):
                     self.bot.ADMIN_USER = user
 
         if len(new_users) > 0:
-            new_user_msg = "New users: {0}".format(", ".join(new_users)) 
-            await self.channels.log_info(new_user_msg, self.channels.NEW_USER_LOG)
+            new_user_msg = "New users: {0} {1}".format(", ".join(new_users)) 
+            await self.channels.log_info(new_user_msg, self.channels.USER_LOG, self.bot.ADMIN_USER.mention)
 
     
     # when a new user has joined the server, check
@@ -72,6 +73,12 @@ class UserService(Service):
             welcome_msg = "Welcome back, {0}"
 
         await self.channels.GENERAL.send(welcome_msg.format(bunk_user.mention))
+        await self.channels.log_info("{0} has joined the server {1}".format(bunk_user.name, self.bot.ADMIN_USER.mention), self.channels.USER_LOG)
+
+
+    # inform moderators when users are removed from the server
+    async def handle_user_removal(self, member: Member) -> None:
+        await self.channels.USER_LOG.send(":x: {0} has left the server {1}".format(member.name, self.bot.ADMIN_USER.mention))
 
 
     # retrieve a user based on the member
@@ -113,7 +120,6 @@ class UserService(Service):
         if is_gaming:
             await self.on_user_gaming.emit(user)
             await self.roles.add_role(user, ROLE_GAMING)
-            await self.channels.log_info(":video_game: {0} is now gaming".format(user.name))
         elif was_gaming:
             await self.roles.rm_role(user, ROLE_GAMING)
 

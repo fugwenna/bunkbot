@@ -19,7 +19,7 @@ class ChannelService(Service):
         super().__init__(bot, database)
         self.BOT_TESTING: TextChannel = None
         self.BOT_LOGS: TextChannel = None
-        self.NEW_USER_LOG: TextChannel = None
+        self.USER_LOG: TextChannel = None
         self.GENERAL: TextChannel = None
         self.WEATHER: TextChannel = None
         self.MOD_CHAT: TextChannel = None
@@ -33,7 +33,7 @@ class ChannelService(Service):
 
         self.BOT_LOGS = await self._get(CHANNEL_BOT_LOGS)
         self.BOT_TESTING = await self._get(CHANNEL_BOT_TESTING)
-        self.NEW_USER_LOG = await self._get(CHANNEL_USERS)
+        self.USER_LOG = await self._get(CHANNEL_USERS)
         self.MOD_CHAT = await self._get(CHANNEL_MOD_CHAT)
         self.GENERAL = await self._get(CHANNEL_GENERAL)
 
