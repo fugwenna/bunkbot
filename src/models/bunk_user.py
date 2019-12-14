@@ -1,4 +1,5 @@
-from discord import Member
+from typing import List
+from discord import Member, Role, ActivityType
 
 from .database_user import DatabaseUser
 from ..util.functions import simple_string
@@ -51,7 +52,7 @@ class BunkUser:
         if not self.member:
             return False
 
-        return self.member.game is not None and self.member.game.type == 0
+        return self.member.game is not None and self.member.game.type == ActivityType.playing
 
 
     @property
@@ -59,7 +60,7 @@ class BunkUser:
         if not self.member:
             return False
 
-        return self.member.game is not None and self.member.game.type == 1
+        return self.member.game is not None and self.member.game.type == ActivityType.streaming
 
 
     @property
@@ -88,3 +89,7 @@ class BunkUser:
 
     def has_role(self, role: str) -> bool:
         return len([r for r in self.member.roles if r.name == role]) > 0
+
+
+    async def set_roles(self, roles: List[Role]) -> None:
+        await self.member.edit(roles=roles)

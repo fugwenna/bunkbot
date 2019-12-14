@@ -20,12 +20,6 @@ class GameService(Service):
         self.bot.on_initialized += self.check_streams
         self.users.on_user_gaming += self.check_user_gaming
 
-    # when bunkbot has detected a user has been updated, double check
-    # on their gaming status and perform the necessary tasks
-    async def check_user_gaming(self, user: BunkUser) -> None:
-        # todo - check game and collect it
-        pass
-
 
     # every so often, set the bot status - if the bot
     # has decided to go "away" or do something else, do

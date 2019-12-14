@@ -25,13 +25,13 @@ class RoleService(Service):
     async def rm_role(self, user: BunkUser, role_name: str) -> None:
         roles = user.member.roles.copy()
         roles = [r for r in user.member.roles if r.name != role_name]
-        await user.member.edit(roles=roles)
+        await user.set_roles(roles)
         
 
     async def add_role(self, user: BunkUser, role_name: str) -> None:
         roles = user.member.roles.copy()
         roles.append(self.get_role(role_name))
-        await user.member.edit(roles=roles)
+        await user.set_roles(roles)
 
 
     async def get_role_containing(self, pattern: str) -> Role:
