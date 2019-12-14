@@ -35,6 +35,7 @@ class ChannelService(Service):
         self.BOT_TESTING = await self._get(CHANNEL_BOT_TESTING)
         self.NEW_USER_LOG = await self._get(CHANNEL_USERS)
         self.MOD_CHAT = await self._get(CHANNEL_MOD_CHAT)
+        self.GENERAL = await self._get(CHANNEL_GENERAL)
 
         await self.BOT_LOGS.purge()
         await self.BOT_LOGS.send("{0} Bot loaded {1}".format(ROBOT, ROBOT))
@@ -60,7 +61,7 @@ class ChannelService(Service):
 
             if ctx is not None:
                 msg: Message = ctx.message
-                err: str = "{0} An error has occurred! {0} @fugwenna help ahhhh".format(EXCLAMATION, EXCLAMATION)
+                err: str = "{0} An error has occurred! {1} {2} help ahhhh".format(EXCLAMATION, EXCLAMATION, self.bot.ADMIN_USER.mention)
                 await msg.channel.send(err)
 
             await self.BOT_LOGS.send(error_message)

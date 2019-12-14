@@ -1,6 +1,7 @@
 from discord import Member
 from discord.ext.commands import Context, Bot
 
+from .models.bunk_user import BunkUser
 from .models.event_hook import EventHook
 from .util.cog_loader import get_cogs
 
@@ -20,8 +21,10 @@ class BunkBot(Bot):
     def __init__(self):
         super().__init__("!", None, BOT_DESCRIPTION)
         self.on_initialized: EventHook = EventHook()
+        self.on_user_joined: EventHook = EventHook()
         self.on_user_update: EventHook = EventHook()
         self.on_user_remove: EventHook = EventHook()
+        self.ADMIN_USER: BunkUser = None
 
 
     # lifecycle hook - set up all
@@ -31,6 +34,12 @@ class BunkBot(Bot):
             self.load_extension(cog)
 
         await self.on_initialized.emit()
+
+
+    # handle the event where a new user 
+    # joins the server
+    async def handle_member_join(self, new: Member) -> None:
+        await self.on_user_joined.emit(new)
 
 
     # handle the event where discord 

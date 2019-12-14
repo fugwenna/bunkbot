@@ -19,6 +19,11 @@ async def on_ready() -> None:
 
 
 @bunkbot.event
+async def on_member_join(member: Member) -> None:
+    await bunkbot.handle_member_join(member)
+
+
+@bunkbot.event
 async def on_member_update(old: Member, new: Member) -> None:
     await bunkbot.handle_member_update(old, new)
 
