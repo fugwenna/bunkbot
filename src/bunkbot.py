@@ -18,7 +18,7 @@ Type '!help [command] for more info on a command (i.e. !help color)\n
 """
 class BunkBot(Bot):
     def __init__(self):
-        super().__init__("!", None, BOT_DESCRIPTION, True)
+        super().__init__("!", None, BOT_DESCRIPTION)
         self.on_initialized: EventHook = EventHook()
         self.on_user_update: EventHook = EventHook()
         self.on_user_remove: EventHook = EventHook()

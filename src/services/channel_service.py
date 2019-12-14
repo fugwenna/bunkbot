@@ -5,7 +5,7 @@ from .database_service import DatabaseService
 from .error_log_service import ErrorLogService
 from ..bunkbot import BunkBot
 from ..models.service import Service
-from ..util.constants import CHANNEL_GENERAL, CHANNEL_BOT_LOGS, CHANNEL_BOT_TESTING, CHANNEL_NEW_USERS, CHANNEL_MOD_CHAT
+from ..util.constants import CHANNEL_GENERAL, CHANNEL_BOT_LOGS, CHANNEL_BOT_TESTING, CHANNEL_USERS, CHANNEL_MOD_CHAT
 
 INFO: str = ":information_source:"
 EXCLAMATION: str = ":exclamation:"
@@ -33,7 +33,7 @@ class ChannelService(Service):
 
         self.BOT_LOGS = await self._get(CHANNEL_BOT_LOGS)
         self.BOT_TESTING = await self._get(CHANNEL_BOT_TESTING)
-        self.NEW_USER_LOG = await self._get(CHANNEL_NEW_USERS)
+        self.NEW_USER_LOG = await self._get(CHANNEL_USERS)
         self.MOD_CHAT = await self._get(CHANNEL_MOD_CHAT)
 
         await self.BOT_LOGS.purge()
@@ -77,4 +77,4 @@ class ChannelService(Service):
     # channel based on the given name - if
     # no name is specified, the general chat is assumed
     async def _get(self, name: str) -> TextChannel:
-        return next(c for c in self.server.channels if c.name == name)
+        return next((c for c in self.server.channels if c.name == name), None)

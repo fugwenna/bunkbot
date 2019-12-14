@@ -25,7 +25,7 @@ class DatabaseService:
 
 
     async def set_bot_props(self) -> None:
-        self.server: Guild = self.bot.get_server(self.get(DB_SERVER_ID))
+        self.server: Guild = self.bot.get_guild(self.get(DB_SERVER_ID))
 
 
     # helper method that will query the requested table

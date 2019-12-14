@@ -56,7 +56,10 @@ class UserService(Service):
     # retrieve a user based on the member
     # identifier
     def get_by_id(self, mid: int) -> BunkUser:
-        return next(u for u in self.users if u.id == mid)
+        try:
+            return next((u for u in self.users if u.id == mid), None)
+        except Exception as e:
+            self.channels.log_error(e, "get_by_id")
 
 
     # send out various events to other services when

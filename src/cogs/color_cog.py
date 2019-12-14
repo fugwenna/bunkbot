@@ -1,4 +1,4 @@
-from discord.ext.commands import command, Context
+from discord.ext.commands import command, Context, Cog
 
 from ..bunkbot import BunkBot
 from ..models.bunk_exception import BunkException
@@ -13,7 +13,7 @@ default color, or a hex code.  '!color none' will remove your color.  For assist
 Example: !color red
 Example: !color #FF0000
 """
-class Color:
+class Color(Cog):
     def __init__(self, roles: RoleService, channels: ChannelService):
         self.bot: BunkBot = roles.bot
         self.roles: RoleService = roles

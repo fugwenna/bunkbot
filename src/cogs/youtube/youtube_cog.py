@@ -1,6 +1,6 @@
 from typing import List
 from discord import Message, Embed
-from discord.ext.commands import command, Context
+from discord.ext.commands import command, Context, Cog
 
 from ...bunkbot import BunkBot
 from ...cogs.youtube.youtube_result import YoutubeResult
@@ -18,7 +18,7 @@ YOUTUBE_DESCRIPTION = """
 
 MORE_TITLE = "Type !ytl 1-5 to link another video\nType !link or !link 0 to relink the original result\n"
 
-class Youtube:
+class Youtube(Cog):
     def __init__(self, bot: BunkBot, channels: ChannelService):
         self.bot: BunkBot = bot
         self.message: Message = None

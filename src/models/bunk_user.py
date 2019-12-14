@@ -52,7 +52,7 @@ class BunkUser:
         if not self.member:
             return False
 
-        return self.member.game is not None and self.member.game.type == ActivityType.playing
+        return next((a for a in self.member.activities if a.type == ActivityType.playing), None) is not None
 
 
     @property
@@ -60,7 +60,8 @@ class BunkUser:
         if not self.member:
             return False
 
-        return self.member.game is not None and self.member.game.type == ActivityType.streaming
+        return False
+        #return self.member.game is not None and self.member.game.type == ActivityType.streaming
 
 
     @property

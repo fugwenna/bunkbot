@@ -20,4 +20,4 @@ class Service:
     # default utils
     async def load(self) -> None:
         if self.database:
-            self.server = self.bot.get_server(self.database.get(DB_SERVER_ID))
+            self.server = self.bot.get_guild(int(self.database.get(DB_SERVER_ID)))

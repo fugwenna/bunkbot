@@ -18,7 +18,6 @@ class GameService(Service):
         self.users: UserService = users
         self.bot.on_initialized += self.set_game
         self.bot.on_initialized += self.check_streams
-        self.users.on_user_gaming += self.check_user_gaming
 
 
     # every so often, set the bot status - if the bot

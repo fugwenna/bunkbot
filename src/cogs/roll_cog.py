@@ -1,6 +1,6 @@
 from typing import List
 from discord import Embed
-from discord.ext.commands import command, Context
+from discord.ext.commands import command, Context, Cog
 
 from ..bunkbot import BunkBot
 from ..models.bunk_user import BunkUser
@@ -13,7 +13,7 @@ ROLE_DESCRIPTION = """Roll a random value between 0 and 100.  Optionally, you ma
     Example: !roll
     Example: !roll 1-10
 """
-class Roll:
+class Roll(Cog):
     def __init__(self, channels: ChannelService, users: UserService):
         self.channels: ChannelService = channels
         self.users: UserService = users
