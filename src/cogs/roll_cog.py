@@ -1,6 +1,7 @@
 from typing import List
 from discord import Embed
 from discord.ext.commands import command, Context, Cog
+from random import randint
 
 from ..bunkbot import BunkBot
 from ..models.bunk_user import BunkUser
@@ -9,7 +10,7 @@ from ..services.registry import USER_SERVICE, CHANNEL_SERVICE
 from ..services.user_service import UserService
 from ..util.functions import get_cmd_params
 
-ROLE_DESCRIPTION = """Roll a random value between 0 and 100.  Optionally, you may pass a value range.\n
+ROLE_DESCRIPTION: str = """Roll a random value between 0 and 100.  Optionally, you may pass a value range.\n
     Example: !roll
     Example: !roll 1-10
 """
@@ -29,7 +30,7 @@ class Roll(Cog):
             min_val: int = 0
             max_val: int = 100
             params: List[str] = get_cmd_params(ctx)
-            user: BunkUser = self.users.get(ctx.author.id)
+            user: BunkUser = self.users.get_by_id(ctx.author.id)
 
             if len(params) > 0:
                 if "-" in params[0]:

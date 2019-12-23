@@ -55,7 +55,7 @@ class ChannelService(Service):
 
     # log an error in the bot_logs channel when
     # BunkBot emits the error event
-    async def log_error(self, error: Exception, command: str, ctx: Context) -> None:
+    async def log_error(self, error: Exception, command: str, ctx: Context = None) -> None:
         try:
             error_message: str = "{0} Error occurred from command '{1}': {2}".format(EXCLAMATION, command, error)
 
