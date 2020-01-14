@@ -54,7 +54,7 @@ class UserService(Service):
                     self.bot.ADMIN_USER = user
 
         if len(new_users) > 0:
-            new_user_msg = "New users: {0} {1}".format(", ".join(new_users)) 
+            new_user_msg = "New users: {0}".format(", ".join(new_users)) 
             await self.channels.log_info(new_user_msg, self.channels.USER_LOG, self.bot.ADMIN_USER.mention)
 
         await self.roles.prune_orphaned_roles("color-")
