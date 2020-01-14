@@ -1,7 +1,7 @@
-from discord import Member
+from discord import Member, Message
 
 from src.bunkbot import bunkbot
-from src.services.registry import initialize
+from src.core.registry import initialize
 
 
 """
@@ -31,6 +31,11 @@ async def on_member_update(old: Member, new: Member) -> None:
 @bunkbot.event
 async def on_member_remove(member: Member) -> None:
     await bunkbot.handle_member_remove(member)
+
+
+@bunkbot.event
+async def on_message(message: Message) -> None:
+    await bunkbot.handle_message(message)
 
 
 if __name__ == "__main__":

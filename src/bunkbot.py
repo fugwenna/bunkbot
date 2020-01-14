@@ -1,9 +1,10 @@
-from discord import Member
+from discord import Member, Guild, Message
 from discord.ext.commands import Context, Bot
 
-from .models.bunk_user import BunkUser
-from .models.event_hook import EventHook
-from .util.cog_loader import get_cogs
+from .core.bunk_user import BunkUser
+from .core.cog_loader import get_cogs
+from .core.event_hook import EventHook
+
 
 """
 Main extended bot from discord.py which 
@@ -24,7 +25,9 @@ class BunkBot(Bot):
         self.on_user_joined: EventHook = EventHook()
         self.on_user_update: EventHook = EventHook()
         self.on_user_remove: EventHook = EventHook()
+        self.on_user_message: EventHook = EventHook()
         self.ADMIN_USER: BunkUser = None
+        self.server: Guild = None
 
 
     # lifecycle hook - set up all
@@ -52,6 +55,12 @@ class BunkBot(Bot):
     # is removed from the server (self or otherwise)
     async def handle_member_remove(self, member: Member) -> None:
         await self.on_user_remove.emit(member)
+
+
+    # handle the vent when a
+    # message is sent 
+    async def handle_message(self, message: Message) -> None:
+        await self.on_user_message.emit(message)
 
 
 """
