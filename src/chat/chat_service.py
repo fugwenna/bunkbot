@@ -29,5 +29,5 @@ class ChatService(Service):
         #if not is_reset and (self.is_chatting or (is_bunk_mention or "BUNKBOT" in content)):
         if is_bunk_mention or "BUNKBOT" in content:
             await message.channel.send("Sorry, can't talk right now (I'm in rewrite mode)")
-
-        return
+        else:
+            await self.bot.process_commands(message)
