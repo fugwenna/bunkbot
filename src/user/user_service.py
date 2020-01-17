@@ -155,12 +155,12 @@ class UserService(Service):
     async def update_elevated_user_roles(self, user: BunkUser, rm: bool) -> None:
         if user.is_moderator:
             if rm:
-                self.roles.rm_role(ROLE_MODERATOR, user)
+                await self.roles.rm_role(ROLE_MODERATOR, user)
             else:
-                self.roles.add_role(ROLE_MODERATOR, user)
+                await self.roles.add_role(ROLE_MODERATOR, user)
 
         if user.is_vip:
             if rm:
-                self.roles.rm_role(ROLE_VIP, user)
+                await self.roles.rm_role(ROLE_VIP, user)
             else:
-                self.roles.add_role(ROLE_VIP, user)
+                await self.roles.add_role(ROLE_VIP, user)

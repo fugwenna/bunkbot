@@ -18,6 +18,17 @@ class GameService(Service):
         self.users: UserService = users
         self.bot.on_initialized += self.set_game
         self.bot.on_initialized += self.check_streams
+        self.bot.on_user_update += self.collect_game_from_user
+
+
+    # when a user is updated check if the game is currently in the 
+    # database - if not, add it for later use
+    async def collect_game_from_user(self, old_ref: Member, member: Member) -> None:
+        bunk_user: BunkUser = self.users.get_by_id(member.id)
+
+        if bunk_user is not None and bunk_user.is_gaming:
+            game: Game = bunk_user.member.activity
+
 
 
     # every so often, set the bot status - if the bot

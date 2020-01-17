@@ -96,7 +96,7 @@ class Color(Cog):
     async def add_user_color(self, user: BunkUser, color: str, ctx: Context) -> None:
         role_name: str = "color-{0}".format(color)
         self.check_if_role_exists(role_name, user)
-
+        await self.set_user_role(role_name, user)
 
     
     # only allow a single color role per user
@@ -111,6 +111,12 @@ class Color(Cog):
                 err_msg = "`{0}` is already your color role".format(role_name)
 
             raise BunkException(err_msg)
+
+
+    # set the color role for a user if
+    # it is finally available
+    async def set_user_role(self, role_name: str, user: BunkUser) -> None:
+        pass
 
 
 def setup(bot: BunkBot) -> None:

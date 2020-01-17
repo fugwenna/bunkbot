@@ -101,3 +101,4 @@ class BunkUser:
 
     async def set_roles(self, roles: List[Role]) -> None:
         await self.member.edit(roles=roles)
+        
