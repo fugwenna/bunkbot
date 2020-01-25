@@ -1,7 +1,8 @@
 from typing import List
-from discord import Role
+from discord import Role, Color
 
 from ..bunkbot import BunkBot
+from ..channel.channel_service import ChannelService
 from ..core.bunk_user import BunkUser
 from ..core.service import Service
 from ..db.database_service import DatabaseService
@@ -11,9 +12,10 @@ Service responsible for handling role references
 and removing/adding new roles
 """
 class RoleService(Service):
-    def __init__(self, bot: BunkBot, database: DatabaseService):
+    def __init__(self, bot: BunkBot, database: DatabaseService, channels: ChannelService):
         super().__init__(bot, database)
         self.admin: Role = None
+        self.channels: ChannelService = channels
 
 
     # get a role directly from the server
@@ -32,22 +34,26 @@ class RoleService(Service):
             roles: List[Role] = [r for r in self.bot.server.roles.copy() if r.name == role_name]
             for role in roles:
                 ref: Role = role
-                ref.remove()
+                await ref.delete()
         
         
     # non-event driven - directly add a role when anothoer
     # service has deemed appropriate
-    async def add_role(self, role_name: str, user: BunkUser) -> None:
+    async def add_role(self, role_name: str, user: BunkUser, color: Color = None) -> Role:
+        role: Role = None
         roles = user.member.roles.copy()
 
         if not user.has_role(role_name):
-            roles.append(self.get_role(role_name))
+            role = self.get_role(role_name)
+
+            if role is None:
+                if color is None:
+                    role: Role = await self.bot.server.create_role(name=role_name)
+                else: 
+                    role: Role = await self.bot.server.create_role(name=role_name, color=color)
+
+            roles.append(role)
             await user.set_roles(roles)
-
-
-    # get a role contain a given pattern in the name
-    async def get_role_containing(self, pattern: str, user: BunkUser) -> Role:
-        role = next((r for r in user.member.roles if pattern in r.name.lower()), None)
 
         return role
 
@@ -63,4 +69,19 @@ class RoleService(Service):
             empty_color_roles = [r.name for r in self.bot.server.roles if pattern in r.name and len(r.members) == 0]
 
         for orphan_role in empty_color_roles:
-            await self.roles.rm_role(orphan_role)
+            await self.channels.log_info("Removing role `{0}`".format(orphan_role))
+            await self.rm_role(orphan_role)
+
+
+    # get a role contain a given pattern in the name
+    async def get_role_containing(self, pattern: str, user: BunkUser) -> Role:
+        role = next((r for r in user.member.roles if pattern in r.name.lower()), None)
+
+        return role
+        
+    # get the index of a given role (or pattern)
+    async def get_lowest_index_for(self, pattern: str) -> int:
+        roles: List[int] = [r.position for r in self.bot.server.roles if pattern in r.name]
+        roles.sort()
+
+        return roles[:1][0]

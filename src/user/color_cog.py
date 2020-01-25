@@ -1,5 +1,5 @@
 from typing import List
-from discord import Role
+from discord import Role, Color as DColor
 from discord.ext.commands import command, Context, Cog
 
 from .role_service import RoleService
@@ -32,9 +32,6 @@ class Color(Cog):
     @command(help=COLOR_DESCRIPTION, aliases=["c"])
     async def color(self, ctx: Context) -> None:
         try:
-            await ctx.send("Not implemented! (i'm in rewrite mode)")
-            return
-
             await ctx.trigger_typing()
 
             user: BunkUser = self.users.get_by_id(ctx.message.author.id)
@@ -74,7 +71,7 @@ class Color(Cog):
     # when a user doesn't supply any parameters
     # just print their current color, if they have it
     @staticmethod
-    async def print_user_color(self, user: BunkUser, ctx: Context) -> None:
+    async def print_user_color(user: BunkUser, ctx: Context) -> None:
         if user.color is None: 
             await ctx.send("You do not have a color role assigned to you")
         else: 
@@ -88,7 +85,7 @@ class Color(Cog):
 
         if role is not None:
             await self.roles.rm_role(role.name, user)
-            await ctx.send("Your color role `{0}` has been removed".format(role.name))
+            await ctx.send("{0}, your color role `{1}` has been removed".format(user.mention, role.name))
 
 
     # If a color role does not exist and is available,
@@ -96,7 +93,8 @@ class Color(Cog):
     async def add_user_color(self, user: BunkUser, color: str, ctx: Context) -> None:
         role_name: str = "color-{0}".format(color)
         self.check_if_role_exists(role_name, user)
-        await self.set_user_role(role_name, user)
+        await self.set_user_role(role_name, user, color)
+        await ctx.send("{0}, your color role has been set to: `{1}`".format(user.mention, role_name))
 
     
     # only allow a single color role per user
@@ -104,7 +102,7 @@ class Color(Cog):
         existing_role: Role = next((r for r in self.bot.server.roles if r.name.lower() == role_name), None)
         
         if existing_role is not None:
-            err_msg: str = "Role `{0}` already exists and is assigned to another user".format(role_name)
+            err_msg: str = "Role `{0}` already exists and is assigned to another user: `{1}`".format(role_name, existing_role.members[0].name)
             is_user: bool = next((r for r in existing_role.members if r.id == user.id), None)
 
             if is_user is not None:
@@ -113,10 +111,46 @@ class Color(Cog):
             raise BunkException(err_msg)
 
 
+    # get the color for a role, whether its hex or
+    # known color from discord
+    def get_color_for_role(self, color: str) -> None:
+        if color.startswith("#"):
+            color = color[1:]
+
+        discord_color: Color = None
+
+        color_method = [m for m, f in DColor.__dict__.items()]
+        for c in color_method:
+            if c == color:
+                discord_color = getattr(DColor, c)()
+                break
+                
+        try:
+            if discord_color is None:
+                discord_color = DColor(int(color, 16))
+        except Exception as e:
+            raise BunkException("Error assigning color '{0}'".format(color))
+        
+        if discord_color is None:
+            raise BunkException("Error assigning color '{0}'".format(color))
+
+        return discord_color
+
+
     # set the color role for a user if
     # it is finally available
-    async def set_user_role(self, role_name: str, user: BunkUser) -> None:
-        pass
+    async def set_user_role(self, role_name: str, user: BunkUser, color: str) -> None:
+        pos: int = await self.roles.get_lowest_index_for("color-")
+        new_role: Role = await self.roles.add_role(role_name, user, self.get_color_for_role(color))
+
+        roles: List[Role] = user.member.roles.copy()
+
+        for role in roles:
+            if role.name != role_name and "color-"in role.name:
+                await self.roles.rm_role(role.name, user)
+
+        await self.channels.log_info("Elevating role position `{0}` -> `{1}`".format(role_name, pos))
+        await new_role.edit(position=pos)
 
 
 def setup(bot: BunkBot) -> None:
