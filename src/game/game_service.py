@@ -11,7 +11,7 @@ from ..db.database_service import DatabaseService
 from ..user.user_service import UserService
 
 
-CHANCE_TO_UPDATE_ON_NEW_GAME: int = 75
+CHANCE_TO_UPDATE_ON_NEW_GAME: int = 70
 INTERVAL_TO_UPDATE_GAME: int = 60
 
 
@@ -56,7 +56,6 @@ class GameService(Service):
             game = games[index]
 
             await self.bot.change_presence(activity=Game(game["name"]))
-            await self.channels.log_info("Changing game to `{0}`".format(game["name"]))
 
 
     # do an initial check of current streams and update
