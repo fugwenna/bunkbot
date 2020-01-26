@@ -31,14 +31,14 @@ class ChatService(Service):
     # check for if the message sent by a user
     # is meant for bunkbot
     async def respond_to_message(self, message: Message) -> None:
-        await message.channel.send("Sorry, can't talk right now (I'm in rewrite mode)")
-        return
-
         #is_reset = str(message.content).strip() == "!reset"     
         is_bunk_mention: bool = len(message.mentions) > 0 and message.mentions[0].name == "BunkBot"
         content: str = findall("[a-zA-Z]+", str(message.content).upper())
 
         if is_bunk_mention or "BUNKBOT" in content:
+            await message.channel.send("Sorry, can't talk right now (I'm in rewrite mode)")
+            return
+
             user: BunkUser = self.users.get_by_id(message.author.id)
             chat = next((c for c in self.chats if c.user.id == user.id), None)
 
