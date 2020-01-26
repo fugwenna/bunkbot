@@ -11,6 +11,7 @@ from ..core.service import Service
 from ..db.database_service import DatabaseService
 from ..db.database_user import DatabaseUser
 
+
 """
 Service responsible for handling any
 bunk user references + syncing with database
@@ -102,6 +103,9 @@ class UserService(Service):
 
         if old_usr is not None and user is not None:
             await self.update_current_member_state(old_usr, user, force)
+
+        if self.roles is not None:
+            await self.roles.prune_orphaned_roles("color-")
 
     
     # resuable function for updating states

@@ -72,7 +72,8 @@ class DatabaseService:
     # try to locate a relatively unique game when a user
     # starts playing a random game - if the game does not
     # exist, add it to the database
-    def collect_game(self, game: Game) -> any:
+    def collect_game(self, game: Game) -> bool:
+        added: bool = False
         db_game = self.game_names.get(Query().name == game.name)
 
         if db_game is None:
@@ -80,5 +81,6 @@ class DatabaseService:
                 "name": game.name, 
                 "type": game.type
             })
+            added = True
 
-        return db_game
+        return added

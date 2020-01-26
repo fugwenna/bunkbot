@@ -58,7 +58,7 @@ class Youtube(Cog):
                 await ctx.send("Please enter a valid video number from 0 to 5")
                 return
 
-            self.yt_link = await self.message.edit(self.yt_result.get_link(int(params[0])))
+            self.yt_link = await self.message.edit(content=self.yt_result.get_link(int(params[0])))
             await ctx.message.delete()
         except Exception as e:
             await self.channels.log_error(e, "ytl")

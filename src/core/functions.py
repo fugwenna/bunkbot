@@ -1,5 +1,6 @@
 from discord.ext.commands import Context
 from re import sub
+from random import randint
 
 from .constants import USER_NAME_REGEX
 
@@ -25,3 +26,8 @@ def get_cmd_params(ctx: Context) -> list:
         return ctx.message.content.split()[1:]
     else:
         return []
+
+
+# roll a random value within a range
+def roll_int(min_val: int = 0, max_val: int = 100) -> int:
+    return randint(min_val, max_val)

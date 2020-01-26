@@ -1,5 +1,5 @@
 from typing import List
-from discord import Member, Role, ActivityType, Color
+from discord import Member, Role, ActivityType, Color, Status
 
 from .constants import ROLE_ADMIN, ROLE_MODERATOR_PERMS, ROLE_VIP_PERMS
 from .functions import simple_string
@@ -53,6 +53,14 @@ class BunkUser:
     @property
     def last_online(self) -> str:
         return self.db_user.last_online
+
+    
+    @property
+    def is_online(self) -> bool:
+        if not self.member:
+            return False
+
+        return self.member.status == Status.online
 
 
     @property

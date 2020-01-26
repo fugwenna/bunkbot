@@ -1,11 +1,19 @@
 from discord import Game, Member
+from random import randint
 
 from ..bunkbot import BunkBot
 from ..channel.channel_service import ChannelService
 from ..core.bunk_user import BunkUser
+from ..core.daemon import DaemonHelper
+from ..core.functions import roll_int
 from ..core.service import Service
 from ..db.database_service import DatabaseService
 from ..user.user_service import UserService
+
+
+CHANCE_TO_UPDATE_ON_NEW_GAME: int = 75
+INTERVAL_TO_UPDATE_GAME: int = 60
+
 
 """
 Service specifically designed to deal with things like
@@ -19,6 +27,7 @@ class GameService(Service):
         self.bot.on_initialized += self.set_game
         self.bot.on_initialized += self.check_streams
         self.bot.on_user_update += self.collect_game_from_user
+        DaemonHelper.add(self.set_game, trigger="interval", minutes=INTERVAL_TO_UPDATE_GAME)
 
 
     # when a user is updated check if the game is currently in the 
@@ -28,20 +37,26 @@ class GameService(Service):
 
         if bunk_user is not None and bunk_user.is_gaming:
             game: Game = bunk_user.member.activity
+            added = self.database.collect_game(game)
 
+            if added:
+                await self.channels.log_info("Added new game to database: `{0}`".format(game.name))
+                await self.set_game()
 
 
     # every so often, set the bot status - if the bot
     # has decided to go "away" or do something else, do
     # not wire any game 
-    async def set_game(self) -> None:
-        pass
+    async def set_game(self, force: bool = False) -> None:
+        will_set = randint(0, 100) <= CHANCE_TO_UPDATE_ON_NEW_GAME
 
+        if not force and will_set:
+            games = self.database.game_names.all()
+            index = roll_int(0, len(games) - 1)
+            game = games[index]
 
-    # when a user has started to play a game, check the known
-    # games and store it into the database if it does not currently exist
-    async def get_game(self, game: Game) -> None:
-        pass
+            await self.bot.change_presence(activity=Game(game["name"]))
+            await self.channels.log_info("Changing game to `{0}`".format(game["name"]))
 
 
     # do an initial check of current streams and update
