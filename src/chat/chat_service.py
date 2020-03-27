@@ -46,15 +46,14 @@ class ChatService(Service):
                 if chat is None:
                     chat = Chat(user, message.content)
                     self.chats.append(chat)
-                    await self.respond(chat, message, user)
-                else:
-                    if not chat.is_active and not is_bunk_name:
-                        self.chats.remove(chat)
-                    else:
-                        await self.respond(chat, message, user)
+
+                await self.respond(chat, message, user)
             else:
-                if chat is not None and chat.is_active:
-                    await self.respond(chat, message, user)
+                if chat is not None:
+                    if chat.is_active:
+                        await self.respond(chat, message, user)
+                    else:
+                        self.chats.remove(chat)
                 else:
                     await self.bot.process_commands(message)
 

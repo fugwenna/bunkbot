@@ -10,7 +10,7 @@ bunkbot and a bunk user
 """
 class Chat:
     def __init__(self, user: BunkUser, content: str):
-        self.timer: int = 10
+        self.timer: int = 13
         self.last_message_at: int = time()
         self.user: BunkUser = user
         self.content: str = Chat.parse_message(content)
