@@ -1,4 +1,5 @@
 from typing import List
+from discord import Embed
 from discord.ext.commands import command, Context, Cog
 
 from ..bunkbot import BunkBot
@@ -10,7 +11,7 @@ from .duel_result import DuelResult
 from .rpg_service import RpgService
 
 
-ALIASES: List[str] = ["challenge", "fight", "smack"]
+ALIASES: List[str] = ["challenge", "fight", "smack", "slap"]
 
 DUEL_DESCRIPTION: str = """Challenge another user to a duel!
 ex: !duel fugwenna
@@ -36,8 +37,17 @@ class DuelCog(Cog):
     @command(help="Accept a duel")
     async def accept(self, ctx: Context) -> None:
         try:
-            if self.rpg.accept_duel(ctx.message.author):
-                pass
+            usr: BunkUser = self.rpg.users.get_by_id(ctx.message.author.id)
+            result: DuelResult = self.rpg.accept_duel(usr)
+
+            embed = Embed(title=":crossed_swords: {0} vs {1}".format(result.challenger.name, result.opponent.name), color=int("FF0000", 16))
+            embed.add_field(name="Name", value="\n".join([result.challenger.name, result.opponent.name]), inline=True)
+            embed.add_field(name="Damage",
+                            value="\n".join([str(result.challenger_roll), str(result.opponent_roll)]),
+                            inline=True)
+
+            await ctx.message.channel.send(embed=embed)
+
         except BunkException as be:
             await ctx.message.channel.send(be.message)
 
@@ -45,8 +55,9 @@ class DuelCog(Cog):
     @command(help="Reject a duel")
     async def reject(self, ctx: Context) -> None:
         try:
-            if self.rpg.reject_duel(ctx.message.author):
-                await self.bot.say(":exclamation: {0.mention} has rejected the duel".format(ctx.message.author))
+            usr: BunkUser = self.rpg.users.get_by_id(ctx.message.author.id)
+            if self.rpg.reject_duel(usr):
+                await ctx.message.channel.send(":exclamation: {0.mention} has rejected the duel".format(ctx.message.author))
         except BunkException as be:
             await ctx.message.channel.send(be.message)
 

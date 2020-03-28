@@ -63,24 +63,22 @@ class RpgService(Service):
 
 
     # accept a duel if the user is challenged
-    @staticmethod
-    def accept_duel(user: BunkUser) -> DuelResult:
+    def accept_duel(self, user: BunkUser) -> DuelResult:
         if not user.challenged_by_id:
             raise BunkException("You have no duels to accept")
-
-        self.remove_duel(user, True)
 
         duel: Duel = next((d for d in self.duels if d.opponent.id == user.id and d.challenger.id == user.challenged_by_id), None)
 
         if duel is None:
             raise BunkException("Error executing duel :(")
 
+        self.remove_duel(user, True)
+
         return duel.execute()
 
 
     # reject a duel if the user is challenged
-    @staticmethod
-    def reject_duel(user: BunkUser) -> bool:
+    def reject_duel(self, user: BunkUser) -> bool:
         if not user.challenged_by_id:
             raise BunkException("You have no duels to reject")
 

@@ -20,4 +20,7 @@ class Duel:
         winner: BunkUser = self.challenger if chal_val > opnt_val else self.opponent
         result: DuelResult = DuelResult(self.challenger, self.opponent, winner)
 
+        result.challenger_roll = chal_val
+        result.opponent_roll = opnt_val
+
         return result

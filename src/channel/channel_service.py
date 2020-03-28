@@ -61,7 +61,7 @@ class ChannelService(Service):
 
             if ctx is not None:
                 msg: Message = ctx.message
-                err: str = "{0} An error has occurred! {1} {2} help ahhhh".format(EXCLAMATION, EXCLAMATION, self.bot.ADMIN_USER.mention)
+                err: str = "{0} An error has occurred! {1} help ahhhh".format(EXCLAMATION, self.bot.ADMIN_USER.mention)
                 await msg.channel.send(err)
 
             await self.BOT_LOGS.send(error_message)
