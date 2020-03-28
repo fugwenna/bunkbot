@@ -32,7 +32,7 @@ class Chat:
 
     def reply(self, message: str, user: BunkUser) -> None or str:
         if (user.id != self.user.id):
-            respond: bool = roll_int(0, 100) > 30
+            respond: bool = roll_int(0, 100) > 15
 
             if not respond:
                 return

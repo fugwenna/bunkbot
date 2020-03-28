@@ -10,7 +10,7 @@ from ..bunkbot import BunkBot
 from ..core.bunk_user import BunkUser
 from ..core.constants import DB_CLEVERBOT
 from ..core.daemon import DaemonHelper
-from ..core.functions import roll_int
+from ..core.functions import roll_int, get_cmd_params
 from ..core.service import Service
 from ..db.database_service import DatabaseService
 from ..user.user_service import UserService
@@ -61,8 +61,9 @@ class ChatService(Service):
     # only respond to active conversations
     async def respond(self, chat: Chat, message: Message, user: BunkUser) -> None:
         await message.channel.trigger_typing()
+        content: str = self.override(message)
 
-        response: str = self.chat_bot.say(chat.reply(message.content, user))
+        response: str = self.chat_bot.say(chat.reply(content, user))
         response = self.alter_response(user, response)
 
         await message.channel.send(response)
@@ -72,7 +73,7 @@ class ChatService(Service):
         if not response[-1] in punctuation:
             return response
 
-        if len(self.chats) > 1 and roll_int(0, 100) > 30:
+        if len(self.chats) > 1 and roll_int(0, 100) > 10:
              response = "{0}, {1}{2}".format(response[:-1], user.name, response[-1])
 
         return response
@@ -92,3 +93,12 @@ class ChatService(Service):
             
         user: BunkUser = users[randint(0, len(users)-1)]
         
+
+    # "override" commands for bunkbot
+    @staticmethod
+    def override(msg: Message) -> bool:
+        content: str = msg.content.split()[0]
+        if content == "!duel":
+            return "Duel me you coward!"
+
+        return msg.content

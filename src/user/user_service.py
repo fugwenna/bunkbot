@@ -94,6 +94,15 @@ class UserService(Service):
             self.channels.log_error(e, "get_by_id")
 
 
+    # retrieve a user by a "fuzzy" search 
+    # on their username (basic)
+    def get_by_username(self, un: str) -> None:
+        try:
+            return next((u for u in self.users if u.name == un), None)
+        except Exception as e:
+            self.channels.log_error(e, "get_by_username")
+
+
     # send out various events to other services when
     # a user has been updated in some way
     async def handle_user_update(self, old_ref: Member, member: Member, force: bool = False) -> None:

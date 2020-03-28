@@ -15,6 +15,8 @@ class BunkUser:
     def __init__(self, member: Member, db_user: DatabaseUser) -> None:
         self.member: Member = member
         self.db_user: DatabaseUser = db_user
+        self.is_dueling: bool = False
+        self.challenged_by_id: int = None
 
 
     @property

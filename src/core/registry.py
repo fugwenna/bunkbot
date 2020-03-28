@@ -8,6 +8,7 @@ from ..game.game_service import GameService
 from ..user.role_service import RoleService
 from ..user.sudo_service import SudoService
 from ..user.user_service import UserService
+from ..rpg.rpg_service import RpgService
 
 
 """
@@ -20,6 +21,7 @@ GAME_SERVICE: GameService = None
 ROLE_SERVICE: RoleService = None
 SUDO_SERVICE: SudoService = None
 USER_SERVICE: UserService = None
+RPG_SERVICE: RpgService = None
 
 
 """
@@ -34,6 +36,7 @@ def initialize(bot: BunkBot) -> None:
     global SUDO_SERVICE
     global USER_SERVICE
     global GAME_SERVICE
+    global RPG_SERVICE
 
     DATABASE_SERVICE = DatabaseService(bot)
     CHANNEL_SERVICE = ChannelService(bot, DATABASE_SERVICE, ErrorLogService())
@@ -42,5 +45,6 @@ def initialize(bot: BunkBot) -> None:
     GAME_SERVICE = GameService(bot, DATABASE_SERVICE, CHANNEL_SERVICE, USER_SERVICE)
     SUDO_SERVICE = SudoService(bot, DATABASE_SERVICE, CHANNEL_SERVICE)
     CHAT_SERVICE = ChatService(bot, DATABASE_SERVICE, USER_SERVICE)
+    RPG_SERVICE = RpgService(bot, DATABASE_SERVICE, USER_SERVICE)
 
     bot.run(DATABASE_SERVICE.get(DB_TOKEN))
