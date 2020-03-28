@@ -47,6 +47,7 @@ class DuelCog(Cog):
                             inline=True)
 
             await ctx.message.channel.send(embed=embed)
+            await ctx.message.channel.send("{0} has bested {1} in a duel!".format(result.winner.mention, result.loser.name))
 
         except BunkException as be:
             await ctx.message.channel.send(be.message)

@@ -8,6 +8,7 @@ class DuelResult:
         self.challenger: BunkUser = chal
         self.opponent: BunkUser = opnt
         self.winner: BunkUser = winner
+        self.loser: BunkUser = loser
 
         self.challenger_roll: int = 0
         self.opponent_roll: int = 0
