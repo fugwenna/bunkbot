@@ -71,7 +71,7 @@ class ChannelService(Service):
 
     # send the 'typing' event to a channel based on a context message
     async def start_typing(self, ctx: Context) -> None:
-        await ctx.message.channel.trigger_typing()
+        await ctx.trigger_typing()
 
 
     # get an instance of a

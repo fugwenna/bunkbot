@@ -29,9 +29,9 @@ class DuelCog(Cog):
             msg: str = """:triangular_flag_on_post: {0.mention} is challenging {1.mention} to a duel! 
             Type !accept to duel, or !reject to run away like a little biiiiiiiiiiiiitch""".format(duel.challenger, duel.opponent)
 
-            await ctx.message.channel.send(msg)
+            await ctx.send(msg)
         except BunkException as be:
-            await ctx.message.channel.send(be.message)
+            await ctx.send(be.message)
 
 
     @command(help="Accept a duel")
@@ -46,11 +46,11 @@ class DuelCog(Cog):
                             value="\n".join([str(result.challenger_roll), str(result.opponent_roll)]),
                             inline=True)
 
-            await ctx.message.channel.send(embed=embed)
-            await ctx.message.channel.send("{0} has bested {1} in a duel!".format(result.winner.mention, result.loser.name))
+            await ctx.send(embed=embed)
+            await ctx.send("{0} has bested {1} in a duel!".format(result.winner.mention, result.loser.name))
 
         except BunkException as be:
-            await ctx.message.channel.send(be.message)
+            await ctx.send(be.message)
 
 
     @command(help="Reject a duel")
@@ -58,9 +58,9 @@ class DuelCog(Cog):
         try:
             usr: BunkUser = self.rpg.users.get_by_id(ctx.message.author.id)
             if self.rpg.reject_duel(usr):
-                await ctx.message.channel.send(":exclamation: {0.mention} has rejected the duel".format(ctx.message.author))
+                await ctx.send(":exclamation: {0.mention} has rejected the duel".format(ctx.message.author))
         except BunkException as be:
-            await ctx.message.channel.send(be.message)
+            await ctx.send(be.message)
 
     
 def setup(bot: BunkBot) -> None:
