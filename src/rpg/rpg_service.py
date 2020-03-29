@@ -54,10 +54,10 @@ class RpgService(Service):
     @staticmethod
     def set_challenged(chal: BunkUser, opnt: BunkUser) -> None:
         if chal.is_dueling:
-            raise BunkException("{0} is currently in a duel".format(user.name))
+            raise BunkException("{0} is currently in a duel".format(chal.name))
 
         if opnt.is_dueling:
-            raise BunkException("{0} is currently in a duel".format(user.name))
+            raise BunkException("{0} is currently in a duel".format(opnt.name))
 
         opnt.challenged_by_id = chal.id
 
