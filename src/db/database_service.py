@@ -31,9 +31,6 @@ class DatabaseService:
     async def set_bot_props(self) -> None:
         self.server: Guild = self.bot.get_guild(self.get(DB_SERVER_ID, False))
 
-        if self.server is None:
-            self.logger.log_warning("Could not load server for 'serverid'. Was a serverid supplied in database entity 'config' ?", "DatabaseService")
-
     
     def set_defaults(self) -> None:
         token = self.config.get(Query()["token"] != "", 1)
