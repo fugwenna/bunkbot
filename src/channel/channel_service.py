@@ -37,8 +37,11 @@ class ChannelService(Service):
             self.USER_LOG = await self._get(CHANNEL_USERS)
             self.GENERAL = await self._get(CHANNEL_GENERAL)
 
-            await self.BOT_LOGS.purge()
-            await self.BOT_LOGS.send("{0} Bot loaded {1}".format(ROBOT, ROBOT))
+            if self.BOT_LOGS is not None:
+                await self.BOT_LOGS.purge()
+                await self.BOT_LOGS.send("{0} Bot loaded {1}".format(ROBOT, ROBOT))
+            else:
+                self.logger.log_warning("Cannot locate bot logs channel for logging", "ChannelService")
         else:
             self.logger.log_warning("No channels could be loaded from a null server", "ChannelService")
 
