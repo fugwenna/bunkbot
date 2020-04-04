@@ -28,7 +28,7 @@ CleverBot and responding to
 class ChatService(Service):
     def __init__(self, bot: BunkBot, database: DatabaseService, users: UserService, channels: ChannelService):
         super().__init__(bot, database)
-        self.chat_bot: CleverWrap = CleverWrap(database.get(DB_CLEVERBOT), "Bunkbot")
+        self.chat_bot: CleverWrap = None
         self.chats: List[Chat] = []
         self.users: UserService = users
         self.channels: ChannelService = channels
@@ -37,10 +37,10 @@ class ChatService(Service):
 
 
     async def setup_chat_helper(self) -> None:
-        chat_token = database.get(DB_CLEVERBOT)
+        chat_token = self.database.get(DB_CLEVERBOT, False)
         
         if chat_token is not None:
-            self.chat_bot = CleverWrap(chat_token)
+            self.chat_bot = CleverWrap(chat_token, "BunkBot")
             self.bot.on_user_message += self.respond_to_message
         else:
             await self.channels.log_warning("Cleverbot token not supplied, BunkBot will be mute :(", "ChatService")

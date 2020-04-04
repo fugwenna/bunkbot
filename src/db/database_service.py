@@ -32,14 +32,16 @@ class DatabaseService:
         self.server: Guild = self.bot.get_guild(self.get(DB_SERVER_ID, False))
 
         if self.server is None:
-            self.logger.log_warning("Unknown database value for 'serverid'. No Discord guild id was supplied (no error)", "DatabaseService")
+            self.logger.log_warning("Unknown database value for 'serverid'. No Discord guild id was supplied", "DatabaseService")
 
     
     def set_defaults(self) -> None:
-        if self.get(DB_TOKEN, False) is None:
+        token = self.config.get(Query()["token"] != "", 1)
+        if token is None:
             self.config.insert({"token": ""})
 
-        if self.get(DB_SERVER_ID, False) is None:
+        srv = self.config.get(Query()["serverid"] != "", 2)
+        if srv is None:
             self.config.insert({"serverid": ""})
 
 
@@ -53,7 +55,6 @@ class DatabaseService:
         else:
             if throw:
                 err: str = "Unknown database value for '{0}'. You must supply a value in the 'src/db/db.json' config entity property '{0}'".format(attr)
-                self.logger.log_error(err, "DatabaseService")
                 raise BunkException(err)
 
 

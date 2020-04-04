@@ -47,13 +47,10 @@ def initialize(bot: BunkBot) -> None:
     USER_SERVICE = UserService(bot, DATABASE_SERVICE, ROLE_SERVICE, CHANNEL_SERVICE)
     GAME_SERVICE = GameService(bot, DATABASE_SERVICE, CHANNEL_SERVICE, USER_SERVICE)
     SUDO_SERVICE = SudoService(bot, DATABASE_SERVICE, CHANNEL_SERVICE)
-    CHAT_SERVICE = ChatService(bot, DATABASE_SERVICE, USER_SERVICE)
+    CHAT_SERVICE = ChatService(bot, DATABASE_SERVICE, USER_SERVICE, CHANNEL_SERVICE)
     RPG_SERVICE = RpgService(bot, DATABASE_SERVICE, USER_SERVICE)
 
     try:
         bot.run(DATABASE_SERVICE.get(DB_TOKEN))
-    except ValueError as ex:
-        print(logger.format_message(str(ex), "initialize", "ERROR"))
     except BunkException as bex:
-        print(logger.format_message(bex.raw_message, "initialize", "ERROR"))
         logger.log_error(bex.raw_message, "initialize")
