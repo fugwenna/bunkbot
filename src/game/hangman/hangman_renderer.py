@@ -39,6 +39,7 @@ class HangmanRenderer:
         self.is_cancelled = False
         self.is_completed = False
         self.is_random = False
+        self.is_solo = False
         self.r = RandomWords()
 
 
@@ -50,7 +51,7 @@ class HangmanRenderer:
         }
 
         self.channel = await self.parent_channel.create_text_channel(self.name, overwrites=overwrites)
-        m: str = "{0} - You have started a new hangman game! Enter your word, or type `cancel` to cancel the game. For a random word and self-participation, type `random`"
+        m: str = "{0} - You have started a new hangman game! Enter your word, or type `cancel` to cancel the game. For a random word and self-participation, type `random`. For a solo game type `solo`."
         self.gallows = await self.channel.send(m.format(self.user.mention))
 
 
@@ -63,7 +64,10 @@ class HangmanRenderer:
             self.is_cancelled = True
             await self.channel.delete()
         elif not self.word:
-            if guess.lower() == "random":
+            if guess.lower() == "random" or guess.lower() == "solo":
+                if guess.lower() == "solo":
+                    self.is_solo = True
+
                 self.is_random = True
                 guess = self.r.get_random_word(hasDictionaryDef=True,includePartOfSpeech="noun,verb",minCorpusCount=1,maxCorpusCount=10,minDictionaryCount=1,maxDictionaryCount=10,maxLength=10).lower()
 
@@ -76,13 +80,25 @@ class HangmanRenderer:
 
             empty_gallows: str = GALLOWS.format("","","","","","",blanks,"")
             await self.gallows.edit(content="```{0}```".format(empty_gallows))
-            self.message = await self.channel.send("Hangman game started! Waiting for guess.")
+            
+            msg: str = "Hangman game started! Waiting for guess."
+
+            if self.is_solo:
+                msg = "Solo hangman game started for {0}".format(message.author.mention)
+
+            self.message = await self.channel.send(msg)
             await message.delete()
 
             overwrites = {
                 self.bot.server.default_role: PermissionOverwrite(send_messages=True, read_messages=True),
                 self.bot.server.get_role(437263429057773608): PermissionOverwrite(read_messages=True) # TODO - don't hard code
             }
+
+            if self.is_solo:
+                overwrites[self.bot.server.default_role] = PermissionOverwrite(send_messages=False, read_messages=True)
+                overwrites[self.bot.server.get_member(message.author.id)] = PermissionOverwrite(send_messages=True, read_messages=True)
+                overwrites[self.bot.server.get_role(437263429057773608)] = PermissionOverwrite(read_messages=True, send_messages=True) # TODO - don't hard code
+
             await self.channel.edit(overwrites=overwrites)
         else:
             await self.analyze_guess(message)
@@ -97,7 +113,12 @@ class HangmanRenderer:
         if self.is_random or message.author.id != self.user.id:
             if len(guess) > 1:
                 await self.check_if_lost(guess)
-                await self.check_if_won(next((u for u in self.users in u.id == message.author.id), None), guess)
+
+                if not self.is_completed:
+                    wv = await self.check_if_won(next((u for u in self.users if u.id == message.author.id), None), guess)
+
+                    if wv is not None:
+                        await self.update_hangman_render(wv)
             else:
                 await self.check_guess(message)
 
