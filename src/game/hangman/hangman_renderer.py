@@ -200,7 +200,7 @@ class HangmanRenderer:
             full_guess = "".join(self.guess)
 
         if word == full_guess:
-            await self.message.edit(content="@here WOOOOOOOOOOOOOOOOOOOOOOOOOOO!!!")
+            await self.message.edit(content="{0} WOOOOOOOOOOOOOOOOOOOOOOOOOOO!!!".format(user.mention))
             await self.channel.send("This game will close in 15 seconds")
 
             overwrites = {
