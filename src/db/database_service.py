@@ -29,10 +29,11 @@ class DatabaseService:
 
 
     async def set_bot_props(self) -> None:
+        print(self.get(DB_SERVER_ID, False))
         self.server: Guild = self.bot.get_guild(self.get(DB_SERVER_ID, False))
 
         if self.server is None:
-            self.logger.log_warning("Unknown database value for 'serverid'. No Discord guild id was supplied", "DatabaseService")
+            self.logger.log_warning("Could not load server for 'serverid'. Was a serverid supplied in database entity 'config' ?", "DatabaseService")
 
     
     def set_defaults(self) -> None:
