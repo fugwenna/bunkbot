@@ -1,5 +1,5 @@
 from discord import Member, Guild, Message
-from discord.ext.commands import Context, Bot
+from discord.ext.commands import Context, Bot, DefaultHelpCommand
 
 from .core.bunk_user import BunkUser
 from .core.cog_loader import get_cogs
@@ -20,7 +20,7 @@ Type '!help [command] for more info on a command (i.e. !help color)\n
 """
 class BunkBot(Bot):
     def __init__(self):
-        super().__init__("!", None, BOT_DESCRIPTION)
+        super().__init__("!", DefaultHelpCommand(), BOT_DESCRIPTION)
         self.on_initialized: EventHook = EventHook()
         self.on_user_joined: EventHook = EventHook()
         self.on_user_update: EventHook = EventHook()
