@@ -62,7 +62,7 @@ class HangmanCog(Cog):
             if channel_name.split("-")[0] == "hangman":
                 ch: TextChannel = next((c for c in self.channels.GAMES.channels if c.name == channel_name), None)
                 if ch is not None:
-                    game: HangmanRenderer = next((h for h in self.games if h.channel.id == ch.id))
+                    game: HangmanRenderer = next((h for h in self.games if h.channel.id == ch.id), None)
                     if game is not None:
                         await game.update(message)
                         if game.is_cancelled:

@@ -65,7 +65,7 @@ class HangmanRenderer:
         elif not self.word:
             if guess.lower() == "random":
                 self.is_random = True
-                guess = self.r.get_random_word(hasDictionaryDef=True,includePartOfSpeech="noun,verb",minDictionaryCount=1)
+                guess = self.r.get_random_word(hasDictionaryDef=True,includePartOfSpeech="noun,verb",minDictionaryCount=1).lower()
 
             self.word = list(guess)
             blanks: str = ""
@@ -76,14 +76,14 @@ class HangmanRenderer:
 
             empty_gallows: str = GALLOWS.format("","","","","","",blanks,"")
             await self.gallows.edit(content="```{0}```".format(empty_gallows))
-            self.message = await self.channel.send("@here - Hangman game started! Waiting for guess.")
+            self.message = await self.channel.send("Hangman game started! Waiting for guess.")
             await message.delete()
 
-            overwrites = {
-                self.bot.server.default_role: PermissionOverwrite(send_messages=True, read_messages=True),
-                self.bot.server.get_role(437263429057773608): PermissionOverwrite(read_messages=True) # TODO - don't hard code
-            }
-            await self.channel.edit(overwrites=overwrites)
+            #overwrites = {
+            #    self.bot.server.default_role: PermissionOverwrite(send_messages=True, read_messages=True),
+            #    self.bot.server.get_role(437263429057773608): PermissionOverwrite(read_messages=True) # TODO - don't hard code
+            #}
+            #await self.channel.edit(overwrites=overwrites)
         else:
             await self.analyze_guess(message)
 
@@ -107,10 +107,13 @@ class HangmanRenderer:
 
         try:
             self.guesses.index(guess)
-            self.guess.index(guess)
-            await self.message.edit(content="{0} has already been used! Waiting for guess.".format(guess))
+            await self.message.edit(content="`{0}` has already been used! Waiting for guess.".format(guess))
         except Exception:
-            await self.check_word(message)
+            try:
+                self.guess.index(guess)
+                await self.message.edit(content="`{0}` has already been used! Waiting for guess.".format(guess))
+            except Exception:
+                await self.check_word(message)
 
 
     async def check_word(self, message: Message) -> None:
