@@ -1,31 +1,67 @@
 from typing import List
+from discord import Embed
 from discord.ext.commands import command, Context, Cog
 
 from ..bunkbot import BunkBot
-from ..core.registry import USER_SERVICE, CHANNEL_SERVICE
-from ..channel.channel_service import ChannelService
-from ..user.user_service import UserService
+from ..core.bunk_exception import BunkException
+from ..core.bunk_user import BunkUser
+from ..core.registry import RPG_SERVICE
+from .duel import Duel
+from .duel_result import DuelResult
+from .rpg_service import RpgService
 
-ALIASES: List[str] = ["challenge", "fight", "smack"]
 
-def check(ctx: Context) -> bool:
-    return False
+ALIASES: List[str] = ["challenge", "fight", "smack", "slap"]
 
 DUEL_DESCRIPTION: str = """Challenge another user to a duel!
-
 ex: !duel fugwenna
 """
 class DuelCog(Cog):
-    def __init__(self, users: UserService, channels: ChannelService):
-        self.users: UserService = users
-        self.channels: ChannelService = channels
+    def __init__(self, rpg: RpgService):
+        self.rpg: RpgService = rpg
 
 
-    # duel another user in the server
-    @command(help=DUEL_DESCRIPTION, aliases=ALIASES)#, checks=[check])
+    @command(help=DUEL_DESCRIPTION, aliases=ALIASES)
     async def duel(self, ctx: Context) -> None:
-        await ctx.message.channel.send("Not yet implemented! (I am in rewrite mode)")
+        try:
+            duel: Duel = await self.rpg.challenge_duel(ctx)
+
+            msg: str = """:triangular_flag_on_post: {0.mention} is challenging {1.mention} to a duel! 
+            Type !accept to duel, or !reject to run away like a little biiiiiiiiiiiiitch""".format(duel.challenger, duel.opponent)
+
+            await ctx.send(msg)
+        except BunkException as be:
+            await ctx.send(be.message)
 
 
+    @command(help="Accept a duel")
+    async def accept(self, ctx: Context) -> None:
+        try:
+            usr: BunkUser = self.rpg.users.get_by_id(ctx.message.author.id)
+            result: DuelResult = self.rpg.accept_duel(usr)
+
+            embed = Embed(title=":crossed_swords: {0} vs {1}".format(result.challenger.name, result.opponent.name), color=int("FF0000", 16))
+            embed.add_field(name="Name", value="\n".join([result.challenger.name, result.opponent.name]), inline=True)
+            embed.add_field(name="Damage",
+                            value="\n".join([str(result.challenger_roll), str(result.opponent_roll)]),
+                            inline=True)
+
+            await ctx.send(embed=embed)
+            await ctx.send("{0} has bested {1} in a duel!".format(result.winner.mention, result.loser.name))
+
+        except BunkException as be:
+            await ctx.send(be.message)
+
+
+    @command(help="Reject a duel")
+    async def reject(self, ctx: Context) -> None:
+        try:
+            usr: BunkUser = self.rpg.users.get_by_id(ctx.message.author.id)
+            if self.rpg.reject_duel(usr):
+                await ctx.send(":exclamation: {0.mention} has rejected the duel".format(ctx.message.author))
+        except BunkException as be:
+            await ctx.send(be.message)
+
+    
 def setup(bot: BunkBot) -> None:
-    bot.add_cog(DuelCog(USER_SERVICE, CHANNEL_SERVICE))
+    bot.add_cog(DuelCog(RPG_SERVICE))

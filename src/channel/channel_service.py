@@ -74,7 +74,7 @@ class ChannelService(Service):
 
             if ctx is not None:
                 msg: Message = ctx.message
-                err: str = "{0} An error has occurred! {1} {2} help ahhhh".format(EXCLAMATION, EXCLAMATION, self.bot.ADMIN_USER.mention)
+                err: str = "{0} An error has occurred! {1} help ahhhh".format(EXCLAMATION, self.bot.ADMIN_USER.mention)
                 await msg.channel.send(err)
 
             if self.BOT_LOGS is None:
@@ -87,7 +87,7 @@ class ChannelService(Service):
 
     # send the 'typing' event to a channel based on a context message
     async def start_typing(self, ctx: Context) -> None:
-        await ctx.message.channel.trigger_typing()
+        await ctx.trigger_typing()
 
 
     # get an instance of a
