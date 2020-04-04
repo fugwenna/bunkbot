@@ -65,7 +65,7 @@ class HangmanRenderer:
         elif not self.word:
             if guess.lower() == "random":
                 self.is_random = True
-                guess = self.r.get_random_word(hasDictionaryDef=True,includePartOfSpeech="noun,verb",minDictionaryCount=1).lower()
+                guess = self.r.get_random_word(hasDictionaryDef=True,includePartOfSpeech="noun,verb",minCorpusCount=1,maxCorpusCount=10,minDictionaryCount=1,maxDictionaryCount=10,maxLength=8).lower()
 
             self.word = list(guess)
             blanks: str = ""
