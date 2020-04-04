@@ -43,7 +43,7 @@ class ChatService(Service):
             self.chat_bot = CleverWrap(chat_token, "BunkBot")
             self.bot.on_user_message += self.respond_to_message
         else:
-            await self.channels.log_warning("Cleverbot token not supplied, BunkBot will be mute :(", "ChatService")
+            await self.channels.log_warning("Cleverbot token not supplied, BunkBot will be mute :(")
 
 
     # check for if the message sent by a user

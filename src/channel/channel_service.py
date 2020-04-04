@@ -62,7 +62,10 @@ class ChannelService(Service):
                 channel = self.BOT_LOGS
 
             if channel is None:
-                self.logger.log(message, "ChannelService", msg_type)
+                if msg_type == "WARNING":
+                    self.logger.log_warning(message, "ChannelService")
+                else:
+                    self.logger.log(message, "ChannelService", msg_type)
             else:
                 await channel.send("{0} {1}".format(INFO, message))
         except Exception as e:
@@ -76,9 +79,8 @@ class ChannelService(Service):
             error_message: str = "{0} Error occurred from command '{1}': {2}".format(EXCLAMATION, command, error)
 
             if ctx is not None:
-                msg: Message = ctx.message
                 err: str = "{0} An error has occurred! {1} help ahhhh".format(EXCLAMATION, self.bot.ADMIN_USER.mention)
-                await msg.channel.send(err)
+                await ctx.send(err)
 
             if self.BOT_LOGS is None:
                 self.logger.log_error(error_message, "ChannelService")
@@ -97,4 +99,7 @@ class ChannelService(Service):
     # channel based on the given name - if
     # no name is specified, the general chat is assumed
     async def _get(self, name: str) -> TextChannel:
+        if not self.server or not self.server.channels:
+            return None
+
         return next((c for c in self.server.channels if c.name == name), None)

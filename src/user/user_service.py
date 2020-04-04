@@ -37,7 +37,8 @@ class UserService(Service):
         new_users: List[str] = []
 
         if self.server is None:
-            self.channels.log_error
+            print("YELLO LOL")
+            self.channels.log_warning("Server could not be found, users cannot be loaded", "UserService")
         else:
             for member in self.server.members:
                 # check the database if this user
@@ -59,7 +60,7 @@ class UserService(Service):
 
             if len(new_users) > 0:
                 new_user_msg = "New users: {0}".format(", ".join(new_users)) 
-                await self.channels.log_info(new_user_msg, self.channels.USER_LOG, self.bot.ADMIN_USER.mention)
+                await self.channels.log_info(new_user_msg, self.channels.USER_LOG)
 
         await self.roles.prune_orphaned_roles("color-")
 
