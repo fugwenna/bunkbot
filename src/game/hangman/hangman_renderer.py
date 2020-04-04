@@ -79,11 +79,11 @@ class HangmanRenderer:
             self.message = await self.channel.send("Hangman game started! Waiting for guess.")
             await message.delete()
 
-            #overwrites = {
-            #    self.bot.server.default_role: PermissionOverwrite(send_messages=True, read_messages=True),
-            #    self.bot.server.get_role(437263429057773608): PermissionOverwrite(read_messages=True) # TODO - don't hard code
-            #}
-            #await self.channel.edit(overwrites=overwrites)
+            overwrites = {
+                self.bot.server.default_role: PermissionOverwrite(send_messages=True, read_messages=True),
+                self.bot.server.get_role(437263429057773608): PermissionOverwrite(read_messages=True) # TODO - don't hard code
+            }
+            await self.channel.edit(overwrites=overwrites)
         else:
             await self.analyze_guess(message)
 
