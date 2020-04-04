@@ -29,7 +29,6 @@ class DatabaseService:
 
 
     async def set_bot_props(self) -> None:
-        print(self.get(DB_SERVER_ID, False))
         self.server: Guild = self.bot.get_guild(self.get(DB_SERVER_ID, False))
 
         if self.server is None:
