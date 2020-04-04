@@ -36,7 +36,7 @@ class ChatService(Service):
         #DaemonHelper.add(self.randomly_create_conversation, trigger="interval", hours=INTERVAL_FOR_RANDOM_CHAT)
 
 
-    async def setup_chat_helper() -> None:
+    async def setup_chat_helper(self) -> None:
         chat_token = database.get(DB_CLEVERBOT)
         
         if chat_token is not None:
