@@ -91,6 +91,9 @@ class Color(Cog):
     # If a color role does not exist and is available,
     # assign it to the requesting user
     async def add_user_color(self, user: BunkUser, color: str, ctx: Context) -> None:
+        if color.startswith("#"):
+            color = color[1:]
+
         role_name: str = "color-{0}".format(color)
         self.check_if_role_exists(role_name, user)
         await self.set_user_role(role_name, user, color)
@@ -114,9 +117,6 @@ class Color(Cog):
     # get the color for a role, whether its hex or
     # known color from discord
     def get_color_for_role(self, color: str) -> None:
-        if color.startswith("#"):
-            color = color[1:]
-
         discord_color: Color = None
 
         color_method = [m for m, f in DColor.__dict__.items()]
