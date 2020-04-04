@@ -1,8 +1,10 @@
-from discord import TextChannel, Message, Embed
+from discord import TextChannel, CategoryChannel, Message, Embed
 from discord.ext.commands import Context
 
 from ..bunkbot import BunkBot
-from ..core.constants import CHANNEL_GENERAL, CHANNEL_BOT_LOGS, CHANNEL_BOT_TESTING, CHANNEL_USERS, CHANNEL_MOD_CHAT
+from ..core.constants import \
+    CHANNEL_GENERAL, CHANNEL_BOT_LOGS, CHANNEL_BOT_TESTING, \
+    CHANNEL_USERS, CHANNEL_MOD_CHAT, CHANNEL_GAMES, CHANNEL_HANGMAN
 from ..core.error_log_service import ErrorLogService
 from ..core.service import Service
 from ..db.database_service import DatabaseService
@@ -23,6 +25,8 @@ class ChannelService(Service):
         self.GENERAL: TextChannel = None
         self.WEATHER: TextChannel = None
         self.MOD_CHAT: TextChannel = None
+        self.GAMES: CategoryChannel = None
+        self.HANGMAN: CategoryChannel = None
         self.logger: ErrorLogService = logger
 
 
@@ -36,6 +40,8 @@ class ChannelService(Service):
             self.BOT_TESTING = await self._get(CHANNEL_BOT_TESTING)
             self.USER_LOG = await self._get(CHANNEL_USERS)
             self.GENERAL = await self._get(CHANNEL_GENERAL)
+            self.GAMES = await self._get(CHANNEL_GAMES)
+            self.HANGMAN = await self._get(CHANNEL_HANGMAN)
 
             if self.BOT_LOGS is not None:
                 await self.BOT_LOGS.purge()
