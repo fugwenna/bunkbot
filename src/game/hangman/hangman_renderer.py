@@ -65,7 +65,7 @@ class HangmanRenderer:
         elif not self.word:
             if guess.lower() == "random":
                 self.is_random = True
-                guess = self.r.get_random_word(hasDictionaryDef=True,includePartOfSpeech="noun,verb",minCorpusCount=1,maxCorpusCount=10,minDictionaryCount=1,maxDictionaryCount=10,maxLength=12).lower()
+                guess = self.r.get_random_word(hasDictionaryDef=True,includePartOfSpeech="noun,verb",minCorpusCount=1,maxCorpusCount=10,minDictionaryCount=1,maxDictionaryCount=10,maxLength=10).lower()
 
             self.word = list(guess)
             blanks: str = ""
@@ -79,11 +79,11 @@ class HangmanRenderer:
             self.message = await self.channel.send("Hangman game started! Waiting for guess.")
             await message.delete()
 
-            overwrites = {
-                self.bot.server.default_role: PermissionOverwrite(send_messages=True, read_messages=True),
-                self.bot.server.get_role(437263429057773608): PermissionOverwrite(read_messages=True) # TODO - don't hard code
-            }
-            await self.channel.edit(overwrites=overwrites)
+            #overwrites = {
+            #    self.bot.server.default_role: PermissionOverwrite(send_messages=True, read_messages=True),
+            #    self.bot.server.get_role(437263429057773608): PermissionOverwrite(read_messages=True) # TODO - don't hard code
+            #}
+            #await self.channel.edit(overwrites=overwrites)
         else:
             await self.analyze_guess(message)
 
@@ -97,7 +97,7 @@ class HangmanRenderer:
         if self.is_random or message.author.id != self.user.id:
             if len(guess) > 1:
                 await self.check_if_lost(guess)
-                await self.check_if_won(next(u for u in self.users in u.id == message.author.id), guess)
+                await self.check_if_won(next((u for u in self.users in u.id == message.author.id), None), guess)
             else:
                 await self.check_guess(message)
 
@@ -140,7 +140,7 @@ class HangmanRenderer:
             self.guesses.append(guess)
 
         await self.check_if_lost()
-        word_value = await self.check_if_won(next(u for u in self.users if u.id == message.author.id))
+        word_value = await self.check_if_won(next((u for u in self.users if u.id == message.author.id), None))
         await self.update_hangman_render(word_value)
 
     # update the actual render - code is ugly but oh well
