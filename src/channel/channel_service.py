@@ -31,26 +31,39 @@ class ChannelService(Service):
     async def load(self) -> None:
         await super().load()
 
-        self.BOT_LOGS = await self._get(CHANNEL_BOT_LOGS)
-        self.BOT_TESTING = await self._get(CHANNEL_BOT_TESTING)
-        self.USER_LOG = await self._get(CHANNEL_USERS)
-        self.MOD_CHAT = await self._get(CHANNEL_MOD_CHAT)
-        self.GENERAL = await self._get(CHANNEL_GENERAL)
+        if self.server is not None: 
+            self.BOT_LOGS = await self._get(CHANNEL_BOT_LOGS)
+            self.BOT_TESTING = await self._get(CHANNEL_BOT_TESTING)
+            self.USER_LOG = await self._get(CHANNEL_USERS)
+            self.GENERAL = await self._get(CHANNEL_GENERAL)
 
-        await self.BOT_LOGS.purge()
-        await self.BOT_LOGS.send("{0} Bot loaded {1}".format(ROBOT, ROBOT))
+            await self.BOT_LOGS.purge()
+            await self.BOT_LOGS.send("{0} Bot loaded {1}".format(ROBOT, ROBOT))
+        else:
+            self.logger.log_warning("No channels could be loaded from a null server", "ChannelService")
 
 
     # log a simple information message to 
     # the bot logs channel
     async def log_info(self, message: str, channel: TextChannel = None) -> None:
+        await self.log(message, channel, "INFO")
+
+
+    async def log_warning(self, message: str, channel: TextChannel = None) -> None:
+        await self.log(message, channel, "INFO")
+
+
+    async def log(self, message: str, channel: TextChannel = None, msg_type: str = None) -> None:
         try:
             if channel is None:
                 channel = self.BOT_LOGS
 
-            await channel.send("{0} {1}".format(INFO, message))
+            if channel is None:
+                self.logger.log(message, "ChannelService", msg_type)
+            else:
+                await channel.send("{0} {1}".format(INFO, message))
         except Exception as e:
-            self.logger.log_error(e)
+            self.logger.log_error(e, "ChannelService")
 
 
     # log an error in the bot_logs channel when
@@ -64,9 +77,12 @@ class ChannelService(Service):
                 err: str = "{0} An error has occurred! {1} {2} help ahhhh".format(EXCLAMATION, EXCLAMATION, self.bot.ADMIN_USER.mention)
                 await msg.channel.send(err)
 
-            await self.BOT_LOGS.send(error_message)
+            if self.BOT_LOGS is None:
+                self.logger.log_error(error_message, "ChannelService")
+            else:
+                await self.BOT_LOGS.send(error_message)
         except Exception as e:
-            self.logger.log_error(e)
+            self.logger.log_error(e, "ChannelService")
 
 
     # send the 'typing' event to a channel based on a context message

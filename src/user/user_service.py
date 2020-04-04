@@ -36,27 +36,30 @@ class UserService(Service):
 
         new_users: List[str] = []
 
-        for member in self.server.members:
-            # check the database if this user
-            # has been added before collecting
-            # a new instance of a bunk user
-            db_user: DatabaseUser = self.database.get_user_by_member_ref(member)
+        if self.server is None:
+            self.channels.log_error
+        else:
+            for member in self.server.members:
+                # check the database if this user
+                # has been added before collecting
+                # a new instance of a bunk user
+                db_user: DatabaseUser = self.database.get_user_by_member_ref(member)
 
-            # ignore bot users
-            if db_user is not None:
-                user: BunkUser = BunkUser(member, db_user)
-                self.users.append(user)
-                await self.update_current_member_state(user, user, True)
+                # ignore bot users
+                if db_user is not None:
+                    user: BunkUser = BunkUser(member, db_user)
+                    self.users.append(user)
+                    await self.update_current_member_state(user, user, True)
 
-                if db_user.was_added:
-                    new_users.append(user.full_name)
-                
-                if user.is_admin:
-                    self.bot.ADMIN_USER = user
+                    if db_user.was_added:
+                        new_users.append(user.full_name)
 
-        if len(new_users) > 0:
-            new_user_msg = "New users: {0}".format(", ".join(new_users)) 
-            await self.channels.log_info(new_user_msg, self.channels.USER_LOG, self.bot.ADMIN_USER.mention)
+                    if user.is_admin:
+                        self.bot.ADMIN_USER = user
+
+            if len(new_users) > 0:
+                new_user_msg = "New users: {0}".format(", ".join(new_users)) 
+                await self.channels.log_info(new_user_msg, self.channels.USER_LOG, self.bot.ADMIN_USER.mention)
 
         await self.roles.prune_orphaned_roles("color-")
 

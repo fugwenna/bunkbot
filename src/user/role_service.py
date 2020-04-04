@@ -61,16 +61,19 @@ class RoleService(Service):
     # when updating users/roles check for roles which
     # are no longer being used
     async def prune_orphaned_roles(self, pattern: str = None) -> None:
-        empty_color_roles: List[str] = []
-        
-        if pattern is None:
-            empty_color_roles = [r.name for r in self.bot.server.roles if len(r.members) == 0]
+        if self.bot.server is None:
+            pass
         else:
-            empty_color_roles = [r.name for r in self.bot.server.roles if pattern in r.name and len(r.members) == 0]
+            empty_color_roles: List[str] = []
+        
+            if pattern is None:
+                empty_color_roles = [r.name for r in self.bot.server.roles if len(r.members) == 0]
+            else:
+                empty_color_roles = [r.name for r in self.bot.server.roles if pattern in r.name and len(r.members) == 0]
 
-        for orphan_role in empty_color_roles:
-            await self.channels.log_info("Removing role `{0}`".format(orphan_role))
-            await self.rm_role(orphan_role)
+            for orphan_role in empty_color_roles:
+                await self.channels.log_info("Removing role `{0}`".format(orphan_role))
+                await self.rm_role(orphan_role)
 
 
     # get a role contain a given pattern in the name

@@ -1,6 +1,7 @@
 from .error_log_service import ErrorLogService
 from ..bunkbot import BunkBot
 from ..channel.channel_service import ChannelService
+from ..core.bunk_exception import BunkException
 from ..chat.chat_service import ChatService
 from ..core.constants import DB_TOKEN
 from ..db.database_service import DatabaseService
@@ -35,12 +36,20 @@ def initialize(bot: BunkBot) -> None:
     global USER_SERVICE
     global GAME_SERVICE
 
-    DATABASE_SERVICE = DatabaseService(bot)
-    CHANNEL_SERVICE = ChannelService(bot, DATABASE_SERVICE, ErrorLogService())
+    logger = ErrorLogService()
+
+    DATABASE_SERVICE = DatabaseService(bot, logger)
+    CHANNEL_SERVICE = ChannelService(bot, DATABASE_SERVICE, logger)
     ROLE_SERVICE = RoleService(bot, DATABASE_SERVICE, CHANNEL_SERVICE)
     USER_SERVICE = UserService(bot, DATABASE_SERVICE, ROLE_SERVICE, CHANNEL_SERVICE)
     GAME_SERVICE = GameService(bot, DATABASE_SERVICE, CHANNEL_SERVICE, USER_SERVICE)
     SUDO_SERVICE = SudoService(bot, DATABASE_SERVICE, CHANNEL_SERVICE)
-    CHAT_SERVICE = ChatService(bot, DATABASE_SERVICE, USER_SERVICE)
+    CHAT_SERVICE = ChatService(bot, DATABASE_SERVICE, USER_SERVICE, CHANNEL_SERVICE)
 
-    bot.run(DATABASE_SERVICE.get(DB_TOKEN))
+    try:
+        bot.run(DATABASE_SERVICE.get(DB_TOKEN))
+    except ValueError as ex:
+        print(logger.format_message(str(ex), "initialize", "ERROR"))
+    except BunkException as bex:
+        print(logger.format_message(bex.raw_message, "initialize", "ERROR"))
+        logger.log_error(bex.raw_message, "initialize")

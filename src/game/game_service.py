@@ -52,10 +52,12 @@ class GameService(Service):
 
         if not force and will_set:
             games = self.database.game_names.all()
-            index = roll_int(0, len(games) - 1)
-            game = games[index]
 
-            await self.bot.change_presence(activity=Game(game["name"]))
+            if len(games) > 0:
+                index = roll_int(0, len(games) - 1)
+                game = games[index]
+
+                await self.bot.change_presence(activity=Game(game["name"]))
 
 
     # do an initial check of current streams and update

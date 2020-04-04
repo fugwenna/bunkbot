@@ -4,7 +4,9 @@ from tinydb.database import Table
 
 from .database_user import DatabaseUser
 from ..core.bunk_user import BunkUser
-from ..core.constants import DB_SERVER_ID, DB_PATH, DB_CONFIG, DB_USERS, DB_RPG, DB_HOLIDAYS, DB_STREAMS, DB_GAMES
+from ..core.bunk_exception import BunkException
+from ..core.constants import DB_SERVER_ID, DB_PATH, DB_CONFIG, DB_USERS, DB_RPG, DB_HOLIDAYS, DB_STREAMS, DB_GAMES, DB_TOKEN
+from ..core.error_log_service import ErrorLogService
 from ..core.functions import simple_string
 from ..bunkbot import BunkBot
 
@@ -12,8 +14,9 @@ from ..bunkbot import BunkBot
 Injectable service used for accessing the local database
 """
 class DatabaseService:
-    def __init__(self, bot: BunkBot):
+    def __init__(self, bot: BunkBot, logger: ErrorLogService):
         self.bot: BunkBot = bot
+        self.logger: ErrorLogService = logger
         self.db: TinyDB = TinyDB(DB_PATH)
         self.config: Table = self.db.table(DB_CONFIG)
         self.users: Table = self.db.table(DB_USERS)
@@ -22,21 +25,36 @@ class DatabaseService:
         self.streams: Table = self.db.table(DB_STREAMS)
         self.game_names: Table = self.db.table(DB_GAMES)
         self.bot.on_initialized += self.set_bot_props
+        self.set_defaults()
 
 
     async def set_bot_props(self) -> None:
-        self.server: Guild = self.bot.get_guild(self.get(DB_SERVER_ID))
+        self.server: Guild = self.bot.get_guild(self.get(DB_SERVER_ID, False))
+
+        if self.server is None:
+            self.logger.log_warning("Unknown database value for 'serverid'. No Discord guild id was supplied (no error)", "DatabaseService")
+
+    
+    def set_defaults(self) -> None:
+        if self.get(DB_TOKEN, False) is None:
+            self.config.insert({"token": ""})
+
+        if self.get(DB_SERVER_ID, False) is None:
+            self.config.insert({"serverid": ""})
 
 
     # helper method that will query the requested table
     # and property name - default table as config
-    def get(self, attr: str) -> str or None:
+    def get(self, attr: str, throw: bool = True) -> str or None:
         res = self.config.get(Query()[attr] != "")
 
         if res is not None:
             return res[attr]
         else:
-            return None
+            if throw:
+                err: str = "Unknown database value for '{0}'. You must supply a value in the 'src/db/db.json' config entity property '{0}'".format(attr)
+                self.logger.log_error(err, "DatabaseService")
+                raise BunkException(err)
 
 
     # get a user by the passed discord member reference - this should

@@ -1,0 +1,192 @@
+04/04/2020 10:36:24 AM
+[ERROR] DatabaseService: Unknown database value for 'cleverbot' in config entity. You must supply a valid discord bot token.
+
+04/04/2020 10:36:24 AM
+[WARNING] ChatService: Cleverbot token not supplied, BunkBot will be mute :(
+
+04/04/2020 10:36:24 AM
+[ERROR] DatabaseService: Unknown database value for 'token' in config entity. You must supply a valid discord bot token.
+
+04/04/2020 10:36:24 AM
+[ERROR] initialize: Unknown database value for 'token' in config entity. You must supply a valid discord bot token.
+
+04/04/2020 10:37:30 AM
+[ERROR] DatabaseService: Unknown database value for 'cleverbot' in config entity. You must supply a valid discord bot token.
+
+04/04/2020 10:37:30 AM
+[WARNING] ChatService: Cleverbot token not supplied, BunkBot will be mute :(
+
+04/04/2020 10:37:30 AM
+[ERROR] DatabaseService: Unknown database value for 'token' in config entity. You must supply a valid discord bot token.
+
+04/04/2020 10:37:30 AM
+[ERROR] initialize: Unknown database value for 'token' in config entity. You must supply a valid discord bot token.
+
+04/04/2020 10:38:33 AM
+[ERROR] DatabaseService: Unknown database value for 'cleverbot'. You must supply a valid discord bot token in the 'src/db/db.json' 'config' entity property 'token'
+
+04/04/2020 10:38:33 AM
+[WARNING] ChatService: Cleverbot token not supplied, BunkBot will be mute :(
+
+04/04/2020 10:38:33 AM
+[ERROR] DatabaseService: Unknown database value for 'token'. You must supply a valid discord bot token in the 'src/db/db.json' 'config' entity property 'token'
+
+04/04/2020 10:38:33 AM
+[ERROR] initialize: Unknown database value for 'token'. You must supply a valid discord bot token in the 'src/db/db.json' 'config' entity property 'token'
+
+04/04/2020 10:39:17 AM
+[ERROR] DatabaseService: Unknown database value for 'cleverbot'. You must supply a valuein the 'src/db/db.json' config entity property 'cleverbot'
+
+04/04/2020 10:39:17 AM
+[WARNING] ChatService: Cleverbot token not supplied, BunkBot will be mute :(
+
+04/04/2020 10:39:17 AM
+[ERROR] DatabaseService: Unknown database value for 'token'. You must supply a valuein the 'src/db/db.json' config entity property 'token'
+
+04/04/2020 10:39:17 AM
+[ERROR] initialize: Unknown database value for 'token'. You must supply a valuein the 'src/db/db.json' config entity property 'token'
+
+04/04/2020 10:46:05 AM
+[ERROR] DatabaseService: Unknown database value for 'cleverbot'. You must supply a value in the 'src/db/db.json' config entity property 'cleverbot'
+
+04/04/2020 10:46:05 AM
+[WARNING] ChatService: Cleverbot token not supplied, BunkBot will be mute :(
+
+04/04/2020 10:47:45 AM
+[ERROR] DatabaseService: Unknown database value for 'token'. You must supply a value in the 'src/db/db.json' config entity property 'token'
+
+04/04/2020 10:48:37 AM
+[ERROR] DatabaseService: Unknown database value for 'cleverbot'. You must supply a value in the 'src/db/db.json' config entity property 'cleverbot'
+
+04/04/2020 10:48:37 AM
+[WARNING] ChatService: Cleverbot token not supplied, BunkBot will be mute :(
+
+04/04/2020 10:48:53 AM
+[ERROR] DatabaseService: Unknown database value for 'cleverbot'. You must supply a value in the 'src/db/db.json' config entity property 'cleverbot'
+
+04/04/2020 10:48:53 AM
+[WARNING] ChatService: Cleverbot token not supplied, BunkBot will be mute :(
+
+04/04/2020 10:48:53 AM
+[ERROR] DatabaseService: Unknown database value for 'token'. You must supply a value in the 'src/db/db.json' config entity property 'token'
+
+04/04/2020 10:48:53 AM
+[ERROR] initialize: Unknown database value for 'token'. You must supply a value in the 'src/db/db.json' config entity property 'token'
+
+04/04/2020 10:49:08 AM
+[ERROR] DatabaseService: Unknown database value for 'cleverbot'. You must supply a value in the 'src/db/db.json' config entity property 'cleverbot'
+
+04/04/2020 10:49:08 AM
+[WARNING] ChatService: Cleverbot token not supplied, BunkBot will be mute :(
+
+04/04/2020 10:49:42 AM
+[ERROR] DatabaseService: Unknown database value for 'cleverbot'. You must supply a value in the 'src/db/db.json' config entity property 'cleverbot'
+
+04/04/2020 10:49:42 AM
+[WARNING] ChatService: Cleverbot token not supplied, BunkBot will be mute :(
+
+04/04/2020 10:49:44 AM
+[ERROR] DatabaseService: Unknown database value for 'serverid'. You must supply a value in the 'src/db/db.json' config entity property 'serverid'
+
+04/04/2020 10:53:03 AM
+[ERROR] DatabaseService: Unknown database value for 'cleverbot'. You must supply a value in the 'src/db/db.json' config entity property 'cleverbot'
+
+04/04/2020 10:53:03 AM
+[WARNING] ChatService: Cleverbot token not supplied, BunkBot will be mute :(
+
+04/04/2020 10:53:17 AM
+[ERROR] DatabaseService: Unknown database value for 'cleverbot'. You must supply a value in the 'src/db/db.json' config entity property 'cleverbot'
+
+04/04/2020 10:53:17 AM
+[WARNING] ChatService: Cleverbot token not supplied, BunkBot will be mute :(
+
+04/04/2020 10:53:36 AM
+[ERROR] DatabaseService: Unknown database value for 'cleverbot'. You must supply a value in the 'src/db/db.json' config entity property 'cleverbot'
+
+04/04/2020 10:53:36 AM
+[WARNING] ChatService: Cleverbot token not supplied, BunkBot will be mute :(
+
+04/04/2020 10:53:38 AM
+[WARNING] DatabaseService: Unknown database value for 'serverid'. No Discord guild id was supplied (no error)
+
+04/04/2020 10:53:38 AM
+[ERROR] DatabaseService: Unknown database value for 'serverid'. You must supply a value in the 'src/db/db.json' config entity property 'serverid'
+
+04/04/2020 10:54:38 AM
+[ERROR] DatabaseService: Unknown database value for 'cleverbot'. You must supply a value in the 'src/db/db.json' config entity property 'cleverbot'
+
+04/04/2020 10:54:38 AM
+[WARNING] ChatService: Cleverbot token not supplied, BunkBot will be mute :(
+
+04/04/2020 10:54:41 AM
+[WARNING] DatabaseService: Unknown database value for 'serverid'. No Discord guild id was supplied (no error)
+
+04/04/2020 10:55:17 AM
+[ERROR] DatabaseService: Unknown database value for 'cleverbot'. You must supply a value in the 'src/db/db.json' config entity property 'cleverbot'
+
+04/04/2020 10:55:17 AM
+[WARNING] ChatService: Cleverbot token not supplied, BunkBot will be mute :(
+
+04/04/2020 10:55:19 AM
+[WARNING] DatabaseService: Unknown database value for 'serverid'. No Discord guild id was supplied (no error)
+
+04/04/2020 10:56:36 AM
+[ERROR] DatabaseService: Unknown database value for 'cleverbot'. You must supply a value in the 'src/db/db.json' config entity property 'cleverbot'
+
+04/04/2020 10:56:36 AM
+[WARNING] ChatService: Cleverbot token not supplied, BunkBot will be mute :(
+
+04/04/2020 10:56:38 AM
+[WARNING] DatabaseService: Unknown database value for 'serverid'. No Discord guild id was supplied (no error)
+
+04/04/2020 10:56:38 AM
+[WARNING] ChannelService: No channels could be loaded from a null server
+
+04/04/2020 10:57:15 AM
+[ERROR] DatabaseService: Unknown database value for 'cleverbot'. You must supply a value in the 'src/db/db.json' config entity property 'cleverbot'
+
+04/04/2020 10:57:15 AM
+[WARNING] ChatService: Cleverbot token not supplied, BunkBot will be mute :(
+
+04/04/2020 10:57:17 AM
+[WARNING] DatabaseService: Unknown database value for 'serverid'. No Discord guild id was supplied (no error)
+
+04/04/2020 10:57:17 AM
+[WARNING] ChannelService: No channels could be loaded from a null server
+
+04/04/2020 11:02:10 AM
+[ERROR] DatabaseService: Unknown database value for 'cleverbot'. You must supply a value in the 'src/db/db.json' config entity property 'cleverbot'
+
+04/04/2020 11:02:10 AM
+[WARNING] ChatService: Cleverbot token not supplied, BunkBot will be mute :(
+
+04/04/2020 11:02:12 AM
+[WARNING] DatabaseService: Unknown database value for 'serverid'. No Discord guild id was supplied (no error)
+
+04/04/2020 11:02:12 AM
+[WARNING] ChannelService: No channels could be loaded from a null server
+
+04/04/2020 11:03:08 AM
+[ERROR] DatabaseService: Unknown database value for 'cleverbot'. You must supply a value in the 'src/db/db.json' config entity property 'cleverbot'
+
+04/04/2020 11:03:08 AM
+[WARNING] ChatService: Cleverbot token not supplied, BunkBot will be mute :(
+
+04/04/2020 11:03:10 AM
+[WARNING] DatabaseService: Unknown database value for 'serverid'. No Discord guild id was supplied (no error)
+
+04/04/2020 11:03:10 AM
+[WARNING] ChannelService: No channels could be loaded from a null server
+
+04/04/2020 11:05:27 AM
+[ERROR] DatabaseService: Unknown database value for 'cleverbot'. You must supply a value in the 'src/db/db.json' config entity property 'cleverbot'
+
+04/04/2020 11:05:27 AM
+[WARNING] ChatService: Cleverbot token not supplied, BunkBot will be mute :(
+
+04/04/2020 11:05:29 AM
+[WARNING] DatabaseService: Unknown database value for 'serverid'. No Discord guild id was supplied (no error)
+
+04/04/2020 11:05:29 AM
+[WARNING] ChannelService: No channels could be loaded from a null server
+
