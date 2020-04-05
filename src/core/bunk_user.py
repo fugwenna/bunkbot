@@ -3,7 +3,7 @@ from discord import Member, Role, ActivityType, Color, Status
 
 from .constants import ROLE_ADMIN, ROLE_MODERATOR_PERMS, ROLE_VIP_PERMS
 from .functions import simple_string
-from ..db.database_user import DatabaseUser
+from ..db.database_user import DatabaseUser, HangmanInfo
 
 """
 Simple wrapper class which will take 
@@ -103,6 +103,14 @@ class BunkUser:
             return False
 
         return self.has_role(ROLE_VIP_PERMS)
+
+
+    @property
+    def hangman(self) -> HangmanInfo:
+        if self.db_user is None:
+            return None
+
+        return self.db_user.hangman
 
 
     def has_role(self, role: str) -> bool:

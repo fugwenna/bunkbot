@@ -82,7 +82,27 @@ class DatabaseService:
         if user is not None:
             user.was_added = is_being_added
 
+        if db_user is not None and not db_user.get("hangman"):
+            db_user["hangman"] = {
+                "solo_games_played": 0,
+                "solo_games_won": 0,
+                "random_games_played": 0,
+                "random_games_won": 0,
+                "other_games_played": 0,
+                "other_games_won": 0,
+                "games_started": 0,
+                "games_started_won": 0
+            }
+
+            self.users.upsert(db_user, Query().id == member.id)
+            user = DatabaseUser(db_user)
+
         return user
+
+
+    def update_user(self, user: DatabaseUser) -> None:
+        user.update()
+        self.users.upsert(user.ref, Query().id == user.id)
 
 
     # try to locate a relatively unique game when a user

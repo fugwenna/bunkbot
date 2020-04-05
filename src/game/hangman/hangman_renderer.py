@@ -24,7 +24,6 @@ GALLOWS: str = """
 # rendering agent for the game
 class HangmanRenderer:
     def __init__(self, bot: BunkBot, user: BunkUser, channel: TextChannel, users: List[BunkUser], name: str):
-        self.guesses: List[str] = []
         self.template: List[str] = ["o", "|", "/", "\\", "/", "\\", ""]
         self.user: BunkUser = user
         self.users: List[BunkUser] = []
@@ -32,26 +31,37 @@ class HangmanRenderer:
         self.channel: TextChannel = None
         self.bot: BunkBot = bot
         self.name: str = name
+        self.r = RandomWords()
+        self.set_defaults()
+
+
+    def set_defaults(self) -> None:
         self.gallows: Message = None
         self.words: List[List[str]] = None
         self.guess: List[str] = []
+        self.guesses: List[str] = []
         self.message: Message = None
         self.is_cancelled = False
         self.is_completed = False
         self.is_random = False
         self.is_solo = False
-        self.r = RandomWords()
+        self.is_win = False
+        self.participants: List[BunkUser] = []
 
 
     async def start_game(self) -> None:
         overwrites = {
             self.bot.server.default_role: PermissionOverwrite(read_messages=False),
             self.bot.server.get_member(self.user.id): PermissionOverwrite(read_messages=True),
-            self.bot.server.get_role(437263429057773608): PermissionOverwrite(read_messages=True) # TODO - don't hard code
+            self.bot.server.get_role(437263429057773608): PermissionOverwrite(read_messages=True, send_messages=True,manage_permissions=True) # TODO - don't hard code
         }
 
-        self.channel = await self.parent_channel.create_text_channel(self.name, overwrites=overwrites)
         m: str = "{0} - You have started a new hangman game! Enter your word, or type `cancel` to cancel the game. For a random word and self-participation, type `random`. For a solo game type `solo`."
+        if not self.channel:
+            self.channel = await self.parent_channel.create_text_channel(self.name, overwrites=overwrites)
+        else:
+            await self.channel.edit(overwrites=overwrites)
+
         self.gallows = await self.channel.send(m.format(self.user.mention))
 
 
@@ -100,13 +110,15 @@ class HangmanRenderer:
 
             overwrites = {
                 self.bot.server.default_role: PermissionOverwrite(send_messages=True, read_messages=True),
-                self.bot.server.get_role(437263429057773608): PermissionOverwrite(read_messages=True) # TODO - don't hard code
+                self.bot.server.get_role(437263429057773608): PermissionOverwrite(read_messages=True, send_messages=True,manage_permissions=True) # TODO - don't hard code
             }
 
             if self.is_solo:
-                overwrites[self.bot.server.default_role] = PermissionOverwrite(send_messages=False, read_messages=True)
-                overwrites[self.bot.server.get_member(message.author.id)] = PermissionOverwrite(send_messages=True, read_messages=True)
-                overwrites[self.bot.server.get_role(437263429057773608)] = PermissionOverwrite(read_messages=True, send_messages=True) # TODO - don't hard code
+                overwrites = {
+                    self.bot.server.default_role: PermissionOverwrite(send_messages=False, read_messages=True),
+                    self.bot.server.get_member(message.author.id): PermissionOverwrite(send_messages=True, read_messages=True),
+                    self.bot.server.get_role(437263429057773608): PermissionOverwrite(read_messages=True, send_messages=True,manage_permissions=True) # TODO - don't hard code
+                }
 
             await self.channel.edit(overwrites=overwrites)
         else:
@@ -119,7 +131,15 @@ class HangmanRenderer:
         guess: str = message.content.lower()
         await message.delete()
 
-        if self.is_random or message.author.id != self.user.id:
+        #$print(message.author.id)
+
+        if self.is_random or self.is_solo or message.author.id != self.user.id:
+            particpant = next((p for p in self.participants if p.id == message.author.id), None)
+            user = next((p for p in self.users if p.id == message.author.id), None)
+
+            if particpant is None and user is not None:
+                self.participants.append(user)
+
             if len(guess) > 1:
                 await self.check_if_lost(guess)
 
@@ -218,11 +238,11 @@ class HangmanRenderer:
 
             await self.message.edit(content=content)
             await self.channel.send("The phrase was: `{0}`".format("".join(self.get_full_word(True))))
-            await self.channel.send("This game will close in 15 seconds")
+            await self.channel.send("The game restart in 15 seconds (or type cancel to close)")
 
             overwrites = {
                 self.bot.server.default_role: PermissionOverwrite(send_messages=False, read_messages=True),
-                self.bot.server.get_role(437263429057773608): PermissionOverwrite(read_messages=True) # TODO - don't hard code
+                self.bot.server.get_role(437263429057773608): PermissionOverwrite(read_messages=True, send_messages=True,manage_permissions=True) # TODO - don't hard code
             }
 
             await self.channel.edit(overwrites=overwrites)
@@ -248,10 +268,11 @@ class HangmanRenderer:
 
             overwrites = {
                 self.bot.server.default_role: PermissionOverwrite(send_messages=False, read_messages=True),
-                self.bot.server.get_role(437263429057773608): PermissionOverwrite(read_messages=True) # TODO - don't hard code
+                self.bot.server.get_role(437263429057773608): PermissionOverwrite(read_messages=True, send_messages=True,anage_permissions=True) # TODO - don't hard code
             }
             await self.channel.edit(overwrites=overwrites)
             self.is_completed = True
+            self.is_win = True
 
         formatted_guess: str = ""
         formatted_word: str = "".join(self.get_full_word(True)).split()
@@ -268,11 +289,6 @@ class HangmanRenderer:
                     formatted_guess += "{0} ".format(j)
                 else:
                     formatted_guess += "_ "
-                    #if h == len(fwl)-1:
-                    #    formatted_guess += "_"
-                    #else:
-                    #    formatted_guess += "_ "
-                i+=1
                 h+=1
 
             formatted_guess += "  "
@@ -291,4 +307,28 @@ class HangmanRenderer:
 
 
     async def complete_game(self) -> None:
-        await self.channel.delete()
+        await self.channel.purge()
+
+        #print(self.participants)
+
+        for p in self.participants:
+            if self.is_random:
+                p.hangman.random_games_played += 1
+                if self.is_win:
+                    p.hangman.random_games_won += 1
+            elif self.is_solo:
+                p.hangman.solo_games_played += 1
+                if self.is_win:
+                    p.hangman.solo_games_won += 1
+            else:
+                if self.user.id == p.id:
+                    p.hangman.games_started += 1
+                    if self.is_win:
+                        p.hangman.games_started_won += 1
+                else:
+                    p.hangman.other_games_played += 1
+                    if self.is_win:
+                        p.hangman.other_games_won += 1
+
+        self.set_defaults()
+        await self.start_game()

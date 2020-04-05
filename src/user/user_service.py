@@ -37,7 +37,6 @@ class UserService(Service):
         new_users: List[str] = []
 
         if self.server is None:
-            print("YELLO LOL")
             self.channels.log_warning("Server could not be found, users cannot be loaded", "UserService")
         else:
             for member in self.server.members:
