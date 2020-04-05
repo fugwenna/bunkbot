@@ -260,16 +260,21 @@ class HangmanRenderer:
         fgl = list(full_guess)
         for fw in formatted_word:
             fwl = list(fw)
+            h = 0
             for j in fwl:
                 if j in fgl:
                     fgl[i] = j
                     self.guess[i] = j
                     formatted_guess += j
                 else:
-                    formatted_guess += "_ "
+                    if h == len(fwl)-1:
+                        formatted_guess += "_"
+                    else:
+                        formatted_guess += "_ "
                 i+=1
+                h+=1
 
-            formatted_guess += " "
+            formatted_guess += "  "
 
         return formatted_guess
 
