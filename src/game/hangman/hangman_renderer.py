@@ -33,7 +33,7 @@ class HangmanRenderer:
         self.bot: BunkBot = bot
         self.name: str = name
         self.gallows: Message = None
-        self.word: List[str] = None
+        self.words: List[List[str]] = None
         self.guess: List[str] = []
         self.message: Message = None
         self.is_cancelled = False
@@ -63,7 +63,7 @@ class HangmanRenderer:
         if message.author.id == self.user.id and guess.lower() == "cancel":
             self.is_cancelled = True
             await self.channel.delete()
-        elif not self.word:
+        elif not self.words:
             if guess.lower() == "random" or guess.lower() == "solo":
                 if guess.lower() == "solo":
                     self.is_solo = True
@@ -71,12 +71,21 @@ class HangmanRenderer:
                 self.is_random = True
                 guess = self.r.get_random_word(hasDictionaryDef=True,includePartOfSpeech="noun,verb",minCorpusCount=1,maxCorpusCount=10,minDictionaryCount=1,maxDictionaryCount=10,maxLength=10).lower()
 
-            self.word = list(guess)
+            word_ref2: List[List[str]] = []
+            words: List[str] = guess.split()
             blanks: str = ""
 
-            for _ in range(0, len(self.word)):
-                self.guess.append("-")
-                blanks += "_ "
+            for w in words:
+                wlist: List[str] = list(w)
+                for _ in range(0, len(wlist)):
+                    self.guess.append("-")
+                    blanks += "_ "
+
+                word_ref2.append(wlist)
+                
+                blanks += " "
+
+            self.words = word_ref2
 
             empty_gallows: str = GALLOWS.format("","","","","","",blanks,"")
             await self.gallows.edit(content="```{0}```".format(empty_gallows))
@@ -142,17 +151,23 @@ class HangmanRenderer:
         guess = message.content.lower()
         word_value: str = ""
 
-        for i in range(0, len(self.word)):
-            if self.word[i] == self.guess[i]:
-                word_value += "{0} ".format(self.guess[i])
-            else:
-                char = "_ "
-                if self.word[i] == guess:
-                    found = True
-                    self.guess[i] = guess
-                    char = "{0} ".format(guess)
+        j = 0
+        for wi in range(0, len(self.words)):
+            word = self.words[wi]
+            for i in range(0, len(word)):
+                if word[i] == self.guess[i]:
+                    word_value += "{0} ".format(self.guess[i])
+                else:
+                    char = "_ "
+                    if word[i] == guess:
+                        found = True
+                        self.guess[j] = guess
+                        char = "{0} ".format(guess)
         
-                word_value += char
+                    word_value += char
+                j+=1
+
+            word_value += " "
 
         if found:
             await self.message.edit(content="Correct, {0}! (guess: {1})".format(message.author.mention, guess))
@@ -192,7 +207,7 @@ class HangmanRenderer:
         guessed: bool = False
 
         if full_guess is not None:
-            if full_guess.lower() != "".join(self.word):
+            if "".join(full_guess.lower().split()) != "".join(self.get_full_word()):
                 guessed = True
 
         if guessed or (len(self.guesses) == len(self.template) - 1):
@@ -202,7 +217,7 @@ class HangmanRenderer:
                 content = ":skull_crossbones: Hangman!! (guessed: {0}) :skull_crossbones:".format(full_guess)
 
             await self.message.edit(content=content)
-            await self.channel.send("The word was: `{0}`".format("".join(self.word)))
+            await self.channel.send("The phrase was: `{0}`".format("".join(self.get_full_word(True))))
             await self.channel.send("This game will close in 15 seconds")
 
             overwrites = {
@@ -215,12 +230,14 @@ class HangmanRenderer:
 
 
     async def check_if_won(self, user: BunkUser, full_guess: str = None) -> str:
-        word = "".join(self.word)
+        word = "".join(self.get_full_word())
 
         if full_guess is None:
             full_guess = "".join(self.guess)
+        else:
+            full_guess = "".join(full_guess.split())
 
-        if word == full_guess:
+        if "".join(word) == full_guess:
             woo: str = "WOOOOOOOOOOOOOOOOOOOOOOOOOOO!!!"
 
             if user is not None:
@@ -236,7 +253,35 @@ class HangmanRenderer:
             await self.channel.edit(overwrites=overwrites)
             self.is_completed = True
 
-        return full_guess
+        formatted_guess: str = ""
+        formatted_word: str = "".join(self.get_full_word(True)).split()
+
+        i = 0
+        fgl = list(full_guess)
+        for fw in formatted_word:
+            fwl = list(fw)
+            for j in fwl:
+                if j in fgl:
+                    fgl[i] = j
+                    self.guess[i] = j
+                    formatted_guess += j
+                else:
+                    formatted_guess += "_ "
+                i+=1
+
+            formatted_guess += " "
+
+        return formatted_guess
+
+ 
+    def get_full_word(self, format: bool = False) -> str:
+        w = []
+        for word in self.words:
+            w.append("".join(word))
+            if format:
+                w.append(" ")
+
+        return "".join(w).strip()
 
 
     async def complete_game(self) -> None:
