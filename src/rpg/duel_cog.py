@@ -27,7 +27,7 @@ class DuelCog(Cog):
             duel: Duel = await self.rpg.challenge_duel(ctx)
 
             msg: str = """:triangular_flag_on_post: {0.mention} is challenging {1.mention} to a duel! 
-            Type !accept to duel, or !reject to run away like a little biiiiiiiiiiiiitch""".format(duel.challenger, duel.opponent)
+            Type `!accept` to duel, or `!reject` to run away like a little biiiiiiiiiiiiitch""".format(duel.challenger, duel.opponent)
 
             await ctx.send(msg)
         except BunkException as be:
