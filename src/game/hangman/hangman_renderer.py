@@ -265,12 +265,13 @@ class HangmanRenderer:
                 if j in fgl:
                     fgl[i] = j
                     self.guess[i] = j
-                    formatted_guess += j
+                    formatted_guess += "{0} ".format(j)
                 else:
-                    if h == len(fwl)-1:
-                        formatted_guess += "_"
-                    else:
-                        formatted_guess += "_ "
+                    formatted_guess += "_ "
+                    #if h == len(fwl)-1:
+                    #    formatted_guess += "_"
+                    #else:
+                    #    formatted_guess += "_ "
                 i+=1
                 h+=1
 

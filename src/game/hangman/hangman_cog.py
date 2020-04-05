@@ -1,5 +1,5 @@
 from typing import List
-import time
+import time, threading
 from discord import PermissionOverwrite, Message, TextChannel
 from discord.ext.commands import command, Context, Cog
 
@@ -71,6 +71,12 @@ class HangmanCog(Cog):
                             time.sleep(15)
                             self.games.remove(game)
                             await game.complete_game()
+                            #threading.Timer(15, self.complete_game, game)
+
+
+    async def complete_game(self, game: HangmanRenderer) -> None:
+        self.games.remove(game)
+        await game.complete_game()
 
 
 def setup(bot: BunkBot) -> None:
