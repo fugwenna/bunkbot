@@ -1,7 +1,7 @@
 from typing import List
 from discord import Message, TextChannel, PermissionOverwrite, CategoryChannel
 from discord.ext.commands import Context
-from random_word import RandomWords
+from random_words import RandomWords
 
 from ...bunkbot import BunkBot
 from ...core.bunk_user import BunkUser
@@ -69,7 +69,7 @@ class HangmanRenderer:
                     self.is_solo = True
 
                 self.is_random = True
-                guess = self.r.get_random_word(hasDictionaryDef=True,includePartOfSpeech="noun,verb",minCorpusCount=1,maxCorpusCount=10,minDictionaryCount=1,maxDictionaryCount=10,maxLength=10).lower()
+                guess = self.r.random_word().lower()
 
             word_ref2: List[List[str]] = []
             words: List[str] = guess.split()
