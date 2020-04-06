@@ -268,7 +268,7 @@ class HangmanRenderer:
 
             overwrites = {
                 self.bot.server.default_role: PermissionOverwrite(send_messages=False, read_messages=True),
-                self.bot.server.get_role(437263429057773608): PermissionOverwrite(read_messages=True, send_messages=True,anage_permissions=True) # TODO - don't hard code
+                self.bot.server.get_role(437263429057773608): PermissionOverwrite(read_messages=True, send_messages=True,manage_permissions=True) # TODO - don't hard code
             }
             await self.channel.edit(overwrites=overwrites)
             self.is_completed = True
