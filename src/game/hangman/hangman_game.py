@@ -1,3 +1,4 @@
+import asyncio
 from typing import List
 from discord import Message, TextChannel, PermissionOverwrite, CategoryChannel
 from random_words import RandomWords
@@ -27,7 +28,6 @@ class HangmanGame:
         self.matches: List[str] = []
         self.is_active = False
         self.is_cancelled = False
-        self.is_completed = False
         self.is_random = False
         self.is_solo = False
         self.is_win = False
@@ -56,8 +56,14 @@ class HangmanGame:
             await self.renderer.cancel_game()
         else:
             if self.is_active:
-                is_added: bool = self.check_if_match(l_content)
-                await self.renderer.update(self.phrase, self.guesses, self.matches, is_added=is_added)
+                status: int = await self.check_if_match(l_content)
+                is_added: bool = status == 1
+
+                if status != 2:
+                    await self.renderer.update(self.phrase, self.guesses, self.matches, is_added=is_added)
+
+                if self.is_win:
+                    await self.restart_game()
             else:
                 self.is_active = True
                 self.is_random = l_content == "random"
@@ -75,19 +81,28 @@ class HangmanGame:
 
     # when a phrase is offered, validate that
     # it only contains letters/numbers
-    def check_if_match(self, guess: str) -> bool:
-        added: bool = False
+    async def check_if_match(self, guess: str) -> int:
+        status: bool = 0
 
-        if guess in self.guesses:
-            # todo..
-            pass
+        if guess in self.guesses or guess in self.matches:
+            await self.renderer.show_already_guessed_prompt(guess)
+            status = 2
         else:
             count: int = self.flat_phrase.count(guess)
             if count > 0:
                 self.matches = self.matches + ([guess]*count)
-                added = True
+                status = 1
             else:
                 self.guesses.append(guess)
 
-        self.is_win = len(self.matches) == len(self.flat_phrase)
-        return added
+            self.is_win = len(self.matches) == len(self.flat_phrase)
+
+        return status
+
+
+    # after a win, restart the game after 
+    # 10 seconds of waiting
+    async def restart_game(self) -> None:
+        await self.renderer.complete_game(True)
+        await asyncio.sleep(10)
+        await self.start(self.renderer.hangman_channel)

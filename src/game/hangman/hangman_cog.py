@@ -71,20 +71,6 @@ class HangmanCog(Cog):
                         if game.is_cancelled:
                             self.games.remove(game)
 
-                        #elif game.is_completed:
-                        #    time.sleep(10)
-                        #    await game.complete_game()
-                        #    
-                        #    for p in game.participants:
-                        #        self.database.update_user(p.db_user)
-
-                            #threading.Timer(15, self.complete_game, game)
-
-
-    async def complete_game(self, game) -> None:
-        self.games.remove(game)
-        await game.complete_game()
-
 
 def setup(bot: BunkBot) -> None:
     bot.add_cog(HangmanCog(bot, CHANNEL_SERVICE, USER_SERVICE, DATABASE_SERVICE))

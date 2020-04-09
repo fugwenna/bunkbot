@@ -46,7 +46,10 @@ class HangmanRenderer2:
         """
 
         name: str = "hangman-{0}".format(creator.name)
-        self.channel = await self.hangman_channel.create_text_channel(name, overwrites=overrides)
+
+        if self.rendered_gallows is None:
+            self.channel = await self.hangman_channel.create_text_channel(name, overwrites=overrides)
+
         self.rendered_gallows = await self.channel.send(m.format(creator.mention))
 
         return name
@@ -55,14 +58,19 @@ class HangmanRenderer2:
     # "complete" a game and do not let anyone
     # enter any new values
     async def complete_game(self, is_win: bool) -> None:
-        overrides: dict = self.get_channel_overrides(is_complete=True)
-        pass
+        if is_win:
+            await self.channel.edit(overwrites=self.get_channel_overrides(is_complete=is_win))
+            await self.prompt.edit(content="{0} WOOOOOOOOOOOOOOOOOOOOOOOOOOO".format(self.creator.mention), embed=None)
+        else:
+            await self.prompt.edit(content=":skull_crossbones: Hangman!! :skull_crossbones:", embed=None)
 
+        await self.channel.send("This game will close in 10 seconds")
 
     # restart a new game and apply the proper
     # channel restrictions until the game is ready to be started
     async def restart_game(self) -> None:
-        pass
+        await self.channel.purge()
+        await self.create_new_game(self.channel, self.creator)
 
 
     # if a user types "cancel" destroy
@@ -86,6 +94,8 @@ class HangmanRenderer2:
         elif kwargs.get("is_resume", False):
             vals[self.server.default_role] = PermissionOverwrite(read_messages=True, send_messages=True)
             vals[self.server.get_member(self.creator.id)] = PermissionOverwrite(read_messages=True, send_messages=True)
+        elif kwargs.get("is_win", False):
+            vals[self.server.default_role] = PermissionOverwrite(read_messages=True, send_messages=False)
 
         bot_role_id: int = 437263429057773608 # TODO - config
         vals[self.server.get_role(bot_role_id)] = PermissionOverwrite(read_messages=True, send_messages=True)
@@ -98,6 +108,11 @@ class HangmanRenderer2:
     # the template accordingly
     async def update(self, phrase: List[List[str]], guesses: List[str], matches: List[str], **kwargs) -> None:
         template: str = ""
+        is_new: bool = kwargs.get("is_random") or kwargs.get("is_solo")
+        is_added: bool = kwargs.get("is_added")
+
+        if not is_new:
+            await self.reset_prompt(is_added, guesses)
 
         for i in range(0, len(phrase)):
             for j in range(0, len(phrase[i])):
@@ -109,8 +124,6 @@ class HangmanRenderer2:
 
         render: List[str] = self.get_updated_render()
         gallows: str = GALLOWS.format(*render+[template])
-        is_new: bool = kwargs.get("is_random") or kwargs.get("is_solo")
-        is_added: bool = kwargs.get("is_added")
 
         if not is_new:
             if not is_added:
@@ -120,19 +133,36 @@ class HangmanRenderer2:
         else:
             print(phrase)
 
-        if len(guesses) > 0:
+        if len(guesses) > 0 or is_added:
             embed: Embed = self.create_embed_prompt_from_response(is_added, guesses)
-            await self.prompt.edit(embed=embed, content=None)
-            await self.channel.edit(overwrites=self.get_channel_overrides(is_pause=True))
-            time.sleep(0.8)
-            embed = self.create_embed_prompt_from_response(is_added, guesses, True)
-            await self.prompt.edit(embed=embed, content=None)
-            await self.channel.edit(overwrites=self.get_channel_overrides(is_resume=True))
+            await self.pause_prompt(embed)
         elif is_new:
             await self.channel.edit(overwrites=self.get_channel_overrides(is_resume=True))
             self.prompt = await self.channel.send("Waiting for guess")
 
         await self.rendered_gallows.edit(content="```{0}```".format(gallows))
+
+
+    # "pause" the prompt when a user guesses after
+    # updating so they can see the result
+    async def pause_prompt(self, embed: Embed) -> None:
+        await self.prompt.edit(embed=embed, content=None)
+        await self.channel.edit(overwrites=self.get_channel_overrides(is_pause=True))
+
+
+    # reset the color of the prompt to nothing so
+    # there is a slight update when a guess is made
+    async def reset_prompt(self, is_added: bool, guesses: List[str]) -> None:
+        embed = self.create_embed_prompt_from_response(is_added, guesses, True)
+        await self.prompt.edit(embed=embed, content=None)
+        await self.channel.edit(overwrites=self.get_channel_overrides(is_resume=True))
+
+
+    # called directly from the game if a user has already
+    # guessed a letter, show them this prompt
+    async def show_already_guessed_prompt(self, guess: str) -> None:
+        embed: Embed = Embed(title="Already Guessed!", description="{0} has already been used".format(guess), color=int("F45900", 16))
+        await self.prompt.edit(embed=embed)
 
 
     # get an updated render based on the 
@@ -159,7 +189,9 @@ class HangmanRenderer2:
             embed: Embed = Embed(title=title_val, color=int(color_val, 16))#, description="fartslol\nbrolol")
 
         #embed.add_field(name="User", value="huh", inline=True)
-        embed.add_field(name="Guess", value=guesses[len(guesses)-1], inline=True)
-        embed.add_field(name="Total Guesses", value=",".join(guesses), inline=True)
+
+        if len(guesses) > 0:
+            embed.add_field(name="Last Wrong Guess", value=guesses[len(guesses)-1], inline=True)
+            embed.add_field(name="Total Guesses", value=",".join(guesses), inline=True)
 
         return embed
