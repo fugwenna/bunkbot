@@ -3,7 +3,7 @@ from typing import List
 from discord import Message, TextChannel, PermissionOverwrite, CategoryChannel
 from random_words import RandomWords
 
-from .hangman_renderer2 import HangmanRenderer2
+from .hangman_renderer import HangmanRenderer
 from ...core.bunk_exception import BunkException
 from ...core.bunk_user import BunkUser
 
@@ -14,7 +14,7 @@ Class that represents the actual game of hangman
 class HangmanGame:
     def __init__(self, creator: BunkUser):
         self.creator: BunkUser = creator
-        self.renderer: HangmanRenderer2 = None
+        self.renderer: HangmanRenderer = None
         self.random: RandomWords = RandomWords()
         self.set_defaults()
 
@@ -31,6 +31,7 @@ class HangmanGame:
         self.is_random = False
         self.is_solo = False
         self.is_win = False
+        self.is_loss = False
         self.name = None
         self.participants: List[BunkUser] = []
 
@@ -38,7 +39,7 @@ class HangmanGame:
     # start a new or re-created game
     async def start(self, hangman_channel: CategoryChannel) -> None:
         if self.renderer is None:
-            self.renderer = HangmanRenderer2(hangman_channel)
+            self.renderer = HangmanRenderer(hangman_channel)
             self.name = await self.renderer.create_new_game(hangman_channel, self.creator)
         else:
             await self.renderer.restart_game()
@@ -63,7 +64,9 @@ class HangmanGame:
                     await self.renderer.update(self.phrase, self.guesses, self.matches, is_added=is_added)
 
                 if self.is_win:
-                    await self.restart_game()
+                    await self.restart_game(True)
+                elif self.is_loss:
+                    await self.restart_game(False)
             else:
                 self.is_active = True
                 self.is_random = l_content == "random"
@@ -96,13 +99,14 @@ class HangmanGame:
                 self.guesses.append(guess)
 
             self.is_win = len(self.matches) == len(self.flat_phrase)
+            self.is_loss = not self.is_win and len(self.guesses) == len(self.renderer.hangman_template)
 
         return status
 
 
     # after a win, restart the game after 
     # 10 seconds of waiting
-    async def restart_game(self) -> None:
-        await self.renderer.complete_game(True)
+    async def restart_game(self, win: bool) -> None:
+        await self.renderer.complete_game(win)
         await asyncio.sleep(10)
         await self.start(self.renderer.hangman_channel)

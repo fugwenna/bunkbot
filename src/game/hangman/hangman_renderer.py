@@ -22,7 +22,7 @@ GALLOWS: str = """
 The primary rendering engine that will update
 the hangman game based on guesses from users
 """
-class HangmanRenderer2:
+class HangmanRenderer:
     def __init__(self, channel: TextChannel):
         self.hangman_template: List[str] = ["o", "|", "/", "\\", "/", "\\", ""]
         self.hangman_render: List[str] = []
