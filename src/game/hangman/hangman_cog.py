@@ -1,9 +1,11 @@
-from typing import List
 import time, threading
+
+from typing import List
 from discord import PermissionOverwrite, Message, TextChannel
 from discord.ext.commands import command, Context, Cog
 
-from .hangman_renderer import HangmanRenderer
+from .hangman_game import HangmanGame
+from .hangman_renderer2 import HangmanRenderer2
 from ...bunkbot import BunkBot
 from ...core.bunk_user import BunkUser
 from ...core.registry import USER_SERVICE, CHANNEL_SERVICE, DATABASE_SERVICE
@@ -18,14 +20,14 @@ Cog that will setup hangman games for people to play
 class HangmanCog(Cog):
     def __init__(self, bot: BunkBot, channels: ChannelService, users: UserService, database: DatabaseService):
         self.bot: BunkBot = bot
-        self.games: List[HangmanRenderer] = []
+        self.games: List[HangmanGame] = []
         self.users: UserService = users
         self.database = database
         self.channels: ChannelService = channels
         self.bot.on_user_message += self.get_answer
     
 
-    @command(help="Create a game of hangman!")
+    @command(help="Create a game of hangman!", aliases=["hm"])
     async def hangman(self, ctx: Context) -> None:
         try:
             if self.bot.server:
@@ -42,16 +44,15 @@ class HangmanCog(Cog):
     async def create_hangman_game(self, ctx: Context) -> None:
         if self.channels.HANGMAN is not None:
             bunk_user: BunkUser = self.users.get_by_id(ctx.author.id)
-            channel_name: str = "hangman-{0}".format(bunk_user.name)
-            exists = next((c for c in self.channels.HANGMAN.channels if c.name == channel_name), None)
+            exists = next((c for c in self.games if c.creator.id == bunk_user.id), None)
 
             if exists is not None:
-                await ctx.send("{0} - you already have a hangman game in channels `games/{1}` !".format(bunk_user.mention, channel_name))
+                await ctx.send("{0} - you already have an active hangman game!".format(bunk_user.mention))
             else:
-                renderer: HangmanRenderer = HangmanRenderer(self.bot, bunk_user, self.channels.HANGMAN, self.users.users, channel_name)
-                self.games.append(renderer)
+                game = HangmanGame(bunk_user)
+                self.games.append(game)
 
-                await renderer.start_game()
+                await game.start(self.channels.HANGMAN)
         else:
             await self.channels.log_error("Cannot create hangman game - HANGMAN channel cannot be found", "HangmanCog")
 
@@ -64,22 +65,23 @@ class HangmanCog(Cog):
             if channel_name.split("-")[0] == "hangman":
                 ch: TextChannel = next((c for c in self.channels.HANGMAN.channels if c.name == channel_name), None)
                 if ch is not None:
-                    game: HangmanRenderer = next((h for h in self.games if h.channel.id == ch.id), None)
+                    game: HangmanGame = next((h for h in self.games if h.renderer.channel.id == ch.id), None)
                     if game is not None:
                         await game.update(message)
                         if game.is_cancelled:
                             self.games.remove(game)
-                        elif game.is_completed:
-                            time.sleep(10)
-                            await game.complete_game()
-                            
-                            for p in game.participants:
-                                self.database.update_user(p.db_user)
+
+                        #elif game.is_completed:
+                        #    time.sleep(10)
+                        #    await game.complete_game()
+                        #    
+                        #    for p in game.participants:
+                        #        self.database.update_user(p.db_user)
 
                             #threading.Timer(15, self.complete_game, game)
 
 
-    async def complete_game(self, game: HangmanRenderer) -> None:
+    async def complete_game(self, game) -> None:
         self.games.remove(game)
         await game.complete_game()
 
