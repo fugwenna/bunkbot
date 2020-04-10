@@ -5,7 +5,6 @@ from discord import PermissionOverwrite, Message, TextChannel
 from discord.ext.commands import command, Context, Cog
 
 from .hangman_game import HangmanGame
-from .hangman_renderer2 import HangmanRenderer2
 from ...bunkbot import BunkBot
 from ...core.bunk_user import BunkUser
 from ...core.registry import USER_SERVICE, CHANNEL_SERVICE, DATABASE_SERVICE

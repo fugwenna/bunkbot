@@ -28,8 +28,6 @@ class HangmanGame:
         self.matches: List[str] = []
         self.is_active = False
         self.is_cancelled = False
-        self.is_random = False
-        self.is_solo = False
         self.is_win = False
         self.is_loss = False
         self.name = None
@@ -69,37 +67,49 @@ class HangmanGame:
                     await self.restart_game(False)
             else:
                 self.is_active = True
-                self.is_random = l_content == "random"
-                self.is_solo = l_content == "solo"
+                is_random = l_content == "random"
+                is_solo = l_content == "solo"
+                is_custom = not is_random and not is_solo
 
-                if self.is_random or self.is_solo:
+                if is_random or is_solo:
                     l_content = self.random.random_word().lower()
 
                 self.phrase = [list(x) for x in l_content.split()]
                 self.flat_phrase = [i for sl in self.phrase for i in sl]
 
                 await self.renderer.update(self.phrase, self.guesses, self.matches, 
-                    is_random=self.is_random, is_solo=self.is_solo)
+                    is_random=is_random, is_solo=is_solo, is_custom=is_custom)
 
 
     # when a phrase is offered, validate that
     # it only contains letters/numbers
-    async def check_if_match(self, guess: str) -> int:
+    async def check_if_match(self, guess_phrase: str) -> int:
         status: bool = 0
+        l_guess: List[str] = guess_phrase.split()
+        flat_guess = [i for sl in l_guess for i in sl]
 
-        if guess in self.guesses or guess in self.matches:
-            await self.renderer.show_already_guessed_prompt(guess)
-            status = 2
+        if len(flat_guess) > 1:
+            self.guesses = l_guess
+            self.matches = [l for l in list(flat_guess) if l in self.flat_phrase]
         else:
-            count: int = self.flat_phrase.count(guess)
-            if count > 0:
-                self.matches = self.matches + ([guess]*count)
-                status = 1
+            guess = flat_guess[0]
+            if guess in self.guesses or guess in self.matches:
+                await self.renderer.show_already_guessed_prompt(guess)
+                status = 2
             else:
-                self.guesses.append(guess)
+                count: int = self.flat_phrase.count(guess)
+                if count > 0:
+                    if not guess in self.matches:
+                        self.matches = self.matches + ([guess]*count)
+                    status = 1
+                else:
+                    self.guesses.append(guess)
 
-            self.is_win = len(self.matches) == len(self.flat_phrase)
-            self.is_loss = not self.is_win and len(self.guesses) == len(self.renderer.hangman_template)
+        self.is_win = len(self.matches) == len(self.flat_phrase)
+        self.is_loss = not self.is_win and ((len(flat_guess) > 1) or (len(self.guesses) == len(self.renderer.hangman_template)-2))
+
+        if self.is_win:
+            status = 1
 
         return status
 
