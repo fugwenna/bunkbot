@@ -27,11 +27,13 @@ class ConnectFourGame(CustomGame):
         await self.renderer.create_game(self.grid, self.creator)
 
 
-    async def update(self, message: Message) -> None:
-        if not await self.is_cancel(message):
+    async def update(self, message: Message, user: BunkUser) -> None:
+        if not await self.is_cancel(message, self.creator):
+            player_id: int = message.author.id
+            piece: str = PLAYER1_PIECE if player_id == self.creator.id else PLAYER2_PIECE
             content: str = self.get_content(message)
             is_bad_option: bool = len(content) > 1 or not content.isdigit() or int(content) > 7
 
             if not is_bad_option:
-                self.grid.update_piece(int(content)-1, self.creator.id, PLAYER1_PIECE)
-                await self.renderer.update_board(self.grid)
+                self.grid.update_piece(int(content)-1, player_id, piece)
+                await self.renderer.update_board(self.grid, False, user)

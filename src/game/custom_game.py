@@ -1,5 +1,7 @@
 from discord import TextChannel, Message
 
+from ..core.bunk_user import BunkUser
+
 """
 Base model for custom games with
 some basic methods built in
@@ -14,11 +16,12 @@ class CustomGame:
         self.is_cancelled: bool = False
 
 
-    async def is_cancel(self, msg: Message) -> None:
-        l_content: str = msg.content.lower()
-        if l_content == "cancel":
-            self.is_cancelled = True
-            await self.cancel_game()
+    async def is_cancel(self, msg: Message, game_creator: BunkUser) -> None:
+        if msg.author.id == game_creator.id:
+            l_content: str = msg.content.lower()
+            if l_content == "cancel":
+                self.is_cancelled = True
+                await self.cancel_game()
 
 
     def get_content(self, msg: Message) -> None:

@@ -35,11 +35,11 @@ class ConnectFourCog(Cog):
 
 
     async def get_answer(self, message: Message) -> None:
-        print("TODO - remove hard code")
         if not message.author.bot:
             if message.channel.name == "connect4-fugwenna":
+                user: BunkUser = self.game_service.users.get_by_id(message.author.id)
                 await message.delete()
-                await self.games[0].update(message)
+                await self.games[0].update(message, user)
     
 
 def setup(bot: BunkBot) -> None:
