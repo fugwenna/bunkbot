@@ -33,6 +33,7 @@ class ConnectFourGrid:
         for p in s_pieces:
             if p.user_id is None:
                 p.replace_with(user_id, color)
+                self.check_connect_four(p)
                 break
 
 
