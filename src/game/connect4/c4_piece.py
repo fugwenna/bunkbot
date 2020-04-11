@@ -6,7 +6,7 @@ drop into the column of a grid board
 """
 class ConnectFourPiece:
     def __init__(self, coord: ConnectFourCoordinate, color: str):
-        self.coordinate: ConnectFourCoordinate = None
+        self.coordinate: ConnectFourCoordinate = coord
         self.color: str = color
         self.user_id: int = None
 

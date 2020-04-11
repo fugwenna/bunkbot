@@ -3,6 +3,7 @@ URL_REGEX = r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0
 
 CHANNEL_BOT_LOGS: str = "bot-logs"
 CHANNEL_BOT_TESTING: str = "bot-testing"
+CHANNEL_CUSTOM_GAMES: str = "custom-games"
 CHANNEL_GENERAL: str = "general"
 CHANNEL_GAMES: str = "games"
 CHANNEL_GAMING: str = "gaming"

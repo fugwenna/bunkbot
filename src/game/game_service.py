@@ -1,4 +1,4 @@
-from discord import Game, Member
+from discord import Game, Member, TextChannel, PermissionOverwrite
 from random import randint
 
 from ..bunkbot import BunkBot
@@ -65,3 +65,23 @@ class GameService(Service):
     async def check_streams(self) -> None:
         # TODO - currently disabled until the twitch API is fixed
         pass
+
+
+    # for custom bunkbot games, create a new channel under the 'custom games'
+    # category with a selectd prefix
+    async def create_game_channel(self, name: str, user: BunkUser) -> TextChannel:
+        channel: TextChannel = None
+
+        if self.channels.CUSTOM_GAMES is not None:
+            bot_role_id: int = 437263429057773608 # TODO - config
+            ow: dict = { 
+                self.bot.server.default_role: PermissionOverwrite(read_messages=False, send_messages=False),
+                self.bot.server.get_member(user.id): PermissionOverwrite(read_messages=True, send_messages=True),
+                self.server.get_role(bot_role_id): PermissionOverwrite(read_messages=True, send_messages=True)
+            }
+
+            channel = await self.channels.CUSTOM_GAMES.create_text_channel("{0}-{1}".format(name, user.name), overwrites=ow)
+        else:
+            await self.channels.log_error("Cannot create custom game - CUSTOM-GAMES channel cannot be found", "GameService")
+
+        return channel
