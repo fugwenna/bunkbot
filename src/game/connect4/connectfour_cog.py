@@ -28,12 +28,14 @@ class ConnectFourCog(Cog):
         channel: TextChannel = await self.game_service.create_game_channel("connect4", user)
 
         if channel is not None:
+            print("TODO - check existing game")
             game = ConnectFourGame(user, channel)
             self.games.append(game)
             await game.start()
 
 
     async def get_answer(self, message: Message) -> None:
+        print("TODO - remove hard code")
         if not message.author.bot:
             if message.channel.name == "connect4-fugwenna":
                 await message.delete()
