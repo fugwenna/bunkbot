@@ -7,8 +7,6 @@ from ..game_service import GameService
 from ...bunkbot import BunkBot
 from ...core.bunk_user import BunkUser
 from ...core.registry import GAME_SERVICE
-from ...channel.channel_service import ChannelService
-from ...user.user_service import UserService
 
 
 """
@@ -28,7 +26,6 @@ class ConnectFourCog(Cog):
         channel: TextChannel = await self.game_service.create_game_channel("connect4", user)
 
         if channel is not None:
-            print("TODO - check existing game")
             game = ConnectFourGame(user, channel)
             self.games.append(game)
             await game.start()
@@ -36,11 +33,14 @@ class ConnectFourCog(Cog):
 
     async def get_answer(self, message: Message) -> None:
         if not message.author.bot:
-            if message.channel.name == "connect4-fugwenna":
+            user: BunkUser = self.game_service.users.get_by_id(message.author.id)
+            if self.game_service.is_game_channel("connect4", message.channel.name, user.name):
                 user: BunkUser = self.game_service.users.get_by_id(message.author.id)
-                await message.delete()
-                await self.games[0].update(message, user)
-    
+                game = next((g for g in self.games if g.channel.id == message.channel.id), None)
+                if game is not None:
+                    await message.delete()
+                    await game.update(message, user)
+
 
 def setup(bot: BunkBot) -> None:
     bot.add_cog(ConnectFourCog(bot, GAME_SERVICE))

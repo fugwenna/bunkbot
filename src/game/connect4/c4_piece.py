@@ -27,20 +27,7 @@ class ConnectFourPiece:
             is_v = self.is_connected_vertical(piece)
             is_h = self.is_connected_horizontal(piece)
             is_d = self.is_connected_diagonal(piece)
-
-            connected = is_v or is_h or is_d
-
-            if connected:
-                is_connected = True
-                c_pieces.append(piece)
-                refs: List[any] = []
-                for ref in piece.connected_pieces:
-                    if is_v:
-                        pass
-                    elif is_h:
-                        pass
-                    elif is_d:
-                        pass
+            is_connected = is_v or is_h or is_d
 
         self.connected_pieces = c_pieces
         return is_connected

@@ -1,5 +1,5 @@
 from typing import List
-from discord import Message, TextChannel
+from discord import Message, TextChannel, PermissionOverwrite
 
 from .c4_constants import BOARD_TEMPLATE, BOARD_HEIGHT, PLAYER1_PIECE, PLAYER2_PIECE
 from .c4_grid import ConnectFourGrid
@@ -19,6 +19,14 @@ class ConnectFourRenderer:
         self.channel: TextChannel = channel
         self.new_game_message: Message = None
         self.board: Message = None
+
+
+    @property
+    def is_player_ones_turn(self) -> bool:
+        if not self.player_one or not self.current_player_move_id:
+            return False
+
+        return True if self.player_one.id == self.current_player_move_id else False
 
     
     # render a blank game into the channel
@@ -67,25 +75,19 @@ class ConnectFourRenderer:
                 self.new_game_message = None
             await self.board.edit(content=BOARD_TEMPLATE.format(*cols))
         
-        #await self.update_board_for_turn()
+        await self.update_board_for_turn()
 
 
     # show the player names and colors next to the board
     def add_player_to_render(self, position: int, content: str) -> str:
-        is_player_one_turn: bool = False
         player_two_str: str = self.player_two.name if self.player_two else ":ghost:"
-
-        if self.player_two:
-            is_player_one_turn = True if self.player_one.id == self.current_player_move_id else False
-        else:
-            is_player_one_turn = True
 
         if position == 5:
             content += "\t\t\t Players:"
         elif position == 4:
-            content += self.bold_name_if_turn("{0}  {1}".format(PLAYER1_PIECE, self.player_one.name), is_player_one_turn)
+            content += self.bold_name_if_turn("{0}  {1}".format(PLAYER1_PIECE, self.player_one.name), self.is_player_ones_turn)
         elif position == 3:
-            content += self.bold_name_if_turn("{0}  {1}".format(PLAYER2_PIECE, player_two_str), not is_player_one_turn)
+            content += self.bold_name_if_turn("{0}  {1}".format(PLAYER2_PIECE, player_two_str), not self.is_player_ones_turn)
 
         return content
 
@@ -100,4 +102,12 @@ class ConnectFourRenderer:
     # disable the ability for the opposing player
     # to enter anyything while it is not their turn
     async def update_board_for_turn(self) -> None:
-        pass
+        ow: dict = self.channel.overwrites
+
+        if self.player_one:
+            ow[self.player_one.member] = PermissionOverwrite(read_messages=True, send_messages=self.is_player_ones_turn)
+
+        if self.player_two:
+            ow[self.player_two.member] = PermissionOverwrite(read_messages=True, send_messages=(not self.is_player_ones_turn))
+
+        await self.channel.edit(overwrites=ow)
