@@ -33,7 +33,6 @@ class HangmanRenderer:
         self.rendered_gallows: Message = None
         self.prompt: Message = None
         self.formatted_phrase: str = None
-        self.guess_message: Message = None
 
 
     # render a new game with empty gallows
@@ -141,7 +140,7 @@ class HangmanRenderer:
         render: List[str] = self.get_updated_render()
         gallows: str = GALLOWS.format(*render+[template, ""])
 
-        if not is_new:
+        if not is_new and not is_custom:
             if not is_added:
                 self.hangman_render.append(self.hangman_template[len(self.hangman_render)])
                 render = self.get_updated_render()
