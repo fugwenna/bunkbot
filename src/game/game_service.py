@@ -78,7 +78,7 @@ class GameService(Service):
             bot_role_id: int = 437263429057773608 # TODO - config
             t = 699395055990997042
             ow: dict = { 
-                self.bot.server.default_role: PermissionOverwrite(read_messages=False, send_messages=False),
+                self.bot.server.default_role: PermissionOverwrite(read_messages=True, send_messages=True),
                 self.bot.server.get_member(user.id): PermissionOverwrite(read_messages=True, send_messages=True),
                 self.server.get_role(bot_role_id): PermissionOverwrite(read_messages=True, send_messages=True),
                 self.server.get_role(t): PermissionOverwrite(read_messages=True, send_messages=True)

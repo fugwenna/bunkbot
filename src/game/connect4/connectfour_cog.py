@@ -34,12 +34,12 @@ class ConnectFourCog(Cog):
     async def get_answer(self, message: Message) -> None:
         if not message.author.bot:
             user: BunkUser = self.game_service.users.get_by_id(message.author.id)
-            if self.game_service.is_game_channel("connect4", message.channel.name, user.name):
-                user: BunkUser = self.game_service.users.get_by_id(message.author.id)
-                game = next((g for g in self.games if g.channel.id == message.channel.id), None)
-                if game is not None:
-                    await message.delete()
-                    await game.update(message, user)
+            #if self.game_service.is_game_channel("connect4", message.channel.name, user.name):
+            user: BunkUser = self.game_service.users.get_by_id(message.author.id)
+            game = next((g for g in self.games if g.channel.id == message.channel.id), None)
+            if game is not None:
+                await message.delete()
+                await game.update(message, user)
 
 
 def setup(bot: BunkBot) -> None:

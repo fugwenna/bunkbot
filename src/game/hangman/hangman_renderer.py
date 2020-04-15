@@ -133,8 +133,8 @@ class HangmanRenderer:
                 full_phrase += p_letter
 
             if i != len(phrase):
-                template += " "
-                full_phrase += " "
+                template += "  "
+                full_phrase += "  "
 
         self.formatted_phrase = full_phrase.strip()
 
