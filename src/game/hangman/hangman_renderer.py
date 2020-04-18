@@ -7,7 +7,8 @@ from ...core.bunk_user import BunkUser
 
 
 GALLOWS: str = """
-+________+
+                     Game Type: {9}
++________+           Last Guess By: {8}
 |     |              Guesses: {7}
 |     {0}          
 |    {2}{1}{3}
@@ -33,6 +34,7 @@ class HangmanRenderer:
         self.rendered_gallows: Message = None
         self.prompt: Message = None
         self.formatted_phrase: str = None
+        self.game_type: str = "Random Word"
 
 
     # render a new game with empty gallows
@@ -47,12 +49,7 @@ class HangmanRenderer:
         """
 
         name: str = "hangman-{0}".format(creator.name)
-
-        if self.rendered_gallows is None:
-            self.channel = await self.hangman_channel.create_text_channel(name, overwrites=overrides, slowmode_delay=1)
-        else:
-            await self.channel.edit(overwrites=overrides, slowmode_delay=1)
-
+        self.channel = await self.hangman_channel.create_text_channel(name, overwrites=overrides, slowmode_delay=1)
         self.rendered_gallows = await self.channel.send(m.format(creator.mention))
 
         return name
@@ -77,7 +74,7 @@ class HangmanRenderer:
     # restart a new game and apply the proper
     # channel restrictions until the game is ready to be started
     async def restart_game(self) -> None:
-        await self.channel.purge()
+        await self.channel.delete()
         await self.create_new_game(self.channel, self.creator)
 
 
@@ -114,10 +111,14 @@ class HangmanRenderer:
     # phrase, guesses, and matches and update
     # the template accordingly
     async def update(self, phrase: List[List[str]], guesses: List[str], matches: List[str], **kwargs) -> None:
+        if kwargs.get("g_type", None):
+            self.game_type = kwargs.get("g_type")
+
         template: str = ""
         is_new: bool = kwargs.get("is_random") or kwargs.get("is_solo")
         is_custom: bool = kwargs.get("is_custom")
         is_added: bool = kwargs.get("is_added")
+        user: str = kwargs.get("username", None) or ""
         full_phrase: str = ""
 
         if kwargs.get("is_solo"):
@@ -138,13 +139,13 @@ class HangmanRenderer:
         self.formatted_phrase = full_phrase.strip()
 
         render: List[str] = self.get_updated_render()
-        gallows: str = GALLOWS.format(*render+[template, ""])
+        gallows: str = GALLOWS.format(*render+[template, "", user, self.game_type])
 
         if not is_new and not is_custom:
             if not is_added:
                 self.hangman_render.append(self.hangman_template[len(self.hangman_render)])
                 render = self.get_updated_render()
-            gallows = GALLOWS.format(*render+[template, ", ".join(guesses)])
+            gallows = GALLOWS.format(*render+[template, ", ".join(guesses), user, self.game_type])
         
         if is_new or is_custom:
             self.prompt = await self.channel.send("Waiting for guess")
