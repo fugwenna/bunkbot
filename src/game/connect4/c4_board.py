@@ -1,7 +1,6 @@
 from typing import List
 
-from .c4_constants import EMPTY_PIECE, WIN_PIECE, BOARD_HEIGHT, BOARD_WIDTH
-from .c4_coord import ConnectFourCoordinate
+from .c4_constants import BOARD_HEIGHT, BOARD_WIDTH, EMPTY_PIECE, WIN_PIECE
 from .c4_piece import ConnectFourPiece
 
 
