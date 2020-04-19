@@ -1,7 +1,7 @@
 from discord import TextChannel, Message
 
 from .c4_constants import PLAYER1_PIECE, PLAYER2_PIECE
-from .c4_grid import ConnectFourGrid
+from .c4_board import ConnectFourBoard
 from .c4_renderer import ConnectFourRenderer
 from ..custom_game import CustomGame
 from ...core.bunk_user import BunkUser
@@ -16,14 +16,14 @@ class ConnectFourGame(CustomGame):
         super().__init__(channel)
         self.creator: BunkUser = creator
         self.opponent: BunkUser = None
-        self.grid: ConnectFourGrid = None
+        self.grid: ConnectFourBoard = None
         self.renderer: ConnectFourRenderer = ConnectFourRenderer(channel)
 
 
     # start a new game and render a new grid
     # into the channel using the renderer
     async def start(self) -> None:
-        self.grid = ConnectFourGrid()
+        self.grid = ConnectFourBoard()
         await self.renderer.create_game(self.grid, self.creator)
 
 
