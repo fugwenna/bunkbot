@@ -16,15 +16,15 @@ class ConnectFourGame(CustomGame):
         super().__init__(channel)
         self.creator: BunkUser = creator
         self.opponent: BunkUser = None
-        self.grid: ConnectFourBoard = None
+        self.board: ConnectFourBoard = None
         self.renderer: ConnectFourRenderer = ConnectFourRenderer(channel)
 
 
     # start a new game and render a new grid
     # into the channel using the renderer
     async def start(self) -> None:
-        self.grid = ConnectFourBoard()
-        await self.renderer.create_game(self.grid, self.creator)
+        self.board = ConnectFourBoard()
+        await self.renderer.create_game(self.board, self.creator)
 
 
     async def update(self, message: Message, user: BunkUser) -> None:
@@ -35,5 +35,5 @@ class ConnectFourGame(CustomGame):
             is_bad_option: bool = len(content) > 1 or not content.isdigit() or int(content) > 7
 
             if not is_bad_option:
-                self.grid.update_piece(int(content)-1, player_id, piece)
-                await self.renderer.update_board(self.grid, False, user)
+                self.board.update_piece(int(content)-1, player_id, piece)
+                await self.renderer.update_board(self.board, False, user)

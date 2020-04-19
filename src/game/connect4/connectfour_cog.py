@@ -1,3 +1,4 @@
+import asyncio
 from typing import List
 from discord import Message, TextChannel
 from discord.ext.commands import command, Context, Cog
@@ -38,6 +39,9 @@ class ConnectFourCog(Cog):
             if game is not None:
                 await message.delete()
                 await game.update(message, user)
+                if game.board.is_connect_four:
+                    await asyncio.sleep(10)
+                    await game.channel.delete()
 
 
 def setup(bot: BunkBot) -> None:

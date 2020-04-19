@@ -13,12 +13,8 @@ use datamodel properties to display the pieces on the board
 """
 class ConnectFourRenderer:
     def __init__(self, channel: TextChannel):
-        self.current_player_move_id: None
-        self.player_one: BunkUser = None
-        self.player_two: BunkUser = None
         self.channel: TextChannel = channel
-        self.new_game_message: Message = None
-        self.board: Message = None
+        self.set_defaults()
 
 
     @property
@@ -29,8 +25,20 @@ class ConnectFourRenderer:
         return True if self.player_one.id == self.current_player_move_id else False
 
     
+    def set_defaults(self, reset_p1: bool = True) -> None:
+        self.current_player_move_id: None
+        self.player_two: BunkUser = None
+        self.last_move_by: BunkUser = None
+        self.new_game_message: Message = None
+        self.board: Message = None
+
+        if reset_p1:
+            self.player_one: BunkUser = None
+
+    
     # render a blank game into the channel
     async def create_game(self, board: ConnectFourBoard, player_one: BunkUser) -> None:
+        await self.channel.purge()
         self.player_one = player_one
         self.current_player_move_id = player_one.id
 
@@ -45,6 +53,7 @@ class ConnectFourRenderer:
     # updated pieces out into the channel
     async def update_board(self, board: ConnectFourBoard, is_new: bool, player: BunkUser) -> None:
         cols: List[str] = []
+        self.last_move_by = player
 
         if player and (player.id != self.player_one.id):
             self.player_two = player
@@ -57,10 +66,10 @@ class ConnectFourRenderer:
         for i in range(BOARD_HEIGHT):
             row_content: str = ""
             for j in range(BOARD_WIDTH):
-                cfp: ConnectFourPiece = board.pieces[i][j]
+                cfp: ConnectFourPiece = board.pieces[j][i]
                 row_content += cfp.color
 
-            row_content = self.add_player_to_render(i, row_content)
+            row_content = self.add_player_to_render(i, row_content, board)
             cols.append(row_content)
 
         if is_new:
@@ -71,25 +80,25 @@ class ConnectFourRenderer:
                 self.new_game_message = None
             await self.board.edit(content=BOARD_TEMPLATE.format(*cols))
         
-        await self.update_board_for_turn()
+        await self.update_board_for_turn(board)
 
 
     # show the player names and colors next to the board
-    def add_player_to_render(self, position: int, content: str) -> str:
+    def add_player_to_render(self, position: int, content: str, board: ConnectFourBoard) -> str:
         player_two_str: str = self.player_two.name if self.player_two else ":ghost:"
 
         if position == 5:
             content += "\t\t\t Players:"
         elif position == 4:
-            content += self.bold_name_if_turn("{0}  {1}".format(PLAYER1_PIECE, self.player_one.name), self.is_player_ones_turn)
+            content += self.bold_name_if_turn("{0}  {1}".format(PLAYER1_PIECE, self.player_one.name), self.is_player_ones_turn, board.is_connect_four)
         elif position == 3:
-            content += self.bold_name_if_turn("{0}  {1}".format(PLAYER2_PIECE, player_two_str), not self.is_player_ones_turn)
+            content += self.bold_name_if_turn("{0}  {1}".format(PLAYER2_PIECE, player_two_str), not self.is_player_ones_turn, board.is_connect_four)
 
         return content
 
 
-    def bold_name_if_turn(self, name: str, is_turn: bool) -> str:
-        if self.player_two and is_turn:
+    def bold_name_if_turn(self, name: str, is_turn: bool, is_win: bool) -> str:
+        if not is_win and self.player_two and is_turn:
             return "\t\t\t **{0}**".format(name)
 
         return "\t\t\t {0}".format(name)
@@ -97,13 +106,25 @@ class ConnectFourRenderer:
 
     # disable the ability for the opposing player
     # to enter anyything while it is not their turn
-    async def update_board_for_turn(self) -> None:
+    async def update_board_for_turn(self, board: ConnectFourBoard) -> None:
         ow: dict = self.channel.overwrites
 
         if self.player_one:
-            ow[self.player_one.member] = PermissionOverwrite(read_messages=True, send_messages=self.is_player_ones_turn)
+            allow = not board.is_connect_four and self.is_player_ones_turn 
+            if board.play_count == 1 and self.last_move_by.id == self.player_one.id:
+                allow = False
+
+            ow[self.player_one.member] = PermissionOverwrite(read_messages=True, send_messages=allow)
 
         if self.player_two:
-            ow[self.player_two.member] = PermissionOverwrite(read_messages=True, send_messages=(not self.is_player_ones_turn))
+            allow = not board.is_connect_four and (not self.is_player_ones_turn)
+            ow[self.player_two.member] = PermissionOverwrite(read_messages=True, send_messages=allow)
+
+        if board.is_connect_four:
+            ow[self.channel.guild.default_role] = PermissionOverwrite(read_messages=True, send_messages=False)
 
         await self.channel.edit(overwrites=ow)
+
+        if board.is_connect_four:
+            await self.channel.send("CONNECT FOUR {0} !!!!".format(self.last_move_by.mention))
+            await self.channel.send("This game will close in 10 seconds")

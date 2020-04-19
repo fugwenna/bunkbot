@@ -19,7 +19,7 @@ class CustomGame:
     async def is_cancel(self, msg: Message, game_creator: BunkUser) -> None:
         if msg.author.id == game_creator.id:
             l_content: str = msg.content.lower()
-            if l_content == "cancel":
+            if l_content == "cancel" or l_content == "exit":
                 self.is_cancelled = True
                 await self.cancel_game()
 
