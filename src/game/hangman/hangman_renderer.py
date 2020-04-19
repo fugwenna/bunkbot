@@ -1,7 +1,7 @@
 import asyncio
 import time
 from typing import List
-from discord import Guild, Message, TextChannel, CategoryChannel, PermissionOverwrite, Embed
+from discord import Guild, Message, TextChannel, CategoryChannel, PermissionOverwrite, Embed, Member
 
 from ...core.bunk_user import BunkUser
 
@@ -35,6 +35,7 @@ class HangmanRenderer:
         self.prompt: Message = None
         self.formatted_phrase: str = None
         self.game_type: str = "Random Word"
+        self.last_user: Member = None
 
 
     # render a new game with empty gallows
@@ -62,7 +63,7 @@ class HangmanRenderer:
 
         if is_win:
             await self.channel.edit(overwrites=self.get_channel_overrides(is_win=True))
-            await self.prompt.edit(content="{0} WOOOOOOOOOOOOOOOOOOOOOOOOOOO".format(self.creator.mention), embed=None)
+            await self.prompt.edit(content="{0} WOOOOOOOOOOOOOOOOOOOOOOOOOOO".format(self.last_user.mention), embed=None)
         else:
             await self.channel.edit(overwrites=self.get_channel_overrides(is_win=False))
             await self.prompt.edit(content=":skull_crossbones: Hangman!! :skull_crossbones:", embed=None)
@@ -118,8 +119,13 @@ class HangmanRenderer:
         is_new: bool = kwargs.get("is_random") or kwargs.get("is_solo")
         is_custom: bool = kwargs.get("is_custom")
         is_added: bool = kwargs.get("is_added")
-        user: str = kwargs.get("username", None) or ""
+        user: Member = kwargs.get("user", None)
+        username: str = ""
         full_phrase: str = ""
+
+        if user:
+            self.last_user = user
+            username = user.name
 
         if kwargs.get("is_solo"):
             await self.channel.edit(overwrites=self.get_channel_overrides(is_solo=True))
@@ -139,13 +145,13 @@ class HangmanRenderer:
         self.formatted_phrase = full_phrase.strip()
 
         render: List[str] = self.get_updated_render()
-        gallows: str = GALLOWS.format(*render+[template, "", user, self.game_type])
+        gallows: str = GALLOWS.format(*render+[template, "", username, self.game_type])
 
         if not is_new and not is_custom:
             if not is_added:
                 self.hangman_render.append(self.hangman_template[len(self.hangman_render)])
                 render = self.get_updated_render()
-            gallows = GALLOWS.format(*render+[template, ", ".join(guesses), user, self.game_type])
+            gallows = GALLOWS.format(*render+[template, ", ".join(guesses), username, self.game_type])
         
         if is_new or is_custom:
             self.prompt = await self.channel.send("Waiting for guess")

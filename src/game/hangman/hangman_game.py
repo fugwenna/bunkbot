@@ -62,7 +62,7 @@ class HangmanGame:
                 is_added: bool = status == 1
 
                 if status != 2:
-                    await self.renderer.update(self.phrase, self.guesses, self.matches, is_added=is_added, username=message.author.name)
+                    await self.renderer.update(self.phrase, self.guesses, self.matches, is_added=is_added, user=message.author)
 
                 if self.is_win:
                     await self.restart_game(True)
