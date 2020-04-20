@@ -40,7 +40,7 @@ class ConnectFourCog(Cog):
                 await message.delete()
                 await game.update(message, user)
                 if game.board.is_connect_four:
-                    await asyncio.sleep(10)
+                    await asyncio.sleep(15)
                     await game.channel.delete()
 
 

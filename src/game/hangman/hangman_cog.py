@@ -41,7 +41,7 @@ class HangmanCog(Cog):
     # create the hangman game itself - check if a user
     # already has an existing game (they can always cancel)
     async def create_hangman_game(self, ctx: Context) -> None:
-        if self.channels.HANGMAN is not None:
+        if self.channels.CUSTOM_GAMES is not None:
             bunk_user: BunkUser = self.users.get_by_id(ctx.author.id)
             exists = next((c for c in self.games if c.creator.id == bunk_user.id), None)
 
@@ -51,9 +51,9 @@ class HangmanCog(Cog):
                 game = HangmanGame(bunk_user)
                 self.games.append(game)
 
-                await game.start(self.channels.HANGMAN)
+                await game.start(self.channels.CUSTOM_GAMES)
         else:
-            await self.channels.log_error("Cannot create hangman game - HANGMAN channel cannot be found", "HangmanCog")
+            await self.channels.log_error("Cannot create hangman game - CUSTOM_GAMES channel cannot be found", "HangmanCog")
 
 
     # update the message of a given game - check if the
@@ -62,7 +62,7 @@ class HangmanCog(Cog):
         if not message.author.bot:
             channel_name: str = message.channel.name
             if channel_name.split("-")[0] == "hangman":
-                ch: TextChannel = next((c for c in self.channels.HANGMAN.channels if c.name == channel_name), None)
+                ch: TextChannel = next((c for c in self.channels.CUSTOM_GAMES.channels if c.name == channel_name), None)
                 if ch is not None:
                     game: HangmanGame = next((h for h in self.games if h.renderer.channel.id == ch.id), None)
                     if game is not None:

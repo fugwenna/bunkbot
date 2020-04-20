@@ -13,6 +13,7 @@ class ConnectFourBoard:
         self.is_connect_four: bool = False
         self.pieces: List[List[ConnectFourPiece]] = []
         self.play_count: int = 0
+        self.last_drop_location: str = None
         self.setup()
 
 
@@ -28,15 +29,20 @@ class ConnectFourBoard:
             self.pieces.append(b_col)
 
 
-    def update_piece(self, col_index: int, user_id: int, color: str) -> None:
-        self.play_count += 1
+    def update_piece(self, col_index: int, user_id: int, color: str) -> bool:
+        was_updated: bool = False
         pieces: List[ConnectFourPiece] = self.pieces[col_index]
 
         for p in pieces:
             if p.user_id is None:
+                self.last_drop_location = "{0} (row {1})".format(p.x+1, p.y+1)
                 p.replace_with(user_id, color)
                 self.check_connect_four(p)
+                self.play_count += 1
+                was_updated = True
                 break
+
+        return was_updated
 
 
     def check_connect_four(self, piece: ConnectFourPiece) -> None:
@@ -69,27 +75,14 @@ class ConnectFourBoard:
 
     
     def get_diagonal_pieces(self, piece: ConnectFourPiece, flat_pieces: List[ConnectFourPiece]) -> List[ConnectFourPiece]:
-        anchors_ru: List[ConnectFourPiece] = sorted(list(filter(lambda p: self.is_diagonal_from(piece, p, 1, 1), flat_pieces)), key=lambda s: s.x)
-        anchors_rd: List[ConnectFourPiece] = sorted(list(filter(lambda p: self.is_diagonal_from(piece, p, 1, -1), flat_pieces)), key=lambda s: s.x)
-        anchors_lu: List[ConnectFourPiece] = sorted(list(filter(lambda p: self.is_diagonal_from(piece, p, -1, 1), flat_pieces)), key=lambda s: s.x)
-        anchors_ld: List[ConnectFourPiece] = sorted(list(filter(lambda p: self.is_diagonal_from(piece, p, -1, -1), flat_pieces)), key=lambda s: s.x)
-        dpru: List[ConnectFourPiece] = self.loop_and_get_pieces(piece.user_id, anchors_ru, 0, len(anchors_ru), 1, False)
-        dprd: List[ConnectFourPiece] = self.loop_and_get_pieces(piece.user_id, anchors_rd, 0, len(anchors_rd), 1, False)
-        dplu: List[ConnectFourPiece] = self.loop_and_get_pieces(piece.user_id, anchors_lu, 0, len(anchors_lu), 1, False)
-        dpld: List[ConnectFourPiece] = self.loop_and_get_pieces(piece.user_id, anchors_ld, 0, len(anchors_ld), 1, False)
-        return set([piece]+dpru+dprd+dplu+dpld)
+        ru_pieces: List[ConnectFourPiece] = self.loop_and_get_pieces_d(piece, 1, 1)
+        rd_pieces: List[ConnectFourPiece] = self.loop_and_get_pieces_d(piece, 1, -1)
+        ld_pieces: List[ConnectFourPiece] = self.loop_and_get_pieces_d(piece, -1, -1)
+        lu_pieces: List[ConnectFourPiece] = self.loop_and_get_pieces_d(piece, -1, 1)
+        return max([set(ld_pieces+ru_pieces), set(lu_pieces+rd_pieces)], key=len)
         
 
-    def is_diagonal_from(self, piece: ConnectFourPiece, p_ref: ConnectFourPiece, dir_x: int, dir_y: int) -> None:
-        return (
-            ((p_ref.x == piece.x + (dir_x*1)) and (p_ref.y == piece.y + (dir_y*1))) or
-            ((p_ref.x == piece.x + (dir_x*2)) and (p_ref.y == piece.y + (dir_y*2))) or
-            ((p_ref.x == piece.x + (dir_x*3)) and (p_ref.y == piece.y + (dir_y*3))) or
-            ((p_ref.x == piece.x + (dir_x*4)) and (p_ref.y == piece.y + (dir_y*4)))
-        )
-
-
-    def loop_and_get_pieces(self, user_id: int, anchors: List[ConnectFourPiece], start: int, stop: int, direction: int, do_break: bool = True) -> List[ConnectFourPiece]:
+    def loop_and_get_pieces(self, user_id: int, anchors: List[ConnectFourPiece], start: int, stop: int, direction: int) -> List[ConnectFourPiece]:
         pieces: List[ConnectFourPiece] = []
 
         for i in range(start, stop, direction):
@@ -98,13 +91,36 @@ class ConnectFourBoard:
             if piece.user_id == user_id:
                 pieces.append(piece)
             else:
-                if do_break:
-                    break
+                break
 
             if len(pieces) == 4:
                 return pieces
 
         return pieces
+
+
+    def loop_and_get_pieces_d(self, piece: ConnectFourPiece, x_dir: int, y_dir: int) -> List[ConnectFourPiece]:
+        x_offset: int = piece.x
+        y_offset: int = piece.y
+        x_stop: int = (piece.x + (x_dir*4))
+        y_stop: int = (piece.y + (y_dir*4))
+
+        d_pieces: List[ConnectFourPiece] = []
+
+        while (x_offset != x_stop and x_offset not in (-1, BOARD_WIDTH)) and (y_offset != y_stop and y_offset not in (-1, BOARD_HEIGHT)):
+            d_piece = self.pieces[x_offset][y_offset]
+            if d_piece and d_piece.user_id == piece.user_id:
+                d_pieces.append(d_piece)
+            else:
+                break
+
+            if len(d_pieces) == 4:
+                break
+
+            x_offset += x_dir
+            y_offset += y_dir
+
+        return d_pieces
 
     
     def create_connect_four(self, pieces: List[ConnectFourPiece]) -> None:

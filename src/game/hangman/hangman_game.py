@@ -76,8 +76,6 @@ class HangmanGame:
 
                 if is_random or is_solo:
                     l_content = self.get_random_word_or_name()
-                    if is_solo:
-                        l_content += " (solo game)"
                 elif is_custom:
                     self.game_type = "Custom word/phrase by {0}".format(message.author.name)
 

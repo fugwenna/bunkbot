@@ -52,7 +52,7 @@ class ConnectFourRenderer:
     # determined in the game instance, render the
     # updated pieces out into the channel
     async def update_board(self, board: ConnectFourBoard, is_new: bool, player: BunkUser) -> None:
-        cols: List[str] = []
+        cols: List[str] = [] 
         self.last_move_by = player
 
         if player and (player.id != self.player_one.id):
@@ -90,15 +90,17 @@ class ConnectFourRenderer:
         if position == 5:
             content += "\t\t\t Players:"
         elif position == 4:
-            content += self.bold_name_if_turn("{0}  {1}".format(PLAYER1_PIECE, self.player_one.name), self.is_player_ones_turn, board.is_connect_four)
+            content += self.bold_name_if_turn("{0}  {1}".format(PLAYER1_PIECE, self.player_one.name), self.is_player_ones_turn, board)
         elif position == 3:
-            content += self.bold_name_if_turn("{0}  {1}".format(PLAYER2_PIECE, player_two_str), not self.is_player_ones_turn, board.is_connect_four)
+            content += self.bold_name_if_turn("{0}  {1}".format(PLAYER2_PIECE, player_two_str), not self.is_player_ones_turn, board)
+        elif position == 2 and board.last_drop_location:
+            content += "\t\t\t Last played: {0}".format(board.last_drop_location)
 
         return content
 
 
-    def bold_name_if_turn(self, name: str, is_turn: bool, is_win: bool) -> str:
-        if not is_win and self.player_two and is_turn:
+    def bold_name_if_turn(self, name: str, is_turn: bool, board: ConnectFourBoard) -> str:
+        if not board.is_connect_four and self.player_two and is_turn:
             return "\t\t\t **{0}**".format(name)
 
         return "\t\t\t {0}".format(name)
@@ -127,4 +129,4 @@ class ConnectFourRenderer:
 
         if board.is_connect_four:
             await self.channel.send("CONNECT FOUR {0} !!!!".format(self.last_move_by.mention))
-            await self.channel.send("This game will close in 10 seconds")
+            await self.channel.send("This game will close in 15 seconds")
