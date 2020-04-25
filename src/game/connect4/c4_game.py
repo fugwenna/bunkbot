@@ -33,7 +33,7 @@ class ConnectFourGame(CustomGame):
                     return
 
             player_id: int = message.author.id
-            piece: str = PLAYER1_PIECE if player_id == self.creator.id else PLAYER2_PIECE
+            piece: str = (PLAYER1_PIECE, PLAYER2_PIECE)[player_id == self.creator.id]
             content: str = self.get_content(message)
             is_bad_option: bool = len(content) > 1 or not content.isdigit() or int(content) > 7
 
