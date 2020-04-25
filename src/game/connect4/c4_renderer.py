@@ -57,7 +57,7 @@ class ConnectFourRenderer:
             self.player_two = player
 
         if self.player_two:
-            self.current_player_move_id = (self.player_two.id, self.player_one.id)[player.id == self.player_one.id]
+            self.current_player_move_id = self.player_two.id if player.id == self.player_one.id else self.player_one.id
 
         # loop over each column and 
         # fill the row from the bottom up
