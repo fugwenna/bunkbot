@@ -1,4 +1,4 @@
-from discord import Game, Member, TextChannel, PermissionOverwrite
+from discord import Game, Member, TextChannel, PermissionOverwrite, Message
 from random import randint
 
 from ..bunkbot import BunkBot
@@ -69,15 +69,16 @@ class GameService(Service):
 
     # for custom bunkbot games, create a new channel under the 'custom games'
     # category with a selectd prefix
-    async def create_game_channel(self, name: str, user: BunkUser) -> TextChannel:
+    async def create_game_channel(self, name: str, user: BunkUser, all_users: bool = True) -> TextChannel:
         channel: TextChannel = None
 
         if self.channels.CUSTOM_GAMES is not None:
             c_name: str = "{0}-{1}".format(name, user.name)
 
             bot_role_id: int = 437263429057773608 # TODO - config
+
             ow: dict = { 
-                self.bot.server.default_role: PermissionOverwrite(read_messages=True, send_messages=True),
+                self.bot.server.default_role: PermissionOverwrite(read_messages=all_users, send_messages=all_users),
                 self.bot.server.get_member(user.id): PermissionOverwrite(read_messages=True, send_messages=True),
                 self.server.get_role(bot_role_id): PermissionOverwrite(read_messages=True, send_messages=True)
             }
@@ -86,19 +87,8 @@ class GameService(Service):
             if count > 0:
                 c_name += "_{0}".format(count)
 
-            channel = await self.channels.CUSTOM_GAMES.create_text_channel(c_name, overwrites=ow)
+            channel = await self.channels.CUSTOM_GAMES.create_text_channel(c_name, overwrites=ow, slowmode_delay=1)
         else:
             await self.channels.log_error("Cannot create custom game - CUSTOM-GAMES channel cannot be found", "GameService")
 
         return channel
-
-
-    def is_game_channel(self, game_name: str, channel_name: str, user_name: str) -> bool:
-        channel_split: str = channel_name.split("-")
-        channel_game_name: str = channel_split[0]
-        channel_user: str = channel_split[1].split("_")[0]
-
-        actual_name: str = "{0}-{1}".format(channel_game_name, channel_user)
-        target_name: str = "{0}-{1}".format(game_name, user_name)
-
-        return actual_name == target_name

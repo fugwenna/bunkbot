@@ -42,10 +42,8 @@ class ConnectFourRenderer:
         self.player_one = player_one
         self.current_player_move_id = player_one.id
 
-        ow = self.channel.overwrites
-        await self.channel.edit(overwrites=ow, slowmode_delay=1)
         await self.update_board(board, True, None)
-        self.new_game_message = await self.channel.send("New ConnectFour Game! Waiting for another player...")
+        self.new_game_message = await self.channel.send("New ConnectFour Game by {0}! Waiting for another player...".format(player_one.mention))
 
 
     # when a player has entered a valid valud 

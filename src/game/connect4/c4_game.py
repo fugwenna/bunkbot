@@ -13,8 +13,7 @@ a creator and parent channel similar to hangman
 """
 class ConnectFourGame(CustomGame):
     def __init__(self, creator: BunkUser, channel: TextChannel):
-        super().__init__(channel)
-        self.creator: BunkUser = creator
+        super().__init__(channel, creator)
         self.opponent: BunkUser = None
         self.board: ConnectFourBoard = None
         self.renderer: ConnectFourRenderer = ConnectFourRenderer(channel)
@@ -42,3 +41,5 @@ class ConnectFourGame(CustomGame):
                 updated: bool = self.board.update_piece(int(content)-1, player_id, piece)
                 if updated:
                     await self.renderer.update_board(self.board, False, user)
+
+            self.is_complete = self.board.is_connect_four

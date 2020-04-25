@@ -29,3 +29,4 @@ class Service:
 
                 if not self.bot.server:
                     self.bot.server = self.server
+                    

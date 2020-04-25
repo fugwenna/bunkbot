@@ -3,7 +3,9 @@ from typing import List
 from discord import Message, TextChannel, PermissionOverwrite, CategoryChannel
 from random_words import RandomWords, RandomNicknames
 
+from .hangman_constants import HANGMAN_TEMPLATE
 from .hangman_renderer import HangmanRenderer
+from ..custom_game import CustomGame
 from ...core.bunk_exception import BunkException
 from ...core.bunk_user import BunkUser
 from ...core.functions import roll_int
@@ -12,18 +14,12 @@ from ...core.functions import roll_int
 """
 Class that represents the actual game of hangman
 """
-class HangmanGame:
-    def __init__(self, creator: BunkUser):
-        self.creator: BunkUser = creator
-        self.renderer: HangmanRenderer = None
+class HangmanGame(CustomGame):
+    def __init__(self, creator: BunkUser, channel: TextChannel):
+        super().__init__(channel, creator)
         self.random: RandomWords = RandomWords()
         self.nicks: RandomNicknames = RandomNicknames()
-        self.set_defaults()
-
-
-    # set the defaults for a new game, consisting
-    # of the gallows, phrase/template, guesses and matches
-    def set_defaults(self) -> None:
+        self.renderer: HangmanRenderer = HangmanRenderer(channel)
         self.phrase: List[List[str]] = []
         self.flat_phrase: List[str] = []
         self.guesses: List[str] = []
@@ -38,36 +34,25 @@ class HangmanGame:
 
 
     # start a new or re-created game
-    async def start(self, hangman_channel: CategoryChannel) -> None:
-        if self.renderer is None:
-            self.renderer = HangmanRenderer(hangman_channel)
-            self.name = await self.renderer.create_new_game(hangman_channel, self.creator)
-        else:
-            await self.renderer.restart_game()
-            self.set_defaults()
+    async def start(self) -> None:
+        self.name = await self.renderer.create_game(self.creator)
 
 
     # update the state of the game based on the
     # content of the user input
-    async def update(self, message: Message) -> None:
-        await message.delete()
-        l_content: str = message.content.lower()
-        
-        if l_content == "cancel":
-            self.is_cancelled = True
-            await self.renderer.cancel_game()
-        else:
+    async def update(self, message: Message, user: BunkUser) -> None:
+        if not await self.is_cancel(message, self.creator):
+            l_content: str = message.content.lower()
             if self.is_active:
                 status: int = await self.check_if_match(l_content)
                 is_added: bool = status == 1
 
                 if status != 2:
-                    await self.renderer.update(self.phrase, self.guesses, self.matches, is_added=is_added, user=message.author)
+                    await self.renderer.update(self.phrase, self.guesses, self.matches, is_added=is_added, user=user)
 
-                if self.is_win:
-                    await self.restart_game(True)
-                elif self.is_loss:
-                    await self.restart_game(False)
+                if self.is_win or self.is_loss:
+                    self.is_complete = True
+                    await self.renderer.complete_game(self.is_win)
             else:
                 self.is_active = True
                 is_random = l_content == "random"
@@ -77,7 +62,7 @@ class HangmanGame:
                 if is_random or is_solo:
                     l_content = self.get_random_word_or_name()
                 elif is_custom:
-                    self.game_type = "Custom word/phrase by {0}".format(message.author.name)
+                    self.game_type = "Custom word/phrase by {0}".format(user.name)
 
                 self.phrase = [list(x) for x in l_content.split()]
                 self.flat_phrase = [i for sl in self.phrase for i in sl]
@@ -111,20 +96,12 @@ class HangmanGame:
                     self.guesses.append(guess)
 
         self.is_win = len(self.matches) == len(self.flat_phrase)
-        self.is_loss = not self.is_win and ((len(flat_guess) > 1) or (len(self.guesses) == len(self.renderer.hangman_template)-2))
+        self.is_loss = not self.is_win and ((len(flat_guess) > 1) or (len(self.guesses) == len(HANGMAN_TEMPLATE)-2))
 
         if self.is_win:
             status = 1
 
         return status
-
-
-    # after a win, restart the game after 
-    # 10 seconds of waiting
-    async def restart_game(self, win: bool) -> None:
-        await self.renderer.complete_game(win)
-        await asyncio.sleep(10)
-        await self.start(self.renderer.hangman_channel)
 
 
     def get_random_word_or_name(self) -> str:
