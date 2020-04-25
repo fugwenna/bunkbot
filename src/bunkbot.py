@@ -36,6 +36,7 @@ class BunkBot(Bot):
         for cog in get_cogs():
             self.load_extension(cog)
 
+        self.server = self.guilds[0] # assume privately loaded bot
         await self.on_initialized.emit()
 
 

@@ -19,7 +19,9 @@ class Service:
     # will load the server instance and other
     # default utils
     async def load(self) -> None:
-        if self.database:
+        if self.bot.server:
+            self.server = self.bot.server
+        elif self.database:
             srv = self.database.get(DB_SERVER_ID, False)
 
             if srv:

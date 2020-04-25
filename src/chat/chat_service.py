@@ -82,7 +82,7 @@ class ChatService(Service):
 
             await message.channel.send(response)
         except Exception:
-            await message.channel.send(":bunkybrewster: I'm sorry... I cannot talk right now")
+            await message.channel.send("I'm sorry... I cannot talk right now")
 
 
     def alter_response(self, user: BunkUser, response: str) -> str:

@@ -29,11 +29,8 @@ class HangmanCog(Cog):
     @command(help="Create a game of hangman!", aliases=["hm"])
     async def hangman(self, ctx: Context) -> None:
         try:
-            if self.bot.server:
-                await ctx.message.delete()
-                await self.create_hangman_game(ctx)
-            else:
-                await self.channels.log_error("Cannot create hangman game with null server", "HangmanCog")
+            await ctx.message.delete()
+            await self.create_hangman_game(ctx)
         except Exception as e:
             await self.channels.log_error(e, "hangman")
 
