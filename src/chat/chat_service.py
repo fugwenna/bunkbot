@@ -73,13 +73,16 @@ class ChatService(Service):
 
     # only respond to active conversations
     async def respond(self, chat: Chat, message: Message, user: BunkUser) -> None:
-        await message.channel.trigger_typing()
-        content: str = self.override(message)
+        try:
+            await message.channel.trigger_typing()
+            content: str = self.override(message)
 
-        response: str = self.chat_bot.say(chat.reply(content, user))
-        response = self.alter_response(user, response)
+            response: str = self.chat_bot.say(chat.reply(content, user))
+            response = self.alter_response(user, response)
 
-        await message.channel.send(response)
+            await message.channel.send(response)
+        except Exception:
+            await message.channel.send(":bunkybrewster: I'm sorry... I cannot talk right now")
 
 
     def alter_response(self, user: BunkUser, response: str) -> str:
