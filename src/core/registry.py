@@ -6,23 +6,25 @@ from ..chat.chat_service import ChatService
 from ..core.constants import DB_TOKEN
 from ..db.database_service import DatabaseService
 from ..game.game_service import GameService
+from ..rpg.rpg_service import RpgService
 from ..user.role_service import RoleService
 from ..user.sudo_service import SudoService
 from ..user.user_service import UserService
-from ..rpg.rpg_service import RpgService
+from ..weather.weather_service import WeatherService
 
 
 """
 'DI' singletons for cogs so that stored refs are persisted
 """
-DATABASE_SERVICE: DatabaseService = None
 CHANNEL_SERVICE: ChannelService = None
 CHAT_SERVICE: ChatService = None
+DATABASE_SERVICE: DatabaseService = None
 GAME_SERVICE: GameService = None
 ROLE_SERVICE: RoleService = None
+RPG_SERVICE: RpgService = None
 SUDO_SERVICE: SudoService = None
 USER_SERVICE: UserService = None
-RPG_SERVICE: RpgService = None
+WEATHER_SERVICE: WeatherService = None
 
 
 """
@@ -30,14 +32,15 @@ On bot load, initialize each keyword defined
 service with the instance of the bot
 """
 def initialize(bot: BunkBot) -> None:
-    global DATABASE_SERVICE
     global CHANNEL_SERVICE
     global CHAT_SERVICE
-    global ROLE_SERVICE
-    global SUDO_SERVICE
-    global USER_SERVICE
+    global DATABASE_SERVICE
     global GAME_SERVICE
+    global SUDO_SERVICE
+    global ROLE_SERVICE
     global RPG_SERVICE
+    global USER_SERVICE
+    global WEATHER_SERVICE
 
     logger = ErrorLogService()
 
@@ -49,6 +52,7 @@ def initialize(bot: BunkBot) -> None:
     SUDO_SERVICE = SudoService(bot, DATABASE_SERVICE, CHANNEL_SERVICE)
     CHAT_SERVICE = ChatService(bot, DATABASE_SERVICE, USER_SERVICE, CHANNEL_SERVICE)
     RPG_SERVICE = RpgService(bot, DATABASE_SERVICE, USER_SERVICE)
+    WEATHER_SERVICE = WeatherService(bot, DATABASE_SERVICE, CHANNEL_SERVICE)
 
     try:
         bot.run(DATABASE_SERVICE.get(DB_TOKEN))
