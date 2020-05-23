@@ -1,9 +1,4 @@
-OKWHITE = '\033[00m'
-OKBLUE = '\033[94m'
-OKGREEN = '\033[92m'
-WARNING = '\033[93m'
-FAIL = '\033[91m'
-BOLD = '\033[1m'
+from ..core.constants import BOLD, OKGREEN, OKBLUE, WARNING, ERROR
 
 
 def print_info(msg: str) -> None:
@@ -22,7 +17,7 @@ def print_warning(msg: str) -> None:
 
 
 def print_fail(msg: str) -> None:
-    print(FAIL + msg)
+    print(ERROR + msg)
 
 
 def prompt(msg: str) -> str:

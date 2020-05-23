@@ -12,8 +12,7 @@ from ..user.user_service import UserService
 DESCRIPTION = """Basic one in six chance for a russian roulette"""
 
 class Roulette(Cog):
-    def __init__(self, bot: BunkBot, channels: ChannelService, users: USER_SERVICE):
-        self.bot: BunkBot = bot
+    def __init__(self, channels: ChannelService, users: USER_SERVICE):
         self.channels: ChannelService = channels
         self.users: UserService = users
 
@@ -21,7 +20,7 @@ class Roulette(Cog):
     @command(pass_context=True, cls=None, help=DESCRIPTION)
     async def roulette(self, ctx: Context) -> None:
         try:
-            await self.channels.start_typing(ctx)
+            await ctx.trigger_typing()
 
             message: str = "Click..."
             user: BunkUser = self.users.get_by_id(ctx.message.author.id)
@@ -36,4 +35,4 @@ class Roulette(Cog):
 
 
 def setup(bot) -> None:
-    bot.add_cog(Roulette(bot, CHANNEL_SERVICE, USER_SERVICE))
+    bot.add_cog(Roulette(CHANNEL_SERVICE, USER_SERVICE))

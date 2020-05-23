@@ -1,15 +1,12 @@
 USER_NAME_REGEX = r"[^\x00-\x7F]+"
 URL_REGEX = r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
-DEFAULT_DB_PATH: str = "src/db/db.json"
 
 
 ##############################################
 
 
-CHANNEL_BOT_LOGS: str = "bot-logs"
 CHANNEL_BOT_TESTING: str = "bot-testing"
 CHANNEL_CUSTOM_GAMES: str = "custom-games"
-CHANNEL_GENERAL: str = "general"
 CHANNEL_GAMES: str = "games"
 CHANNEL_GAMING: str = "gaming"
 CHANNEL_HOTS: str = "hots"
@@ -47,3 +44,10 @@ ROLE_MAX: int = 250
 ROLE_MAX_PRIMARY: int = 11
 ROLE_MAX_COLORS: int = 150
 ROLE_MAX_CHANNELS: int = 50
+
+OKWHITE = '\033[00m'
+OKBLUE = '\033[94m'
+OKGREEN = '\033[92m'
+WARNING = '\033[93m'
+ERROR = '\033[91m'
+BOLD = '\033[1m'

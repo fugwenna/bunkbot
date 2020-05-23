@@ -78,7 +78,7 @@ class UserService(Service):
         if not user.was_added:
             welcome_msg = "Welcome back, {0}"
 
-        await self.channels.GENERAL.send(welcome_msg.format(bunk_user.mention))
+        await self.channels.send_to_primary_channel(welcome_msg.format(bunk_user.mention))
         await self.channels.log_info("{0} has joined the server {1}".format(bunk_user.name, self.bot.ADMIN_USER.mention), self.channels.USER_LOG)
 
 

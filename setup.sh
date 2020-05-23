@@ -1,3 +1,3 @@
-
 #!/bin/sh
-python3 src/setup/setup.py
+pip3 install -r requirements.txt
+python3 -m src.setup.setup

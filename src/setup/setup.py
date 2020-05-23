@@ -1,5 +1,5 @@
-from config import create_config
-from ezio import print_success
+from .config import create_config
+from .ezio import print_success
 
 
 """
@@ -10,4 +10,4 @@ within a config.json file (this is not the same as db.json)
 
 if __name__ == "__main__":
     if create_config():
-        print_success("Setup complete.", True)
+        print_success("\nSetup complete. Run 'python3 main.py' to start the bot!", True)

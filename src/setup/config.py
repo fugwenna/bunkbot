@@ -1,10 +1,10 @@
 import json
 from os import path
 from typing import IO
-from tinydb import TinyDB
 
-from ezio import prompt, print_success, print_warning, print_info, OKWHITE
-from fs import DEFAULT_CONFIG_PATH, DEFAULT_DB_PATH
+from .ezio import prompt, print_success, print_warning, print_info
+from ..core.constants import OKWHITE
+from ..etc.config_constants import DEFAULT_CONFIG_PATH, CHANNEL_PRIMARY, CHANNEL_LOGS
 
 
 """
@@ -13,13 +13,26 @@ channels, roles, db config etc
 """
 
 def _setup_primary_channel(config: dict) -> dict:
-    print_info("Primary chat channel required. This is used for new user prompts.")
-    config["primary_channel"] = prompt("Enter primary chat channel name: ")
-    print_success("Primary chat channel saved: {0}".format(OKWHITE + config["primary_channel"]))
-    return config
+    return _get_prompt_for_setup(
+        config,
+        CHANNEL_PRIMARY,
+        "general",
+        "Primary chat channel required. This is used for new user prompts.",
+        "Enter primary chat channel name {0}".format(OKWHITE + "(default 'general'): "),
+        "Primary chat channel saved: "
+    )
 
 
 def _setup_log_channels(config: dict) -> dict:
+    config = _get_prompt_for_setup(
+        config,
+        CHANNEL_LOGS,
+        "bot-logs",
+        "Enter a log channel (bot will log errors/info here).",
+        "Log channel {0}".format(OKWHITE + "(default 'bot-logs'): "),
+        "Log channel saved: "
+    )
+
     return config
 
 
@@ -31,7 +44,19 @@ def _setup_api_keys(config: dict) -> dict:
     return config
 
 
+def _get_prompt_for_setup(config: dict, config_prop: str, val: str, info: str, prompt_str: str, success: str) -> dict:
+    print_info(info)
+    config[config_prop] = prompt(prompt_str)
+
+    if (config[config_prop].strip() == ""):
+        config[config_prop] = val
+
+    print_success("{0} {1}\n".format(success, OKWHITE + config[config_prop]))
+    return config
+
+
 def create_config() -> bool:
+    print("\n")
     if not path.exists(path.realpath(DEFAULT_CONFIG_PATH)):
         with open(DEFAULT_CONFIG_PATH, "w") as f:
             f_config: dict = {}

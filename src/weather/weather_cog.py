@@ -12,8 +12,8 @@ WEATHER_DESCRIPTION: str = """Get the current weather based on zipcode \n
     Example: !weather 21201
 """
 class Weather(Cog):
-    def __init__(self, weather: WeatherService):
-        self.weather_svc: WeatherService = weather
+    def __init__(self, weather_svc: WeatherService):
+        self.weather_svc: WeatherService = weather_svc
 
 
     @command(help=WEATHER_DESCRIPTION)
