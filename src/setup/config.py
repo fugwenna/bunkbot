@@ -4,19 +4,34 @@ from typing import IO
 
 from .ezio import prompt, print_success, print_warning, print_info
 from ..core.constants import OKWHITE
-from ..etc.config_constants import DEFAULT_CONFIG_PATH, CHANNEL_PRIMARY, CHANNEL_LOGS
+from ..etc.config_constants import \
+    DEFAULT_CONFIG_PATH, CHANNEL_PRIMARY, CHANNEL_LOGS, \
+    TOKEN_DISCORD, KEY_CLEVERBOT, KEY_WEATHER
 
 
 """
 Prompt user to create the default *required* configuration, i.e.
 channels, roles, db config etc
 """
+def _setup_discord_token(config: dict) -> None:
+    if config and config.get(TOKEN_DISCORD):
+        return
 
-def _setup_primary_channel(config: dict) -> dict:
+    _get_prompt_for_setup(
+        config,
+        TOKEN_DISCORD,
+        "",
+        "Discord developer token required for the bot",
+        "Enter Discord developer token: ",
+        "Discord token saved"
+    )
+
+
+def _setup_primary_channel(config: dict) -> None:
     if config and config.get(CHANNEL_PRIMARY):
-        return config
+        return
 
-    return _get_prompt_for_setup(
+    _get_prompt_for_setup(
         config,
         CHANNEL_PRIMARY,
         "general",
@@ -26,11 +41,11 @@ def _setup_primary_channel(config: dict) -> dict:
     )
 
 
-def _setup_log_channels(config: dict) -> dict:
+def _setup_log_channels(config: dict) -> None:
     if config and config.get(CHANNEL_LOGS):
-        return config
+        return
 
-    return _get_prompt_for_setup(
+    _get_prompt_for_setup(
         config,
         CHANNEL_LOGS,
         "bot-logs",
@@ -40,29 +55,51 @@ def _setup_log_channels(config: dict) -> dict:
     )
 
 
-def _setup_mod_roles(config: dict) -> dict:
-    return config
+def _setup_api_keys(config: dict) -> None:
+    if not config or not config.get(KEY_CLEVERBOT):
+        _get_prompt_for_setup(
+            config,
+            KEY_CLEVERBOT,
+            "",
+            "Cleverbot API key for chat capabilities",
+            "Enter your API key {0}".format(OKWHITE + "(leave blank to not configure): "),
+            "Cleverbot API key saved",
+            False
+        )
+
+    if not config or not config.get(KEY_WEATHER):
+        _get_prompt_for_setup(
+            config,
+            KEY_WEATHER,
+            "",
+            "Open weather API key for weather updates",
+            "Enter your open weather API key {0}".format(OKWHITE + "(leave blank not to configure): "),
+            "Open weather API key saved",
+            False
+        )
 
 
-def _setup_api_keys(config: dict) -> dict:
-    return config
-
-
-def _get_prompt_for_setup(config: dict, config_prop: str, val: str, info: str, prompt_str: str, success: str) -> dict:
+def _get_prompt_for_setup(config: dict, config_prop: str, val: str, info: str, prompt_str: str, success: str, create_default: bool = True) -> None:
     print_info(info)
-    config[config_prop] = prompt(prompt_str)
+    config[config_prop] = prompt(prompt_str + OKWHITE)
 
-    if (config[config_prop].strip() == ""):
+    if create_default and config[config_prop].strip() == "":
         config[config_prop] = val
 
-    print_success("{0}: {1}\n".format(success, OKWHITE + config[config_prop]))
-    return config
+    if config[config_prop]:
+        print_success("{0}: {1}\n".format(success, OKWHITE + config[config_prop]))
+    else:
+        print_warning("No configuration set for {0}".format(OKWHITE + config_prop))
 
 
 def create_config() -> bool:
     print("\n")
     try:
-        with open(path.realpath(DEFAULT_CONFIG_PATH), "r+") as f:
+        if not path.exists(DEFAULT_CONFIG_PATH):
+            tmp = open(DEFAULT_CONFIG_PATH, "w+")
+            tmp.close()
+
+        with open(DEFAULT_CONFIG_PATH, "r+") as f:
             f_config: dict = None
 
             try:
@@ -70,15 +107,16 @@ def create_config() -> bool:
             except:
                 f_config = {}
 
-            f_config = _setup_primary_channel(f_config)
-            f_config = _setup_log_channels(f_config)
-            f_config = _setup_mod_roles(f_config)
-            f_config = _setup_api_keys(f_config)
+            _setup_discord_token(f_config)
+            _setup_primary_channel(f_config)
+            _setup_log_channels(f_config)
+            _setup_api_keys(f_config)
+
             f.seek(0)
             f.truncate()
             f.write(json.dumps(f_config, indent=4))
 
         return True
-    except Exception as e:
+    except:
         print_warning("\nConfig file could not be created. Exiting.")
         return False
