@@ -2,8 +2,7 @@ from discord import TextChannel, CategoryChannel, Message, Embed
 from discord.ext.commands import Context
 
 from ..core.constants import \
-    CHANNEL_BOT_TESTING, \
-    CHANNEL_USERS, CHANNEL_MOD_CHAT, CHANNEL_GAMES, CHANNEL_CUSTOM_GAMES
+    CHANNEL_CUSTOM_GAMES
 
 from ..bunkbot import BunkBot
 from ..core.service import Service
@@ -21,11 +20,6 @@ Service responsible for handling channel references
 class ChannelService(Service):
     def __init__(self, bot: BunkBot, database: DatabaseService):
         super().__init__(bot, database)
-        self.BOT_TESTING: TextChannel = None
-        self.USER_LOG: TextChannel = None
-        self.WEATHER: TextChannel = None
-        self.MOD_CHAT: TextChannel = None
-        self.GAMES: CategoryChannel = None
         self.CUSTOM_GAMES: CategoryChannel = None
 
 
@@ -35,9 +29,6 @@ class ChannelService(Service):
         await super().load()
 
         if self.server is not None: 
-            self.BOT_TESTING = await self._get(CHANNEL_BOT_TESTING)
-            self.USER_LOG = await self._get(CHANNEL_USERS)
-            self.GAMES = await self._get(CHANNEL_GAMES)
             self.CUSTOM_GAMES = await self._get(CHANNEL_CUSTOM_GAMES)
 
             log_channel: TextChannel = await self._get(self.config.log_channel)

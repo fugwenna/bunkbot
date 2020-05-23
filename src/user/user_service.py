@@ -59,7 +59,7 @@ class UserService(Service):
 
             if len(new_users) > 0:
                 new_user_msg = "New users: {0}".format(", ".join(new_users)) 
-                await self.channels.log_info(new_user_msg, self.channels.USER_LOG)
+                await self.channels.log_info(new_user_msg)
 
         await self.roles.prune_orphaned_roles("color-")
 
@@ -79,12 +79,12 @@ class UserService(Service):
             welcome_msg = "Welcome back, {0}"
 
         await self.channels.send_to_primary_channel(welcome_msg.format(bunk_user.mention))
-        await self.channels.log_info("{0} has joined the server {1}".format(bunk_user.name, self.bot.ADMIN_USER.mention), self.channels.USER_LOG)
+        await self.channels.log_info("{0} has joined the server {1}".format(bunk_user.name, self.bot.ADMIN_USER.mention))
 
 
     # inform moderators when users are removed from the server
     async def handle_user_removal(self, member: Member) -> None:
-        await self.channels.USER_LOG.send(":x: {0} has left the server {1}".format(member.name, self.bot.ADMIN_USER.mention))
+        await self.channels.log_info(":x: {0} has left the server {1}".format(member.name, self.bot.ADMIN_USER.mention))
         await self.roles.prune_orphaned_roles("color-")
 
 
