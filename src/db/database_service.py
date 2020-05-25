@@ -5,7 +5,7 @@ from tinydb.database import Table
 from .database_user import DatabaseUser
 from ..core.bunk_user import BunkUser
 from ..core.bunk_exception import BunkException
-from ..core.constants import DB_SERVER_ID, DB_PATH, DB_CONFIG, DB_USERS, DB_RPG, DB_HOLIDAYS, DB_STREAMS, DB_GAMES, DB_TOKEN
+from ..core.constants import DB_SERVER_ID, DB_PATH, DB_CONFIG, DB_USERS, DB_RPG, DB_HOLIDAYS, DB_STREAMS, DB_GAMES, DB_TOKEN, DB_TENOR
 from ..core.functions import simple_string
 from ..bunkbot import BunkBot
 
