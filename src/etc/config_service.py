@@ -25,7 +25,7 @@ class ConfigService:
         if not path.exists(path.realpath(DEFAULT_CONFIG_PATH)):
             return None
 
-        with open(DEFAULT_CONFIG_PATH) as f:
+        with open(DEFAULT_CONFIG_PATH, "r") as f:
             try:
                 config = json.load(f)
                 return config[name]
