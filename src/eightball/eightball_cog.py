@@ -15,18 +15,18 @@ import json
 import urllib.request,urllib.parse,urllib.error
 import pprint
 
-ROLE_DESCRIPTION: str = """eightball gives a random GIF fortune for any question asked.\n
+EIGHTBALL_DESCRIPTION: str = """eightball gives a random GIF fortune for any question asked.\n
     Example: !eightball Will I win the Lottery?
     Example: !8ball Will I ever be a real boy?
 """
-class eightball(Cog):
+class EightBall(Cog):
     def __init__(self, channels: ChannelService, users: UserService, database: DatabaseService):
         self.database: DatabaseService = database
         self.channels: ChannelService = channels
         self.users: UserService = users
         self.api_key: str = database.get(DB_TENOR)
 
-    @command(help=ROLE_DESCRIPTION, aliases=["8ball"])
+    @command(help=EIGHTBALL_DESCRIPTION, aliases=["8ball"])
     async def eightball(self, ctx: Context) -> None:
         try:
             await ctx.trigger_typing()
@@ -35,29 +35,32 @@ class eightball(Cog):
                        "shit","yass", "annoy", "annoyed", "nah","no way","un huh","excited", "cheer", "beer", "cheers",
                        "no worries","yas bitch", "rage","sorry","ok","love",]
             lmt = 6
-            r = requests.get("https://api.tenor.com/v1/anonid?key=%s" % self.api_key)
+            if self.api_key is not None:
+                r = requests.get("https://api.tenor.com/v1/anonid?key=%s" % self.api_key)
 
-            if r.status_code == 200:
-                anon_id = json.loads(r.content)["anon_id"]
+                if r.status_code == 200:
+                    anon_id = json.loads(r.content)["anon_id"]
+                else:
+                    anon_id = ""
+                search_term = choice(answers)
+                r = requests.get(
+                    "https://api.tenor.com/v1/search?q=%s&key=%s&limit=%s&anon_id=%s" %   
+                     (search_term, self.api_key, lmt, anon_id))
+
+                if r.status_code == 200:
+                    top_8gifs = json.loads(r.content)
+                    imglist = []
+                    for i in range(len(top_8gifs['results'])):
+                            url = top_8gifs['results'][i]['media'][0]['gif']['url'] 
+                            imglist.append(url)
+                else:
+                    top_8gifs = None
+
+                await ctx.send(choice(imglist))
             else:
-                anon_id = ""
-            search_term = choice(answers)
-            r = requests.get(
-                "https://api.tenor.com/v1/search?q=%s&key=%s&limit=%s&anon_id=%s" %   
-                 (search_term, self.api_key, lmt, anon_id))
-
-            if r.status_code == 200:
-                top_8gifs = json.loads(r.content)
-                imglist = []
-                for i in range(len(top_8gifs['results'])):
-                        url = top_8gifs['results'][i]['media'][0]['gif']['url'] 
-                        imglist.append(url)
-            else:
-                top_8gifs = None
-
-            await ctx.send(choice(imglist))
+                await ctx.send("The spirits are not speaking today, Please Try again Later")
         except Exception as e:
             await self.channels.log_error(e, "eightball")
 
 def setup(bot: BunkBot) -> None:
-    bot.add_cog(eightball(CHANNEL_SERVICE, USER_SERVICE,DATABASE_SERVICE))
+    bot.add_cog(EightBall(CHANNEL_SERVICE, USER_SERVICE,DATABASE_SERVICE))
