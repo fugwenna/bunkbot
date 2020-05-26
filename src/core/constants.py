@@ -1,29 +1,21 @@
-USER_NAME_REGEX = r"[^\x00-\x7F]+"
-URL_REGEX = r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
-OKWHITE = '\033[00m'
-OKBLUE = '\033[94m'
-OKGREEN = '\033[92m'
-WARNING = '\033[93m'
-ERROR = '\033[91m'
-BOLD = '\033[1m'
+USER_NAME_REGEX: str = r"[^\x00-\x7F]+"
+URL_REGEX: str = r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
+OKWHITE: str = '\033[00m'
+OKBLUE: str = '\033[94m'
+OKGREEN: str = '\033[92m'
+WARNING: str = '\033[93m'
+ERROR: str = '\033[91m'
+BOLD: str = '\033[1m'
 
 
 ##############################################
 CHANNEL_CUSTOM_GAMES: str = "custom-games"
 
 DB_PATH: str = "src/db/db.json"
-DB_TOKEN: str = "token"
-DB_CLEVERBOT: str = "cleverbot"
 DB_SERVER_ID: str = "serverid"
-DB_WEATHER: str = "weather"
 DB_TENOR: str = "tenor"
-DB_TWITCH_ID: str = "twitch_id"
-DB_TWITCH_SECRET: str = "twitch_secret"
 DB_CONFIG: str = "config"
 DB_USERS: str = "users"
-DB_RPG: str = "rpg"
-DB_HOLIDAYS: str = "holiday"
-DB_STREAMS: str = "streams"
 DB_GAMES: str = "game_names"
 
 ROLE_ADMIN: str = "admin"

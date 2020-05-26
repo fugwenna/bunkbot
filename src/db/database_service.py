@@ -5,7 +5,7 @@ from tinydb.database import Table
 from .database_user import DatabaseUser
 from ..core.bunk_user import BunkUser
 from ..core.bunk_exception import BunkException
-from ..core.constants import DB_SERVER_ID, DB_PATH, DB_CONFIG, DB_USERS, DB_RPG, DB_HOLIDAYS, DB_STREAMS, DB_GAMES, DB_TOKEN, DB_TENOR
+from ..core.constants import DB_SERVER_ID, DB_PATH, DB_CONFIG, DB_USERS, DB_GAMES, DB_TENOR
 from ..core.functions import simple_string
 from ..bunkbot import BunkBot
 
@@ -18,9 +18,8 @@ class DatabaseService:
         self.db: TinyDB = TinyDB(DB_PATH)
         self.config: Table = self.db.table(DB_CONFIG)
         self.users: Table = self.db.table(DB_USERS)
-        self.rpg: Table = self.db.table(DB_RPG)
-        self.holidays: Table = self.db.table(DB_HOLIDAYS)
-        self.streams: Table = self.db.table(DB_STREAMS)
+        #self.rpg: Table = self.db.table(DB_RPG)
+        #self.streams: Table = self.db.table(DB_STREAMS)
         self.game_names: Table = self.db.table(DB_GAMES)
         self.bot.on_initialized += self.set_bot_props
         self.set_defaults()
@@ -31,10 +30,6 @@ class DatabaseService:
 
     
     def set_defaults(self) -> None:
-        token = self.config.get(Query()["token"] != "", 1)
-        if token is None:
-            self.config.insert({"token": ""})
-
         srv = self.config.get(Query()["serverid"] != "", 2)
         if srv is None:
             self.config.insert({"serverid": ""})

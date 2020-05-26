@@ -10,7 +10,6 @@ from ..bunkbot import BunkBot
 from ..channel.channel_service import ChannelService
 from ..core.bunk_exception import BunkException
 from ..core.bunk_user import BunkUser
-from ..core.constants import DB_CLEVERBOT
 from ..core.daemon import DaemonHelper
 from ..core.functions import roll_int, get_cmd_params
 from ..core.service import Service
@@ -33,11 +32,12 @@ class ChatService(Service):
         self.users: UserService = users
         self.channels: ChannelService = channels
         self.bot.on_initialized += self.setup_chat_helper
+        self.config.raise_error_on_bad_config = False
         #DaemonHelper.add(self.randomly_create_conversation, trigger="interval", hours=INTERVAL_FOR_RANDOM_CHAT)
 
 
     async def setup_chat_helper(self) -> None:
-        chat_token = self.database.get(DB_CLEVERBOT, False)
+        chat_token = self.config.cleverbot_api_key
         
         if chat_token is not None:
             self.chat_bot = CleverWrap(chat_token, "BunkBot")

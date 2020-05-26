@@ -21,6 +21,7 @@ class ChannelService(Service):
     def __init__(self, bot: BunkBot, database: DatabaseService):
         super().__init__(bot, database)
         self.CUSTOM_GAMES: CategoryChannel = None
+        self.config.raise_error_on_bad_config = False
 
 
     # locate specific channels setup through

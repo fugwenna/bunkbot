@@ -3,8 +3,8 @@ from ..channel.channel_service import ChannelService
 from ..channel.log_service import LogService
 from ..core.bunk_exception import BunkException
 from ..chat.chat_service import ChatService
-from ..core.constants import DB_TOKEN
 from ..db.database_service import DatabaseService
+from ..etc.config_service import ConfigService
 from ..game.game_service import GameService
 from ..rpg.rpg_service import RpgService
 from ..user.role_service import RoleService
@@ -53,6 +53,6 @@ def initialize(bot: BunkBot) -> None:
     WEATHER_SERVICE = WeatherService(bot, DATABASE_SERVICE, CHANNEL_SERVICE)
 
     try:
-        bot.run(DATABASE_SERVICE.get(DB_TOKEN))
+        bot.run(ConfigService().discord_token)
     except BunkException as bex:
         LogService().log_error(bex.raw_message, "initialize")
