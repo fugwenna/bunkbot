@@ -1,6 +1,5 @@
 from discord import Guild
 
-from .constants import DB_SERVER_ID
 from ..bunkbot import BunkBot
 from ..channel.log_service import LogService
 from ..db.database_service import DatabaseService
@@ -25,12 +24,4 @@ class Service:
     async def load(self) -> None:
         if self.bot.server:
             self.server = self.bot.server
-        elif self.database:
-            srv = self.database.get(DB_SERVER_ID, False)
-
-            if srv:
-                self.server = self.bot.get_guild(int(srv))
-
-                if not self.bot.server:
-                    self.bot.server = self.server
-                    
+            

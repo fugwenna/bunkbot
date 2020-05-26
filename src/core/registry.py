@@ -1,7 +1,6 @@
 from ..bunkbot import BunkBot
 from ..channel.channel_service import ChannelService
 from ..channel.log_service import LogService
-from ..core.bunk_exception import BunkException
 from ..chat.chat_service import ChatService
 from ..db.database_service import DatabaseService
 from ..etc.config_service import ConfigService
@@ -54,5 +53,5 @@ def initialize(bot: BunkBot) -> None:
 
     try:
         bot.run(ConfigService().discord_token)
-    except BunkException as bex:
-        LogService().log_error(bex.raw_message, "initialize")
+    except Exception as e:
+        LogService().log_error(e, "initialize")

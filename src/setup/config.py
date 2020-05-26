@@ -6,7 +6,7 @@ from .ezio import prompt, print_success, print_warning, print_info
 from ..core.constants import OKWHITE
 from ..etc.config_constants import \
     DEFAULT_CONFIG_PATH, CHANNEL_PRIMARY, CHANNEL_LOGS, \
-    TOKEN_DISCORD, KEY_CLEVERBOT, KEY_WEATHER, PATH_DB
+    TOKEN_DISCORD, KEY_CLEVERBOT, KEY_WEATHER, KEY_TENOR, PATH_DB
 
 
 """
@@ -73,8 +73,19 @@ def _setup_api_keys(config: dict) -> None:
             KEY_WEATHER,
             "",
             "Open weather API key for weather updates",
-            "Enter your open weather API key {0}".format(OKWHITE + "(leave blank not to configure): "),
+            "Enter your open weather API key {0}".format(OKWHITE + "(leave blank to not configure): "),
             "Open weather API key saved",
+            False
+        )
+
+    if not config or not config.get(KEY_TENOR):
+        _get_prompt_for_setup(
+            config,
+            KEY_TENOR,
+            "",
+            "Tenor API key for sending images in chat/8ball",
+            "Enter your tenor API key {0}".format(OKWHITE + "(leave blank to not configure): "),
+            "Tenor API key saved",
             False
         )
 

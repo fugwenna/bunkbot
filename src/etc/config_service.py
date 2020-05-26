@@ -5,7 +5,7 @@ from ..core.bunk_exception import BunkException
 from .config_constants import \
     DEFAULT_CONFIG_PATH, TOKEN_DISCORD, \
     CHANNEL_PRIMARY, CHANNEL_LOGS, \
-    KEY_WEATHER, KEY_CLEVERBOT
+    KEY_WEATHER, KEY_CLEVERBOT, KEY_TENOR
 
 
 """
@@ -43,6 +43,11 @@ class ConfigService:
         return self._get(KEY_WEATHER)
 
 
+    @property
+    def tenor_api_key(self) -> str:
+        return self._get(KEY_TENOR)
+
+
     def _get(self, name: str) -> str:
         if not path.exists(path.realpath(DEFAULT_CONFIG_PATH)):
             return None
@@ -50,7 +55,12 @@ class ConfigService:
         with open(DEFAULT_CONFIG_PATH, "r") as f:
             try:
                 config = json.load(f)
-                return config[name]
+                val: str = config[name]
+
+                if self.raise_error_on_bad_config and (val is None or val.strip() == ""):
+                    raise Exception()
+                else:
+                    return val
             except:
                 if self.raise_error_on_bad_config:
                     raise BunkException("Error reading key '{0}' from config!".format(name))
