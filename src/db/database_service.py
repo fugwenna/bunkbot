@@ -5,7 +5,7 @@ from tinydb.database import Table
 from .database_user import DatabaseUser
 from ..core.bunk_user import BunkUser
 from ..core.bunk_exception import BunkException
-from ..core.constants import DB_PATH, DB_CONFIG, DB_USERS, DB_GAMES
+from ..core.constants import DB_PATH, DB_USERS, DB_GAMES
 from ..core.functions import simple_string
 from ..bunkbot import BunkBot
 
@@ -16,7 +16,7 @@ class DatabaseService:
     def __init__(self, bot: BunkBot):
         self.bot: BunkBot = bot
         self.db: TinyDB = TinyDB(DB_PATH)
-        self.config: Table = self.db.table(DB_CONFIG)
+        #self.config: Table = self.db.table(DB_CONFIG)
         self.users: Table = self.db.table(DB_USERS)
         #self.rpg: Table = self.db.table(DB_RPG)
         #self.streams: Table = self.db.table(DB_STREAMS)
