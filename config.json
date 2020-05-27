@@ -1,9 +1,0 @@
-{
-    "token_discord": "MjY3NjU4OTQzNTU4NDUxMjAx.XoioHQ.RhyjWdycUONSnoV1uFmrAwqcqcA",
-    "channel_primary": "general",
-    "channel_logs": "bot-logs",
-    "key_cleverbot": "CCCynwZSJUovsab7ebs95HBXF5Q",
-    "key_weather": "994c91ecbe2ec470011f9ff62ebf549b",
-    "key_tenor": "56P35NJ29HGV",
-    "db_path": "./src/db/db.json"
-}
