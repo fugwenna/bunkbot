@@ -24,8 +24,3 @@ ROLE_STREAMING: str = "streaming"
 ROLE_VIP: str = "vip"
 ROLE_VIP_PERMS: str = "vip_perms"
 ROLE_BUNKBOT: str = "bunky"
-
-ROLE_MAX: int = 250
-ROLE_MAX_PRIMARY: int = 11
-ROLE_MAX_COLORS: int = 150
-ROLE_MAX_CHANNELS: int = 50

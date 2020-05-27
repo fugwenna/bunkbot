@@ -16,31 +16,8 @@ class DatabaseService:
     def __init__(self, bot: BunkBot):
         self.bot: BunkBot = bot
         self.db: TinyDB = TinyDB(DB_PATH)
-        #self.config: Table = self.db.table(DB_CONFIG)
         self.users: Table = self.db.table(DB_USERS)
-        #self.rpg: Table = self.db.table(DB_RPG)
-        #self.streams: Table = self.db.table(DB_STREAMS)
         self.game_names: Table = self.db.table(DB_GAMES)
-        self.set_defaults()
-
-    
-    def set_defaults(self) -> None:
-        srv = self.config.get(Query()["serverid"] != "", 2)
-        if srv is None:
-            self.config.insert({"serverid": ""})
-
-
-    # helper method that will query the requested table
-    # and property name - default table as config
-    def get(self, attr: str, throw: bool = True) -> str or None:
-        res = self.config.get(Query()[attr] != "")
-
-        if res is not None:
-            return res[attr]
-        else:
-            if throw:
-                err: str = "Unknown database value for '{0}'. You must supply a value in the 'src/db/db.json' config entity property '{0}'".format(attr)
-                raise BunkException(err)
 
 
     # get a user by the passed discord member reference - this should
