@@ -79,3 +79,9 @@
 05/26/2020 07:38:24 PM
 [ERROR]   initialize: Event loop stopped before Future completed.
 
+05/27/2020 07:41:23 PM
+[ERROR]   initialize: 'NoneType' object has no attribute 'strip'
+
+05/27/2020 07:42:24 PM
+[ERROR]   initialize: Event loop stopped before Future completed.
+
