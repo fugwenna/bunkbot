@@ -13,11 +13,12 @@ from ..etc.config_constants import \
 Prompt user to create the default *required* configuration, i.e.
 channels, roles, db config etc
 """
-def _setup_discord_token(config: dict) -> None:
+def _setup_discord_token(config: dict, use_defaults: bool) -> None:
     if config and config.get(TOKEN_DISCORD):
         return
 
     _get_prompt_for_setup(
+        use_defaults,
         config,
         TOKEN_DISCORD,
         "",
@@ -27,11 +28,12 @@ def _setup_discord_token(config: dict) -> None:
     )
 
 
-def _setup_primary_channel(config: dict) -> None:
+def _setup_primary_channel(config: dict, use_defaults: bool) -> None:
     if config and config.get(CHANNEL_PRIMARY):
         return
 
     _get_prompt_for_setup(
+        use_defaults,
         config,
         CHANNEL_PRIMARY,
         "general",
@@ -41,11 +43,12 @@ def _setup_primary_channel(config: dict) -> None:
     )
 
 
-def _setup_log_channels(config: dict) -> None:
+def _setup_log_channels(config: dict, use_defaults: bool) -> None:
     if config and config.get(CHANNEL_LOGS):
         return
 
     _get_prompt_for_setup(
+        use_defaults,
         config,
         CHANNEL_LOGS,
         "bot-logs",
@@ -55,9 +58,10 @@ def _setup_log_channels(config: dict) -> None:
     )
 
 
-def _setup_api_keys(config: dict) -> None:
+def _setup_api_keys(config: dict, use_defaults: bool) -> None:
     if not config or not config.get(KEY_CLEVERBOT):
         _get_prompt_for_setup(
+            use_defaults,
             config,
             KEY_CLEVERBOT,
             "",
@@ -69,6 +73,7 @@ def _setup_api_keys(config: dict) -> None:
 
     if not config or not config.get(KEY_WEATHER):
         _get_prompt_for_setup(
+            use_defaults,
             config,
             KEY_WEATHER,
             "",
@@ -80,6 +85,7 @@ def _setup_api_keys(config: dict) -> None:
 
     if not config or not config.get(KEY_TENOR):
         _get_prompt_for_setup(
+            use_defaults,
             config,
             KEY_TENOR,
             "",
@@ -95,11 +101,16 @@ def _setup_non_prompted_defaults(config: dict) -> None:
         config[PATH_DB] = "./src/db/db.json"
 
 
-def _get_prompt_for_setup(config: dict, config_prop: str, val: str, info: str, prompt_str: str, success: str, create_default: bool = True) -> None:
-    print_info(info)
-    config[config_prop] = prompt(prompt_str + OKWHITE)
+def _get_prompt_for_setup(use_defaults: bool,
+    config: dict, config_prop: str, val: str, info: str, prompt_str: str, success: str, create_default: bool = True) -> None:
 
-    if create_default and config[config_prop].strip() == "":
+    print(use_defaults)
+
+    if not use_defaults:
+        print_info(info)
+        config[config_prop] = prompt(prompt_str + OKWHITE)
+
+    if use_defaults or (create_default and config[config_prop].strip() == ""):
         config[config_prop] = val
 
     if config[config_prop]:
@@ -108,8 +119,12 @@ def _get_prompt_for_setup(config: dict, config_prop: str, val: str, info: str, p
         print_warning("No configuration set for {0}".format(OKWHITE + config_prop))
 
 
-def create_config() -> bool:
+def create_config(defaults: str) -> bool:
     print("\n")
+
+    l_defs: str = defaults.lower()
+    use_defaults: bool = l_defs not in ("", "y")
+
     try:
         if not path.exists(DEFAULT_CONFIG_PATH):
             tmp = open(DEFAULT_CONFIG_PATH, "w+")
@@ -123,10 +138,10 @@ def create_config() -> bool:
             except:
                 f_config = {}
 
-            _setup_discord_token(f_config)
-            _setup_primary_channel(f_config)
-            _setup_log_channels(f_config)
-            _setup_api_keys(f_config)
+            _setup_discord_token(f_config, use_defaults)
+            _setup_primary_channel(f_config, use_defaults)
+            _setup_log_channels(f_config, use_defaults)
+            _setup_api_keys(f_config, use_defaults)
             _setup_non_prompted_defaults(f_config)
 
             f.seek(0)
