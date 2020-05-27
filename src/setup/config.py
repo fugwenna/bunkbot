@@ -104,8 +104,6 @@ def _setup_non_prompted_defaults(config: dict) -> None:
 def _get_prompt_for_setup(use_defaults: bool,
     config: dict, config_prop: str, val: str, info: str, prompt_str: str, success: str, create_default: bool = True) -> None:
 
-    print(use_defaults)
-
     if not use_defaults:
         print_info(info)
         config[config_prop] = prompt(prompt_str + OKWHITE)
