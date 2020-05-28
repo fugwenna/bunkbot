@@ -4,7 +4,7 @@ from os import path
 from ..core.bunk_exception import BunkException
 from .config_constants import \
     DEFAULT_CONFIG_PATH, TOKEN_DISCORD, \
-    CHANNEL_PRIMARY, CHANNEL_LOGS, \
+    CHANNEL_PRIMARY, CHANNEL_LOGS, CHANNEL_CUSTOM_GAMES, \
     KEY_WEATHER, KEY_CLEVERBOT, KEY_TENOR
 
 
@@ -31,6 +31,11 @@ class ConfigService:
     @property
     def log_channel(self) -> str:
         return self._get(CHANNEL_LOGS)
+
+    
+    @property
+    def custom_games_channel(self) -> str:
+        return self._get(CHANNEL_CUSTOM_GAMES)
 
 
     @property

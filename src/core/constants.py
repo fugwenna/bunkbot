@@ -8,10 +8,6 @@ ERROR: str = '\033[91m'
 BOLD: str = '\033[1m'
 
 
-##############################################
-CHANNEL_CUSTOM_GAMES: str = "custom-games"
-##############################################
-
 ROLE_ADMIN: str = "admin"
 ROLE_MODERATOR: str = "moderator"
 ROLE_MODERATOR_PERMS: str = "moderator_perms"

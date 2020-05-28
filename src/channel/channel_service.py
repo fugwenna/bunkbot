@@ -1,9 +1,6 @@
 from discord import TextChannel, CategoryChannel, Message, Embed
 from discord.ext.commands import Context
 
-from ..core.constants import \
-    CHANNEL_CUSTOM_GAMES
-
 from ..bunkbot import BunkBot
 from ..core.service import Service
 from ..channel.log_types import LOG_WARNING, LOG_INFO
@@ -20,7 +17,6 @@ Service responsible for handling channel references
 class ChannelService(Service):
     def __init__(self, bot: BunkBot, database: DatabaseService):
         super().__init__(bot, database)
-        self.CUSTOM_GAMES: CategoryChannel = None
         self.config.raise_error_on_bad_config = False
 
 
@@ -30,9 +26,7 @@ class ChannelService(Service):
         await super().load()
 
         if self.server is not None: 
-            self.CUSTOM_GAMES = await self._get(CHANNEL_CUSTOM_GAMES)
-
-            log_channel: TextChannel = await self._get(self.config.log_channel)
+            log_channel: TextChannel = await self.get_by_name(self.config.log_channel)
 
             if log_channel is not None:
                 await log_channel.purge()
@@ -45,7 +39,7 @@ class ChannelService(Service):
 
 
     async def send_to_primary_channel(self, message: str) -> None:
-        channel: TextChannel = await self._get(self.config.primary_channel)
+        channel: TextChannel = await self.get_by_name(self.config.primary_channel)
         if channel is not None:
             await channel.trigger_typing()
             await channel.send(message)
@@ -65,7 +59,7 @@ class ChannelService(Service):
     async def _log(self, message: str, channel: TextChannel = None, msg_type: str = None) -> None:
         try:
             if channel is None:
-                channel = await self._get(self.config.log_channel)
+                channel = await self.get_by_name(self.config.log_channel)
 
             if channel is None:
                 if msg_type == LOG_WARNING:
@@ -88,7 +82,7 @@ class ChannelService(Service):
                 err: str = "{0} An error has occurred! {1} help ahhhh".format(EXCLAMATION, self.bot.ADMIN_USER.mention)
                 await ctx.send(err)
 
-            log_channel: TextChannel = await self._get(self.config.log_channel)
+            log_channel: TextChannel = await self.get_by_name(self.config.log_channel)
             if log_channel is None:
                 self.logger.log_error(error_message, "ChannelService")
             else:
@@ -100,8 +94,8 @@ class ChannelService(Service):
     # get an instance of a
     # channel based on the given name - if
     # no name is specified, the general chat is assumed
-    async def _get(self, name: str) -> TextChannel:
+    async def get_by_name(self, name: str) -> TextChannel:
         if not self.server or not self.server.channels:
             return None
 
-        return next((c for c in self.server.channels if c.name == name), None)
+        return next((c for c in self.server.channels if c.name.lower() == name.lower()), None)

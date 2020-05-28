@@ -1,4 +1,4 @@
-from discord import Game, Member, TextChannel, PermissionOverwrite, Message
+from discord import Game, Member, TextChannel, CategoryChannel, PermissionOverwrite, Message
 from random import randint
 
 from ..bunkbot import BunkBot
@@ -24,6 +24,7 @@ class GameService(Service):
         super().__init__(bot, database)
         self.channels: ChannelService = channels
         self.users: UserService = users
+        self.config.raise_error_on_bad_config = False
         self.bot.on_initialized += self.set_game
         self.bot.on_initialized += self.check_streams
         self.bot.on_user_update += self.collect_game_from_user
@@ -71,11 +72,12 @@ class GameService(Service):
     # category with a selectd prefix
     async def create_game_channel(self, name: str, user: BunkUser, all_users: bool = True) -> TextChannel:
         channel: TextChannel = None
+        game_channel: str = self.config.custom_games_channel
 
-        if self.channels.CUSTOM_GAMES is not None:
+        if game_channel is not None:
+            gc_ref: TextChannel = await self.channels.get_by_name(game_channel)
             c_name: str = "{0}-{1}".format(name, user.name)
-
-            bot_role_id: int = 437263429057773608 # TODO - config
+            bot_role_id: int = 437263429057773608 # TODO - config? dynamic?
 
             ow: dict = { 
                 self.bot.server.default_role: PermissionOverwrite(read_messages=all_users, send_messages=all_users),
@@ -83,12 +85,32 @@ class GameService(Service):
                 self.server.get_role(bot_role_id): PermissionOverwrite(read_messages=True, send_messages=True)
             }
 
-            count: int = len([c for c in self.channels.CUSTOM_GAMES.channels if c.name == c_name])
-            if count > 0:
-                c_name += "_{0}".format(count)
+            if gc_ref is not None:
+                is_cat: bool = isinstance(gc_ref, CategoryChannel)
 
-            channel = await self.channels.CUSTOM_GAMES.create_text_channel(c_name, overwrites=ow, slowmode_delay=1)
+                if not is_cat:
+                    await self.channels.log_error("Cannot create game under a non-category channel.", "GameService")
+                else:
+                    c_name = self.get_game_name(gc_ref, c_name)
+                    channel = await gc_ref.create_text_channel(c_name, overwrites=ow, slowmode_delay=1)
+            else:
+                c_name = self.get_game_name(None, c_name)
+                channel = await self.bot.server.create_text_channel(c_name, overwrites=ow, slowmode_delay=1)
         else:
             await self.channels.log_error("Cannot create custom game - CUSTOM-GAMES channel cannot be found", "GameService")
 
         return channel
+
+
+    def get_game_name(self, gc_ref: CategoryChannel, c_name: str) -> str:
+        count: int = 0
+
+        if gc_ref is not None:
+            count = len([c for c in gc_ref.channels if c.name == c_name])
+        else:
+            pass
+
+        if count > 0:
+            c_name += "_{0}".format(count)
+
+        return c_name

@@ -18,9 +18,9 @@ class CustomGameCog:
         await ctx.message.delete()
         user: BunkUser = self.game_service.users.get_by_id(ctx.message.author.id)
         channel: TextChannel = await self.game_service.create_game_channel(name, user, all_users)
-        game: CustomGame = self.create_new_game(channel, user)
 
         if channel is not None:
+            game: CustomGame = self.create_new_game(channel, user)
             await self.start_game(game)
 
 

@@ -6,7 +6,8 @@ from .ezio import prompt, print_success, print_warning, print_info
 from ..core.constants import OKWHITE
 from ..etc.config_constants import \
     DEFAULT_CONFIG_PATH, CHANNEL_PRIMARY, CHANNEL_LOGS, \
-    TOKEN_DISCORD, KEY_CLEVERBOT, KEY_WEATHER, KEY_TENOR, PATH_DB
+    TOKEN_DISCORD, KEY_CLEVERBOT, KEY_WEATHER, KEY_TENOR, PATH_DB, \
+    CHANNEL_CUSTOM_GAMES
 
 
 """
@@ -95,6 +96,18 @@ def _setup_api_keys(config: dict, use_defaults: bool) -> None:
             False
         )
 
+def _setup_game_channel(config: dict, use_defaults: bool) -> None:
+    _get_prompt_for_setup(
+        use_defaults,
+        config,
+        CHANNEL_CUSTOM_GAMES,
+        "",
+        "Channel where custom games will be created. This can be a category channel, or leave empty to create them directly in the server",
+        "Enter the custom games channel: {0}".format(OKWHITE),
+        "Custom games channel saved",
+        False
+    )
+
 
 def _setup_non_prompted_defaults(config: dict) -> None:
     if not config or not config.get(PATH_DB):
@@ -138,6 +151,7 @@ def create_config(defaults: str) -> bool:
 
             _setup_discord_token(f_config, use_defaults)
             _setup_primary_channel(f_config, use_defaults)
+            _setup_game_channel(f_config, use_defaults)
             _setup_log_channels(f_config, use_defaults)
             _setup_api_keys(f_config, use_defaults)
             _setup_non_prompted_defaults(f_config)
