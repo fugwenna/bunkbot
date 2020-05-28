@@ -10,13 +10,6 @@ BOLD: str = '\033[1m'
 
 ##############################################
 CHANNEL_CUSTOM_GAMES: str = "custom-games"
-
-DB_PATH: str = "src/db/db.json"
-DB_USERS: str = "users"
-DB_GAMES: str = "game_names"
-
-
-
 ##############################################
 
 ROLE_ADMIN: str = "admin"

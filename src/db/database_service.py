@@ -2,11 +2,12 @@ from discord import Member, Game, Guild
 from tinydb import TinyDB, Query
 from tinydb.database import Table
 
+from .database_contants import DB_PATH, DB_USERS, DB_GAMES
 from .database_user import DatabaseUser
 from ..core.bunk_user import BunkUser
 from ..core.bunk_exception import BunkException
-from ..core.constants import DB_PATH, DB_USERS, DB_GAMES
 from ..core.functions import simple_string
+from ..etc.config_service import ConfigService
 from ..bunkbot import BunkBot
 
 """
@@ -14,6 +15,7 @@ Injectable service used for accessing the local database
 """
 class DatabaseService:
     def __init__(self, bot: BunkBot):
+        self.config: ConfigService = ConfigService()
         self.bot: BunkBot = bot
         self.db: TinyDB = TinyDB(DB_PATH)
         self.users: Table = self.db.table(DB_USERS)
