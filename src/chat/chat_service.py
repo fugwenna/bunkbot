@@ -50,25 +50,28 @@ class ChatService(Service):
     # is meant for bunkbot
     async def respond_to_message(self, message: Message) -> None:
         if not message.author.bot:
-            user: BunkUser = self.users.get_by_id(message.author.id)
-            chat = next((c for c in self.chats if c.user.id == user.id), None)
-            is_bunk_mention: bool = len(message.mentions) > 0 and message.mentions[0].name == "BunkBot"
-            is_bunk_name: bool = "BUNKBOT" in Chat.parse(message.content)
-
-            if is_bunk_mention or is_bunk_name:
-                if chat is None:
-                    chat = Chat(user, message.content)
-                    self.chats.append(chat)
-
-                await self.respond(chat, message, user)
+            if message.content.startswith("!"):
+                await self.bot.process_commands(message)
             else:
-                if chat is not None:
-                    if chat.is_active:
-                        await self.respond(chat, message, user)
-                    else:
-                        self.chats.remove(chat)
+                user: BunkUser = self.users.get_by_id(message.author.id)
+                chat = next((c for c in self.chats if c.user.id == user.id), None)
+                is_bunk_mention: bool = len(message.mentions) > 0 and message.mentions[0].name == "BunkBot"
+                is_bunk_name: bool = "BUNKBOT" in Chat.parse(message.content)
+
+                if is_bunk_mention or is_bunk_name:
+                    if chat is None:
+                        chat = Chat(user, message.content)
+                        self.chats.append(chat)
+
+                    await self.respond(chat, message, user)
                 else:
-                    await self.bot.process_commands(message)
+                    if chat is not None:
+                        if chat.is_active:
+                            await self.respond(chat, message, user)
+                        else:
+                            self.chats.remove(chat)
+                    else:
+                        await self.bot.process_commands(message)
 
 
     # only respond to active conversations
