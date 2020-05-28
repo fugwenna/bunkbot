@@ -95,6 +95,7 @@ def _setup_api_keys(config: dict, use_defaults: bool) -> None:
             "Tenor API key saved",
             False
         )
+        
 
 def _setup_game_channel(config: dict, use_defaults: bool) -> None:
     _get_prompt_for_setup(
