@@ -108,7 +108,7 @@ class GameService(Service):
         if gc_ref is not None:
             count = len([c for c in gc_ref.channels if c.name == c_name])
         else:
-            pass
+            count = len([c for c in self.bot.server.channels if c.name == c_name])
 
         if count > 0:
             c_name += "_{0}".format(count)
