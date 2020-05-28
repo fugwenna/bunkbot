@@ -77,12 +77,11 @@ class GameService(Service):
         if game_channel is not None:
             gc_ref: TextChannel = await self.channels.get_by_name(game_channel)
             c_name: str = "{0}-{1}".format(name, user.name)
-            bot_role_id: int = 437263429057773608 # TODO - config? dynamic?
 
             ow: dict = { 
-                self.bot.server.default_role: PermissionOverwrite(read_messages=all_users, send_messages=all_users),
-                self.bot.server.get_member(user.id): PermissionOverwrite(read_messages=True, send_messages=True),
-                self.server.get_role(bot_role_id): PermissionOverwrite(read_messages=True, send_messages=True)
+                self.server.default_role: PermissionOverwrite(read_messages=all_users, send_messages=all_users),
+                self.server.get_member(user.id): PermissionOverwrite(read_messages=True, send_messages=True),
+                self.server.get_member(self.bot.user.id): PermissionOverwrite(read_messages=True, send_messages=True)
             }
 
             if gc_ref is not None:
@@ -103,12 +102,7 @@ class GameService(Service):
 
 
     def get_game_name(self, gc_ref: CategoryChannel, c_name: str) -> str:
-        count: int = 0
-
-        if gc_ref is not None:
-            count = len([c for c in gc_ref.channels if c.name == c_name])
-        else:
-            count = len([c for c in self.bot.server.channels if c.name == c_name])
+        count: int = len([c for c in self.bot.server.channels if c.name == c_name])
 
         if count > 0:
             c_name += "_{0}".format(count)
