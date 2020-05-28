@@ -6,7 +6,7 @@ from .ezio import prompt, print_success, print_warning, print_info
 from ..core.constants import OKWHITE
 from ..etc.config_constants import \
     DEFAULT_CONFIG_PATH, CHANNEL_PRIMARY, CHANNEL_LOGS, \
-    TOKEN_DISCORD, KEY_CLEVERBOT, KEY_WEATHER, KEY_TENOR, PATH_DB, \
+    TOKEN_DISCORD, KEY_CLEVERBOT, KEY_WEATHER, KEY_TENOR, \
     CHANNEL_CUSTOM_GAMES
 
 
@@ -109,11 +109,6 @@ def _setup_game_channel(config: dict, use_defaults: bool) -> None:
     )
 
 
-def _setup_non_prompted_defaults(config: dict) -> None:
-    if not config or not config.get(PATH_DB):
-        config[PATH_DB] = "./src/db/db.json"
-
-
 def _get_prompt_for_setup(use_defaults: bool,
     config: dict, config_prop: str, val: str, info: str, prompt_str: str, success: str, create_default: bool = True) -> None:
 
@@ -154,7 +149,6 @@ def create_config(defaults: str) -> bool:
             _setup_game_channel(f_config, use_defaults)
             _setup_log_channels(f_config, use_defaults)
             _setup_api_keys(f_config, use_defaults)
-            _setup_non_prompted_defaults(f_config)
 
             f.seek(0)
             f.truncate()
