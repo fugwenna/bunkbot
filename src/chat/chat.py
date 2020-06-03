@@ -1,3 +1,4 @@
+from discord import Message
 from time import time
 from re import findall, sub, IGNORECASE
 
@@ -9,23 +10,30 @@ This class represents a chat between
 bunkbot and a bunk user
 """
 class Chat:
-    def __init__(self, user: BunkUser, content: str):
+    def __init__(self, user: BunkUser, message: Message):
         self.timer: int = 13
         self.last_message_at: int = time()
         self.user: BunkUser = user
-        self.content: str = Chat.parse_message(content)
+        self.channel_id: int = message.channel.id
+        self.content: str = Chat.parse_message(message.content)
 
     
     @property
     def is_active(self) -> bool:
+        still_chatting = self.check_if_active()
+
+        if still_chatting:
+            self.last_message_at: int = time()
+
+        return still_chatting
+
+    
+    def check_if_active(self) -> bool:
         new_time = time() - self.last_message_at
         still_chatting = new_time < self.timer
 
-
         if not still_chatting:
             self.last_message_at = -1
-        else:
-            self.last_message_at: int = time()
 
         return still_chatting
 
@@ -43,8 +51,8 @@ class Chat:
 
     
     @staticmethod
-    def parse(content: str) -> str:
-        return findall("[a-zA-Z]+", str(content).upper())
+    def parse(content: str) -> list:
+        return findall("[a-zA-Z]+", str(content).lower())
 
 
     @staticmethod

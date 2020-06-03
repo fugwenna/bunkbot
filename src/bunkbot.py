@@ -4,6 +4,7 @@ from discord.ext.commands import Context, Bot, DefaultHelpCommand
 from .core.bunk_user import BunkUser
 from .core.cog_loader import get_cogs
 from .core.event_hook import EventHook
+from .core.functions import simple_string
 
 
 """
@@ -28,6 +29,8 @@ class BunkBot(Bot):
         self.on_user_message: EventHook = EventHook()
         self.ADMIN_USER: BunkUser = None
         self.server: Guild = None
+        self.name: str = None
+        self.name_lower: str = None
 
 
     # lifecycle hook - set up all
@@ -37,6 +40,12 @@ class BunkBot(Bot):
             self.load_extension(cog)
 
         self.server = self.guilds[0] # assume privately loaded bot
+
+        self.name = simple_string(
+            self.server.get_member(self.user.id).name, False)
+
+        self.name_lower = self.name.lower()
+
         await self.on_initialized.emit()
 
 
