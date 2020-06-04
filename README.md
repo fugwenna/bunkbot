@@ -13,7 +13,7 @@ The bunkest of bots, first of his name. Bunkbot is a small sandbox discord bot m
 
 ## Prerequisites:
 **Required**:   
-<br/> Python 3.6 or higher
+Python 3.6 or higher
 <br/> PIP (v3)
 
 _Optional_: <br />
