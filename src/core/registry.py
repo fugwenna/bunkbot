@@ -53,7 +53,7 @@ def initialize(bot: BunkBot) -> None:
     CHAT_SERVICE = ChatService(bot, DATABASE_SERVICE, USER_SERVICE, CHANNEL_SERVICE)
     RPG_SERVICE = RpgService(bot, DATABASE_SERVICE, USER_SERVICE)
     WEATHER_SERVICE = WeatherService(bot, DATABASE_SERVICE, CHANNEL_SERVICE)
-    REACTION_SERVICE = ReactionService(bot)
+    REACTION_SERVICE = ReactionService(bot, CHANNEL_SERVICE)
 
     try:
         bot.run(ConfigService().discord_token)
