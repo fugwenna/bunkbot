@@ -71,13 +71,17 @@ class ChatService(Service):
 
                     is_first = bunk_name_index == 0
                     is_last = bunk_name_index == len(parsed_chat)-1
+                    is_one_time_response = not is_first and not is_last
                     will_respond: bool = True
 
-                    if not is_first and not is_last:
+                    if is_one_time_response:
                         will_respond = randint(0, 100) >= 50
 
                     if will_respond:
                         await self.respond(chat, message, user)
+                        if is_one_time_response:
+                            chat.last_message_at = -1
+                            self.chats.remove(chat)
                 else:
                     if chat is not None and chat.channel_id == message.channel.id:
                         if chat.is_active:
