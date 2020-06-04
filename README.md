@@ -16,7 +16,7 @@ The bunkest of bots, first of his name. Bunkbot is a small sandbox discord bot m
 <br/> Python 3.6 or higher
 <br/> PIP (v3)
 
-_Optional_:
+_Optional_: <br />
 Many of Bunkbot's features use (free) API accounts. Bunkbot will still load without these accounts, but will not support the functions that require them. Below are the APIs Bunkbot uses:
 - Discord: [Developer Account](https://discord.com/developers/applications)
 - Chat: [Cleverbot](https://cleverbot.io/)
