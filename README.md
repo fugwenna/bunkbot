@@ -12,9 +12,9 @@
 The bunkest of bots, first of his name. Bunkbot is a small sandbox discord bot meant for privately run servers who want a strange sandbox bot to run and customize for fun.
 
 ## Prerequisites:
-**Required**:
-Python 3.6 or higher
-PIP (v3)
+**Required**:   
+<br/> Python 3.6 or higher
+<br/> PIP (v3)
 
 _Optional_:
 Many of Bunkbot's features use (free) API accounts. Bunkbot will still load without these accounts, but will not support the functions that require them. Below are the APIs Bunkbot uses:
