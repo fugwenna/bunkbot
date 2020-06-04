@@ -1,7 +1,7 @@
 
 # Bunkbot
 
-![bunkbot](https://github.com/fugwenna/bunkbot/blob/docs/readme/avatar.png)
+![bunkbot](https://github.com/fugwenna/bunkbot/blob/master/avatar.png)
 
 <br/>  <sup>(credit [Christine Schlotter](http://christineschlotter.com))</sup>
 
