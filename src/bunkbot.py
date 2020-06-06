@@ -42,7 +42,7 @@ class BunkBot(Bot):
 
         self.server = self.guilds[0] # assume privately loaded bot
         self.member_ref = self.server.get_member(self.user.id)
-        self.name = simple_string(self.member.name, False)
+        self.name = simple_string(self.member_ref.name, False)
         self.name_lower = self.name.lower()
 
         await self.on_initialized.emit()
