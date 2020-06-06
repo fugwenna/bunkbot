@@ -29,7 +29,7 @@ class ReactionService():
     async def react_to_message(self, message: Message) -> None:
         try:
             if not message.author.bot:
-                react: bool = randint(0, 100) <= 3
+                react: bool = randint(0, 100) <= 2
 
                 if react:
                     try:
