@@ -10,6 +10,7 @@ class Duel:
     def __init__(self, challenger: BunkUser, opponent: BunkUser):
         self.challenger: BunkUser = challenger
         self.opponent: BunkUser = opponent
+        self.is_bot_challenge: bool = False
 
 
     # Execute the duel and return the winner

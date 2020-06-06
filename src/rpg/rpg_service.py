@@ -27,13 +27,19 @@ class RpgService(Service):
         chal: BunkUser = None
         opnt: BunkUser = None
         names: List[str] = get_cmd_params(ctx)
+        is_bot_challenge: bool = False
 
         if len(names) == 0:
             raise BunkException("Please enter an opponents name to duel")
         else:
-            name = names[0]
+            name = names[0].lower()
             chal = self.users.get_by_id(ctx.message.author.id)
-            opnt = self.users.get_by_username(name)
+            is_bot_challenge = name == self.bot.name_lower
+            
+            if is_bot_challenge:
+                opnt = BunkUser(self.bot.member_ref, None)
+            else:
+                opnt = self.users.get_by_username(name)
 
             if opnt is None:
                 raise BunkException("Cannot locate user {0}".format(name))
@@ -45,6 +51,7 @@ class RpgService(Service):
         self.remove_duel(chal, False)
 
         duel = Duel(chal, opnt)
+        duel.is_bot_challenge = is_bot_challenge
         self.duels.append(duel)
 
         return duel
@@ -64,10 +71,17 @@ class RpgService(Service):
 
     # accept a duel if the user is challenged
     def accept_duel(self, user: BunkUser) -> DuelResult:
-        if not user.challenged_by_id:
+        is_bot_duel: bool = user.id == self.bot.user.id 
+
+        if not is_bot_duel and not user.challenged_by_id:
             raise BunkException("You have no duels to accept")
 
-        duel: Duel = next((d for d in self.duels if d.opponent.id == user.id and d.challenger.id == user.challenged_by_id), None)
+        duel: Duel = None
+
+        if is_bot_duel:
+            duel = next((d for d in self.duels if d.opponent.id == user.id), None)
+        else:
+            duel = next((d for d in self.duels if d.opponent.id == user.id and d.challenger.id == user.challenged_by_id), None)
 
         if duel is None:
             raise BunkException("Error executing duel :(")

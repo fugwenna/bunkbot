@@ -11,7 +11,7 @@ from ..db.database_service import DatabaseService
 from ..user.user_service import UserService
 
 
-CHANCE_TO_GO_IDLE: int = 25
+CHANCE_TO_GO_IDLE: int = 20
 CHANCE_TO_UPDATE_ON_NEW_GAME: int = 80
 CHANCE_TO_DO_NOTHING: int = 40
 CHANCE_TO_GO_DND: int = 1
