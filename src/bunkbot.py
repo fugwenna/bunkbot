@@ -29,6 +29,7 @@ class BunkBot(Bot):
         self.on_user_message: EventHook = EventHook()
         self.ADMIN_USER: BunkUser = None
         self.server: Guild = None
+        self.member_ref: Member
         self.name: str = None
         self.name_lower: str = None
 
@@ -40,10 +41,8 @@ class BunkBot(Bot):
             self.load_extension(cog)
 
         self.server = self.guilds[0] # assume privately loaded bot
-
-        self.name = simple_string(
-            self.server.get_member(self.user.id).name, False)
-
+        self.member_ref = self.server.get_member(self.user.id)
+        self.name = simple_string(self.member.name, False)
         self.name_lower = self.name.lower()
 
         await self.on_initialized.emit()

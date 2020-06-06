@@ -1,5 +1,6 @@
+from random import randint
+
 from ..core.bunk_user import BunkUser
-from ..core.functions import roll_int
 from .duel_result import DuelResult
 
 """
@@ -13,8 +14,8 @@ class Duel:
 
     # Execute the duel and return the winner
     def execute(self) -> DuelResult:
-        chal_val: int = roll_int()
-        opnt_val: int = roll_int()
+        chal_val: int = randint(0, 100)
+        opnt_val: int = randint(0, 100)
 
         winner: BunkUser = None
         loser: BunkUser = None

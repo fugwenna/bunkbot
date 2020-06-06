@@ -1,6 +1,7 @@
 import asyncio
 from typing import List
 from discord import Message, TextChannel, PermissionOverwrite, CategoryChannel
+from random import randint
 from random_words import RandomWords, RandomNicknames
 
 from .hangman_constants import HANGMAN_TEMPLATE
@@ -8,7 +9,6 @@ from .hangman_renderer import HangmanRenderer
 from ..custom_game import CustomGame
 from ...core.bunk_exception import BunkException
 from ...core.bunk_user import BunkUser
-from ...core.functions import roll_int
 
 
 """
@@ -107,13 +107,13 @@ class HangmanGame(CustomGame):
     def get_random_word_or_name(self) -> str:
         word: str = ""
 
-        c_word: int = roll_int(0, 100)
+        c_word: int = randint(0, 100)
         if c_word < 70:
             self.game_type = "Random Word"
             word = self.random.random_word()
         else:
             g: str = ""
-            c_gender: int = roll_int(0, 100)
+            c_gender: int = randint(0, 100)
             if c_gender > 50:
                 g = "f"
                 self.game_type = "Random Name (female)"

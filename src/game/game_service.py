@@ -1,17 +1,19 @@
-from discord import Game, Member, TextChannel, CategoryChannel, PermissionOverwrite, Message
+from discord import Game, Member, TextChannel, CategoryChannel, PermissionOverwrite, Message, Status, ActivityType
 from random import randint
 
 from ..bunkbot import BunkBot
 from ..channel.channel_service import ChannelService
 from ..core.bunk_user import BunkUser
 from ..core.daemon import DaemonHelper
-from ..core.functions import roll_int
+from ..core.functions import will_execute_on_chance
 from ..core.service import Service
 from ..db.database_service import DatabaseService
 from ..user.user_service import UserService
 
 
+CHANCE_TO_GO_IDLE: int = 30
 CHANCE_TO_UPDATE_ON_NEW_GAME: int = 70
+INTERVAL_TO_UPDATE_IDLE: int = 20
 INTERVAL_TO_UPDATE_GAME: int = 60
 
 
@@ -48,17 +50,28 @@ class GameService(Service):
     # every so often, set the bot status - if the bot
     # has decided to go "away" or do something else, do
     # not wire any game 
-    async def set_game(self, force: bool = False) -> None:
-        will_set = randint(0, 100) <= CHANCE_TO_UPDATE_ON_NEW_GAME
+    async def set_game(self) -> None:
+        will_set: bool = will_execute_on_chance(CHANCE_TO_UPDATE_ON_NEW_GAME)
 
-        if not force and will_set:
+        if will_set:
             games = self.database.game_names.all()
 
             if len(games) > 0:
-                index = roll_int(0, len(games) - 1)
+                index = randint(0, len(games) - 1)
                 game = games[index]
 
-                await self.bot.change_presence(activity=Game(game["name"]))
+                await self.bot.change_presence(status=Status.online, activity=Game(game["name"]))
+
+
+    # every so often, let bunky take a break. he does hard work
+    async def go_idle(self) -> None:
+        if self.bot.member_ref.status != Status.idle:
+            go_idle: bool = will_execute_on_chance(CHANCE_TO_GO_IDLE)
+
+            if go_idle:
+                await self.bot.change_presence(status=Status.idle)
+        else:
+            await self.set_game()
 
 
     # do an initial check of current streams and update

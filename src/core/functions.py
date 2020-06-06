@@ -31,6 +31,5 @@ def get_cmd_params(ctx: Context) -> list:
         return []
 
 
-# roll a random value within a range
-def roll_int(min_val: int = 0, max_val: int = 100) -> int:
-    return randint(min_val, max_val)
+def will_execute_on_chance(chance: int) -> bool:
+    return randint(1, 100) <= chance

@@ -3,7 +3,7 @@ from time import time
 from re import findall, sub, IGNORECASE
 
 from ..core.bunk_user import BunkUser
-from ..core.functions import roll_int
+from ..core.functions import will_execute_on_chance
 
 """
 This class represents a chat between
@@ -40,7 +40,7 @@ class Chat:
 
     def reply(self, message: str, user: BunkUser) -> None or str:
         if (user.id != self.user.id):
-            respond: bool = roll_int(0, 100) > 15
+            respond: bool = will_execute_on_chance(85)
 
             if not respond:
                 return

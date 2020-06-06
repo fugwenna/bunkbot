@@ -11,7 +11,7 @@ from ..channel.channel_service import ChannelService
 from ..core.bunk_exception import BunkException
 from ..core.bunk_user import BunkUser
 from ..core.daemon import DaemonHelper
-from ..core.functions import roll_int, get_cmd_params
+from ..core.functions import get_cmd_params, will_execute_on_chance
 from ..core.service import Service
 from ..db.database_service import DatabaseService
 from ..user.user_service import UserService
@@ -117,7 +117,7 @@ class ChatService(Service):
         if not response[-1] in punctuation:
             return response
 
-        if len(self.chats) > 1 and roll_int(0, 100) > 20:
+        if len(self.chats) > 1 and will_execute_on_chance(80):
              response = "{0}, {1}{2}".format(response[:-1], user.name, response[-1])
 
         return response
