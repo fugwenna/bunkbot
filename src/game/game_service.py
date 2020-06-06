@@ -32,8 +32,8 @@ class GameService(Service):
         self.bot.on_initialized += self.go_idle
         self.bot.on_initialized += self.check_streams
         self.bot.on_user_update += self.collect_game_from_user
-        DaemonHelper.add(self.set_game, trigger="interval", minutes=INTERVAL_TO_UPDATE_GAME)
-        DaemonHelper.add(self.go_idle, trigger="interval", minutes=INTERVAL_TO_UPDATE_IDLE)
+        DaemonHelper.add_minute_interval(self.set_game, INTERVAL_TO_UPDATE_GAME)
+        DaemonHelper.add_minute_interval(self.go_idle, INTERVAL_TO_UPDATE_IDLE)
 
 
     # when a user is updated check if the game is currently in the 
