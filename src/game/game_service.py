@@ -5,14 +5,15 @@ from ..bunkbot import BunkBot
 from ..channel.channel_service import ChannelService
 from ..core.bunk_user import BunkUser
 from ..core.daemon import DaemonHelper
-from ..core.functions import will_execute_on_chance, get_current_hour
+from ..core.dates import get_now
+from ..core.functions import will_execute_on_chance
 from ..core.service import Service
 from ..db.database_service import DatabaseService
 from ..user.user_service import UserService
 
 
 CHANCE_TO_GO_IDLE: int = 20
-CHANCE_TO_UPDATE_ON_NEW_GAME: int = 80
+CHANCE_TO_UPDATE_ON_NEW_GAME: int = 70
 CHANCE_TO_DO_NOTHING: int = 40
 CHANCE_TO_GO_DND: int = 1
 INTERVAL_TO_UPDATE_IDLE: int = 120
@@ -76,8 +77,8 @@ class GameService(Service):
     # every so often, let bunky take a break. he does hard work
     async def go_idle(self) -> None:
         if self.bot.member_ref.status != Status.idle:
-            hour: int = get_current_hour()
-            is_sleepy_time = hour <= 8 or hour >= 12
+            hour: int = get_now(False).hour
+            is_sleepy_time = hour >= 0 and hour <= 8
             go_idle: bool = is_sleepy_time or will_execute_on_chance(CHANCE_TO_GO_IDLE)
 
             if go_idle:

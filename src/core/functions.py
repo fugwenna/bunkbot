@@ -35,6 +35,3 @@ def get_cmd_params(ctx: Context) -> list:
 def will_execute_on_chance(chance: int) -> bool:
     return randint(1, 100) <= chance
 
-
-def get_current_hour() -> int:
-    return dt.datetime.today().hour
