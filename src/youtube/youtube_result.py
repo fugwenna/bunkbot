@@ -7,6 +7,8 @@ from typing import List
 from urllib import request, parse
 import json
 
+from ..core.bunk_exception import BunkException
+
 YT_SEARCH_URL = "https://www.youtube.com/results?search_query="
 YT_WATCH_URL = "https://www.youtube.com/watch?v="
 
@@ -14,6 +16,7 @@ class YoutubeResult:
     def __init__(self):
         self.ids = []
         self.titles = []
+        self.qualified_query: str
 
 
     # use beautiful soup to
@@ -24,8 +27,6 @@ class YoutubeResult:
         self.titles: List[str] = []
 
         html = self.parse_query(" ".join(params))
-        #items: BeautifulSoup = BeautifulSoup(html, "html.parser").find("ol", class_="item-section")
-        #ahref: BeautifulSoup = BeautifulSoup(str(items), "html.parser").find_all("a")
         soup = BeautifulSoup(html, "html.parser")
         scripttag = soup.findAll('script')
         for i in scripttag:
@@ -33,6 +34,7 @@ class YoutubeResult:
                 if i.string.lstrip().startswith('window["ytInitialData"]'):
                     data = json.loads(i.string.lstrip().lstrip('window["ytInitialData"] = ').split('};', 1)[0] + '}')
                     break
+
         item_section = data['contents']['twoColumnSearchResultsRenderer']['primaryContents']['sectionListRenderer']['contents'][0]['itemSectionRenderer']['contents']
 
         title_index = 0
@@ -50,20 +52,8 @@ class YoutubeResult:
             else:
                 break
 
-        #while title_index < 5 and ahref_index < len(ahref) - 1:
-        #    result = ahref[ahref_index]
-        #    href = result["href"]
-        #    title = result.get("title")
-
-        #    if re.match(r'/watch\?v=(.{11})', href) and title is not None:
-        #        title_index += 1
-        #        self.ids.append(href.split("=")[1])
-        #        self.titles.append("{0}. {1}".format(title_index, title))
-
-        #    ahref_index += 1
-
         if len(self.ids) == 0:
-            raise Exception("No ids found for query")
+            raise BunkException("No ids found for query")
 
         return "{0} (type !more for related videos)".format(YT_WATCH_URL + self.ids[0])
 
@@ -78,10 +68,28 @@ class YoutubeResult:
 
 
     # parse the query
-    @staticmethod
-    def parse_query(query: str) -> str:
+    def parse_query(self, query: str) -> str:
         query: str = parse.quote_plus(query)
-        response = request.urlopen(YT_SEARCH_URL + query, timeout=1)
+        self.qualified_query = YT_SEARCH_URL + query
+        response = request.urlopen(self.qualified_query, timeout=1)
         html = response.read().decode()
         response.close()
         return html
+
+
+
+""" LEGACY """
+#items: BeautifulSoup = BeautifulSoup(html, "html.parser").find("ol", class_="item-section")
+#ahref: BeautifulSoup = BeautifulSoup(str(items), "html.parser").find_all("a")
+
+#while title_index < 5 and ahref_index < len(ahref) - 1:
+#    result = ahref[ahref_index]
+#    href = result["href"]
+#    title = result.get("title")
+
+#    if re.match(r'/watch\?v=(.{11})', href) and title is not None:
+#        title_index += 1
+#        self.ids.append(href.split("=")[1])
+#        self.titles.append("{0}. {1}".format(title_index, title))
+
+#    ahref_index += 1

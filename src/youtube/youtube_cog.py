@@ -4,6 +4,7 @@ from discord.ext.commands import command, Context, Cog
 
 from .youtube_result import YoutubeResult
 from ..bunkbot import BunkBot
+from ..core.bunk_exception import BunkException
 from ..core.functions import get_cmd_params
 from ..core.registry import CHANNEL_SERVICE
 from ..channel.channel_service import ChannelService
@@ -43,7 +44,11 @@ class Youtube(Cog):
             self.yt_link = self.yt_result.query(params)
 
             self.message = await ctx.send(self.yt_link)
+        except BunkException as be:
+            await ctx.send(be)
         except Exception as e:
+            msg = "Oops, I messed up. Here is your search: {0}".format(self.yt_result.qualified_query)
+            await ctx.send(msg)
             await self.channels.log_error(e, "yt")
 
 
