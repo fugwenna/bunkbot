@@ -11,7 +11,7 @@ from ..channel.channel_service import ChannelService
 from ..core.bunk_exception import BunkException
 from ..core.bunk_user import BunkUser
 from ..core.daemon import DaemonHelper
-from ..core.functions import roll_int, get_cmd_params
+from ..core.functions import get_cmd_params, will_execute_on_chance
 from ..core.service import Service
 from ..db.database_service import DatabaseService
 from ..user.user_service import UserService
@@ -40,7 +40,7 @@ class ChatService(Service):
         chat_token = self.config.cleverbot_api_key
         
         if chat_token is not None:
-            self.chat_bot = CleverWrap(chat_token, "BunkBot")
+            self.chat_bot = CleverWrap(chat_token, self.bot.name)
             self.bot.on_user_message += self.respond_to_message
         else:
             await self.channels.log_warning("Cleverbot token not supplied, BunkBot will be mute :(")
@@ -54,27 +54,49 @@ class ChatService(Service):
                 await self.bot.process_commands(message)
             else:
                 user: BunkUser = self.users.get_by_id(message.author.id)
-                chat = next((c for c in self.chats if c.user.id == user.id), None)
-                is_bunk_mention: bool = len(message.mentions) > 0 and message.mentions[0].name == "BunkBot"
-                is_bunk_name: bool = "BUNKBOT" in Chat.parse(message.content)
+                chat: Chat = next((c for c in self.chats if c.user.id == user.id and c.channel_id == message.channel.id), None)
+                is_bunk_mention: bool = len(message.mentions) > 0 and message.mentions[0].name == self.bot.name
+                parsed_chat: list = Chat.parse(message.content)
+                bunk_name_index: int = -1
 
-                if is_bunk_mention or is_bunk_name:
+                try:
+                    bunk_name_index = parsed_chat.index(self.bot.name_lower)
+                except:
+                    bunk_name_index = -1
+
+                if is_bunk_mention or bunk_name_index > -1:
                     if chat is None:
-                        chat = Chat(user, message.content)
+                        chat = Chat(user, message)
                         self.chats.append(chat)
 
-                    await self.respond(chat, message, user)
+                    is_first = bunk_name_index == 0
+                    is_last = bunk_name_index == len(parsed_chat)-1
+                    is_one_time_response = not is_first and not is_last
+                    will_respond: bool = True
+
+                    if is_one_time_response:
+                        will_respond = randint(0, 100) >= 50
+
+                    if will_respond:
+                        await self.respond(chat, message, user)
+                        if is_one_time_response:
+                            chat.last_message_at = -1
+                            self.chats.remove(chat)
                 else:
-                    if chat is not None:
+                    if chat is not None and chat.channel_id == message.channel.id:
                         if chat.is_active:
-                            await self.respond(chat, message, user)
+                            if message.content.lower() == "quiet":
+                                chat.last_message_at = -1
+                                self.chats.remove(chat)
+                                await message.channel.send(":face_with_hand_over_mouth:")
+                            else:
+                                await self.respond(chat, message, user)
                         else:
                             self.chats.remove(chat)
                     else:
                         await self.bot.process_commands(message)
 
 
-    # only respond to active conversations
     async def respond(self, chat: Chat, message: Message, user: BunkUser) -> None:
         try:
             await message.channel.trigger_typing()
@@ -83,8 +105,11 @@ class ChatService(Service):
             response: str = self.chat_bot.say(chat.reply(content, user))
             response = self.alter_response(user, response)
 
+            self.update_inactive_chats()
+
             await message.channel.send(response)
-        except Exception:
+        except Exception as e:
+            await self.channels.log_error(e, "ChatService")
             await message.channel.send("I'm sorry... I cannot talk right now")
 
 
@@ -92,7 +117,7 @@ class ChatService(Service):
         if not response[-1] in punctuation:
             return response
 
-        if len(self.chats) > 1 and roll_int(0, 100) > 10:
+        if len(self.chats) > 1 and will_execute_on_chance(80):
              response = "{0}, {1}{2}".format(response[:-1], user.name, response[-1])
 
         return response
@@ -111,6 +136,12 @@ class ChatService(Service):
                 users.append(user)
             
         user: BunkUser = users[randint(0, len(users)-1)]
+
+
+    def update_inactive_chats(self) -> None:
+        for chat in self.chats:
+            if not chat.check_if_active():
+                self.chats.remove(chat)
         
 
     # "override" commands for bunkbot

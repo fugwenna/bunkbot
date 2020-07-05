@@ -1,17 +1,22 @@
-from discord import Game, Member, TextChannel, CategoryChannel, PermissionOverwrite, Message
+from discord import Game, Member, TextChannel, CategoryChannel, PermissionOverwrite, Message, Status, ActivityType
 from random import randint
 
 from ..bunkbot import BunkBot
 from ..channel.channel_service import ChannelService
 from ..core.bunk_user import BunkUser
 from ..core.daemon import DaemonHelper
-from ..core.functions import roll_int
+from ..core.dates import get_now
+from ..core.functions import will_execute_on_chance
 from ..core.service import Service
 from ..db.database_service import DatabaseService
 from ..user.user_service import UserService
 
 
+CHANCE_TO_GO_IDLE: int = 20
 CHANCE_TO_UPDATE_ON_NEW_GAME: int = 70
+CHANCE_TO_DO_NOTHING: int = 40
+CHANCE_TO_GO_DND: int = 1
+INTERVAL_TO_UPDATE_IDLE: int = 120
 INTERVAL_TO_UPDATE_GAME: int = 60
 
 
@@ -25,10 +30,11 @@ class GameService(Service):
         self.channels: ChannelService = channels
         self.users: UserService = users
         self.config.raise_error_on_bad_config = False
-        self.bot.on_initialized += self.set_game
+        self.bot.on_initialized += self.go_idle
         self.bot.on_initialized += self.check_streams
         self.bot.on_user_update += self.collect_game_from_user
-        DaemonHelper.add(self.set_game, trigger="interval", minutes=INTERVAL_TO_UPDATE_GAME)
+        DaemonHelper.add_minute_interval(self.set_game, INTERVAL_TO_UPDATE_GAME)
+        DaemonHelper.add_minute_interval(self.go_idle, INTERVAL_TO_UPDATE_IDLE)
 
 
     # when a user is updated check if the game is currently in the 
@@ -48,17 +54,39 @@ class GameService(Service):
     # every so often, set the bot status - if the bot
     # has decided to go "away" or do something else, do
     # not wire any game 
-    async def set_game(self, force: bool = False) -> None:
-        will_set = randint(0, 100) <= CHANCE_TO_UPDATE_ON_NEW_GAME
+    async def set_game(self) -> None:
+        do_nothing: bool = will_execute_on_chance(CHANCE_TO_DO_NOTHING)
+        go_dnd: bool = will_execute_on_chance(CHANCE_TO_GO_DND)
+        play_game: bool = will_execute_on_chance(CHANCE_TO_UPDATE_ON_NEW_GAME)
 
-        if not force and will_set:
+        if play_game:
             games = self.database.game_names.all()
 
             if len(games) > 0:
-                index = roll_int(0, len(games) - 1)
+                index = randint(0, len(games) - 1)
                 game = games[index]
 
-                await self.bot.change_presence(activity=Game(game["name"]))
+                await self.bot.change_presence(status=Status.online, activity=Game(game["name"]))
+        elif do_nothing:
+            await self.bot.change_presence(status=None, activity=None)
+        elif go_dnd:
+            await self.bot.change_presence(status=Status.dnd, activity=None)
+
+
+
+    # every so often, let bunky take a break. he does hard work
+    async def go_idle(self) -> None:
+        if self.bot.member_ref.status != Status.idle:
+            hour: int = get_now(False).hour
+            is_sleepy_time = hour >= 0 and hour <= 8
+            go_idle: bool = is_sleepy_time or will_execute_on_chance(CHANCE_TO_GO_IDLE)
+
+            if go_idle:
+                await self.bot.change_presence(status=Status.idle, activity=None)
+            elif self.bot.member_ref.activity is None:
+                await self.set_game()
+        else:
+            await self.set_game()
 
 
     # do an initial check of current streams and update

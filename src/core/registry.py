@@ -2,6 +2,7 @@ from ..bunkbot import BunkBot
 from ..channel.channel_service import ChannelService
 from ..channel.log_service import LogService
 from ..chat.chat_service import ChatService
+from ..chat.reaction_service import ReactionService
 from ..db.database_service import DatabaseService
 from ..etc.config_service import ConfigService
 from ..game.game_service import GameService
@@ -18,6 +19,7 @@ from ..weather.weather_service import WeatherService
 CHANNEL_SERVICE: ChannelService = None
 CHAT_SERVICE: ChatService = None
 DATABASE_SERVICE: DatabaseService = None
+REACTION_SERVICE: ReactionService = None
 GAME_SERVICE: GameService = None
 ROLE_SERVICE: RoleService = None
 RPG_SERVICE: RpgService = None
@@ -36,6 +38,7 @@ def initialize(bot: BunkBot) -> None:
     global DATABASE_SERVICE
     global GAME_SERVICE
     global SUDO_SERVICE
+    global REACTION_SERVICE
     global ROLE_SERVICE
     global RPG_SERVICE
     global USER_SERVICE
@@ -50,6 +53,7 @@ def initialize(bot: BunkBot) -> None:
     CHAT_SERVICE = ChatService(bot, DATABASE_SERVICE, USER_SERVICE, CHANNEL_SERVICE)
     RPG_SERVICE = RpgService(bot, DATABASE_SERVICE, USER_SERVICE)
     WEATHER_SERVICE = WeatherService(bot, DATABASE_SERVICE, CHANNEL_SERVICE)
+    REACTION_SERVICE = ReactionService(bot, CHANNEL_SERVICE)
 
     try:
         bot.run(ConfigService().discord_token)
