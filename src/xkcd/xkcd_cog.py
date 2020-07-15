@@ -1,7 +1,7 @@
 from discord import Embed
 from discord.ext.commands import command, Context, Cog
 
-from .xkcd_comic_service import get_xkcd_comic
+from .xkcd_comic_service import get_xkcd_comic, XKCD_BASE_URL
 from ..bunkbot import BunkBot
 
 
@@ -18,6 +18,7 @@ class XKCDCog(Cog):
 
             embed: Embed = Embed()
             embed.title = result["safe_title"]
+            embed.url = "{0}/{1}".format(XKCD_BASE_URL, result["num"])
             embed.set_image(url=result["img"])
             embed.set_footer(text=result["alt"])
 

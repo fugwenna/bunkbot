@@ -6,6 +6,7 @@ from ..core.http import http_get
 from ..core.functions import get_cmd_params
 
 
+XKCD_BASE_URL: str = "https://xkcd.com"
 XKCD_INFO_URL: str = "https://xkcd.com/info.0.json"
 XKCD_JSON_URL: str = "https://xkcd.com/{0}/info.0.json"
 
