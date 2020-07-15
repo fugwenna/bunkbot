@@ -45,7 +45,7 @@ class Youtube(Cog):
 
             self.message = await ctx.send(self.yt_link)
         except BunkException as be:
-            await ctx.send(be)
+            await ctx.send(be.message)
         except Exception as e:
             msg = "Oops, I messed up. Here is your search: {0}".format(self.yt_result.qualified_query)
             await ctx.send(msg)
