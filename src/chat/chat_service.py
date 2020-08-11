@@ -55,7 +55,7 @@ class ChatService(Service):
             else:
                 user: BunkUser = self.users.get_by_id(message.author.id)
                 chat: Chat = next((c for c in self.chats if c.user.id == user.id and c.channel_id == message.channel.id), None)
-                is_bunk_mention: bool = len(message.mentions) > 0 and message.mentions[0].name == self.bot.name
+                is_bunk_mention: bool = len(message.mentions) > 0 and message.mentions[0].name.lower() == self.bot.name.lower()
                 parsed_chat: list = Chat.parse(message.content)
                 bunk_name_index: int = -1
 
@@ -69,8 +69,8 @@ class ChatService(Service):
                         chat = Chat(user, message)
                         self.chats.append(chat)
 
-                    is_first = bunk_name_index == 0
-                    is_last = bunk_name_index == len(parsed_chat)-1
+                    is_first = is_bunk_mention or bunk_name_index == 0
+                    is_last = is_bunk_mention or bunk_name_index == len(parsed_chat)-1
                     is_one_time_response = not is_first and not is_last
                     will_respond: bool = True
 
