@@ -73,7 +73,6 @@ class GameService(Service):
             await self.bot.change_presence(status=Status.dnd, activity=None)
 
 
-
     # every so often, let bunky take a break. he does hard work
     async def go_idle(self) -> None:
         if self.bot.member_ref.status != Status.idle:
