@@ -1,5 +1,5 @@
 from cleverwrap import CleverWrap
-from discord import Message, Member
+from discord import Message, Member, Status
 from typing import List
 from random import randint
 from re import findall
@@ -99,6 +99,9 @@ class ChatService(Service):
 
     async def respond(self, chat: Chat, message: Message, user: BunkUser) -> None:
         try:
+            if self.bot.member_ref.status == Status.idle:
+                await self.bot.change_presence(Status.online, activity=None)
+
             await message.channel.trigger_typing()
             content: str = self.override(message)
 
