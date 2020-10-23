@@ -11,9 +11,10 @@ from ..channel.channel_service import ChannelService
 from ..core.bunk_exception import BunkException
 from ..core.bunk_user import BunkUser
 from ..core.daemon import DaemonHelper
-from ..core.functions import get_cmd_params, will_execute_on_chance
+from ..core.functions import get_cmd_params, will_execute_on_chance, is_stupid_mkr
 from ..core.service import Service
 from ..db.database_service import DatabaseService
+from ..time.time_service import TimeService
 from ..user.user_service import UserService
 
 
@@ -25,12 +26,13 @@ Service responsible for dealing with
 CleverBot and responding to
 """
 class ChatService(Service):
-    def __init__(self, bot: BunkBot, database: DatabaseService, users: UserService, channels: ChannelService):
+    def __init__(self, bot: BunkBot, database: DatabaseService, users: UserService, channels: ChannelService, time: TimeService):
         super().__init__(bot, database)
         self.chat_bot: CleverWrap = None
         self.chats: List[Chat] = []
         self.users: UserService = users
         self.channels: ChannelService = channels
+        self.time: TimeService = time
         self.bot.on_initialized += self.setup_chat_helper
         self.config.raise_error_on_bad_config = False
         #DaemonHelper.add(self.randomly_create_conversation, trigger="interval", hours=INTERVAL_FOR_RANDOM_CHAT)
@@ -52,6 +54,8 @@ class ChatService(Service):
         if not message.author.bot:
             if message.content.startswith("!"):
                 await self.bot.process_commands(message)
+            elif message.content == "/time" and is_stupid_mkr(message.author.name):
+                await message.channel.send(await self.time.get_time(message))
             else:
                 user: BunkUser = self.users.get_by_id(message.author.id)
                 chat: Chat = next((c for c in self.chats if c.user.id == user.id and c.channel_id == message.channel.id), None)

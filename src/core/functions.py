@@ -35,3 +35,9 @@ def get_cmd_params(ctx: Context) -> list:
 def will_execute_on_chance(chance: int) -> bool:
     return randint(1, 100) <= chance
 
+
+def is_stupid_mkr(name: str) -> bool:
+    if name is None:
+        return False
+
+    return name.lower() == "mkr"

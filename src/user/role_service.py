@@ -87,4 +87,7 @@ class RoleService(Service):
         roles: List[int] = [r.position for r in self.bot.server.roles if pattern in r.name]
         roles.sort()
 
+        if len(roles) == 0:
+            return 1
+
         return roles[:1][0]

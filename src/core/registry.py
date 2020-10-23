@@ -7,6 +7,7 @@ from ..db.database_service import DatabaseService
 from ..etc.config_service import ConfigService
 from ..game.game_service import GameService
 from ..rpg.rpg_service import RpgService
+from ..time.time_service import TimeService
 from ..user.role_service import RoleService
 from ..user.sudo_service import SudoService
 from ..user.user_service import UserService
@@ -24,6 +25,7 @@ GAME_SERVICE: GameService = None
 ROLE_SERVICE: RoleService = None
 RPG_SERVICE: RpgService = None
 SUDO_SERVICE: SudoService = None
+TIME_SERVICE: TimeService = None
 USER_SERVICE: UserService = None
 WEATHER_SERVICE: WeatherService = None
 
@@ -41,16 +43,18 @@ def initialize(bot: BunkBot) -> None:
     global REACTION_SERVICE
     global ROLE_SERVICE
     global RPG_SERVICE
+    global TIME_SERVICE
     global USER_SERVICE
     global WEATHER_SERVICE
 
     DATABASE_SERVICE = DatabaseService(bot)
     CHANNEL_SERVICE = ChannelService(bot, DATABASE_SERVICE)
+    TIME_SERVICE = TimeService(bot, DATABASE_SERVICE)
     ROLE_SERVICE = RoleService(bot, DATABASE_SERVICE, CHANNEL_SERVICE)
     USER_SERVICE = UserService(bot, DATABASE_SERVICE, ROLE_SERVICE, CHANNEL_SERVICE)
     GAME_SERVICE = GameService(bot, DATABASE_SERVICE, CHANNEL_SERVICE, USER_SERVICE)
     SUDO_SERVICE = SudoService(bot, DATABASE_SERVICE, CHANNEL_SERVICE)
-    CHAT_SERVICE = ChatService(bot, DATABASE_SERVICE, USER_SERVICE, CHANNEL_SERVICE)
+    CHAT_SERVICE = ChatService(bot, DATABASE_SERVICE, USER_SERVICE, CHANNEL_SERVICE, TIME_SERVICE)
     RPG_SERVICE = RpgService(bot, DATABASE_SERVICE, USER_SERVICE)
     WEATHER_SERVICE = WeatherService(bot, DATABASE_SERVICE, CHANNEL_SERVICE)
     REACTION_SERVICE = ReactionService(bot, CHANNEL_SERVICE)
