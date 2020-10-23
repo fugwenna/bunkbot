@@ -141,7 +141,7 @@ class Color(Cog):
     async def set_user_role(self, role_name: str, user: BunkUser, color: str) -> None:
         exists = next((r for r in self.bot.server.roles if r.name.lower() == role_name), None)
 
-        if exists is not None:
+        if exists is None:
             pos: int = await self.roles.get_lowest_index_for("color-")
             new_role: Role = await self.roles.add_role(role_name, user, self.get_color_for_role(color))
             await self.channels.log_info("Elevating role position `{0}` -> `{1}`".format(role_name, pos))
