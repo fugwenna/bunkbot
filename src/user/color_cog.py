@@ -105,13 +105,12 @@ class Color(Cog):
         existing_role: Role = next((r for r in self.bot.server.roles if r.name.lower() == role_name), None)
         
         if existing_role is not None:
-            err_msg: str = "Role `{0}` already exists and is assigned to another user: `{1}`".format(role_name, existing_role.members[0].name)
+            #err_msg: str = "Role `{0}` already exists and is assigned to another user: `{1}`".format(role_name, existing_role.members[0].name)
             is_user: bool = next((r for r in existing_role.members if r.id == user.id), None)
 
             if is_user is not None:
                 err_msg = "`{0}` is already your color role".format(role_name)
-
-            raise BunkException(err_msg)
+                raise BunkException(err_msg)
 
 
     # get the color for a role, whether its hex or
@@ -140,8 +139,11 @@ class Color(Cog):
     # set the color role for a user if
     # it is finally available
     async def set_user_role(self, role_name: str, user: BunkUser, color: str) -> None:
-        pos: int = await self.roles.get_lowest_index_for("color-")
-        new_role: Role = await self.roles.add_role(role_name, user, self.get_color_for_role(color))
+        exists = next((r for r in self.bot.server.roles if r.name.lower() == role_name), None)
+
+        if exists is not None:
+            pos: int = await self.roles.get_lowest_index_for("color-")
+            new_role: Role = await self.roles.add_role(role_name, user, self.get_color_for_role(color))
 
         roles: List[Role] = user.member.roles.copy()
 
