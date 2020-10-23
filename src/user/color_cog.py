@@ -145,6 +145,7 @@ class Color(Cog):
             pos: int = await self.roles.get_lowest_index_for("color-")
             new_role: Role = await self.roles.add_role(role_name, user, self.get_color_for_role(color))
             await self.channels.log_info("Elevating role position `{0}` -> `{1}`".format(role_name, pos))
+            await new_role.edit(position=pos)
         else:
             await self.channels.log_info("Assigning existing role `{0}` to another user".format(role_name))
 
@@ -154,7 +155,6 @@ class Color(Cog):
             if role.name != role_name and "color-"in role.name:
                 await self.roles.rm_role(role.name, user)
 
-        await new_role.edit(position=pos)
 
 
 def setup(bot: BunkBot) -> None:
