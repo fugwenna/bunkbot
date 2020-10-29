@@ -127,7 +127,7 @@ class Color(Cog):
         try:
             if discord_color is None:
                 discord_color = DColor(int(color, 16))
-        except Exception as e:
+        except Exception:
             raise BunkException("Error assigning color '{0}'".format(color))
         
         if discord_color is None:
