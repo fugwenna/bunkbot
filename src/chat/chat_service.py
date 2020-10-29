@@ -104,7 +104,12 @@ class ChatService(Service):
     async def respond(self, chat: Chat, message: Message, user: BunkUser) -> None:
         try:
             if self.bot.member_ref.status == Status.idle:
-                await self.bot.change_presence(Status.online, activity=None)
+                will_wakeup: bool = will_execute_on_chance(40)
+
+                if not will_wakeup:
+                    return
+
+                await self.bot.change_presence(status=Status.online, activity=None)
 
             await message.channel.trigger_typing()
             content: str = self.override(message)
