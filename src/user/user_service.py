@@ -142,7 +142,7 @@ class UserService(Service):
             await self.on_user_gaming.emit(user)
             await self.roles.add_role(ROLE_GAMING, user)
 
-            sg_role = self.roles.get_role_by_pattern("color-")
+            sg_role = self.roles.get_role_by_pattern("color-", user.member.roles)
 
             if sg_role is None:
                await self.roles.add_role(ROLE_SHOW_GAMING, user) 
