@@ -60,8 +60,7 @@ class UserService(Service):
             if len(new_users) > 0:
                 new_user_msg = "New users: {0}".format(", ".join(new_users)) 
                 await self.channels.log_info(new_user_msg)
-
-        await self.roles.prune_orphaned_roles("color-")
+                await self.roles.prune_orphaned_roles("color-")
 
     
     # when a new user has joined the server, check
