@@ -30,11 +30,17 @@ USER_SERVICE: UserService = None
 WEATHER_SERVICE: WeatherService = None
 
 
-"""
-On bot load, initialize each keyword defined
-service with the instance of the bot
-"""
 def initialize(bot: BunkBot) -> None:
+    """
+    On bot load, initialize each keyword 
+    defined service with the instance of the bot
+
+    Parameters
+    -----------
+    bot: BunkBot
+        singleton bot reference which will be used to 
+        initialize with a given developer token
+    """
     global CHANNEL_SERVICE
     global CHAT_SERVICE
     global DATABASE_SERVICE

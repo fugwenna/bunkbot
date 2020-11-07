@@ -1,12 +1,21 @@
 from os import walk
 from os.path import join, splitext, sep
+from typing import List
 
-"""
-Dynamically load cogs depending on the
-formatting of the file name
-"""
 def get_cogs() -> list:
-    cogs: list = []
+    """
+    Dynamically load cogs depending on the
+    formatting of the file name. 
+
+    List of loaded cogs that are formatted with the
+    appropriate _cog.py file extension will be the only
+    things loaded.
+
+    Returns
+    --------
+    List of file paths to cogs
+    """
+    cogs: List[str] = []
 
     for path, dirs, files in walk(join("src")):
         for f in files:
