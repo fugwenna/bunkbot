@@ -7,6 +7,7 @@ from ..bunkbot import BunkBot
 from ..channel.channel_service import ChannelService
 from ..core.bunk_exception import BunkException
 from ..core.bunk_user import BunkUser
+from ..core.constants import ROLE_SHOW_GAMING
 from ..core.functions import get_cmd_params
 from ..core.registry import ROLE_SERVICE, CHANNEL_SERVICE, USER_SERVICE
 from ..user.user_service import UserService
@@ -150,6 +151,9 @@ class Color(Cog):
             await self.channels.log_info("Assigning existing role `{0}` to another user".format(role_name))
 
         roles: List[Role] = user.member.roles.copy()
+
+        if user.has_role(ROLE_SHOW_GAMING):
+            self.roles.rm_role(ROLE_SHOW_GAMING, user)
 
         for role in roles:
             if role.name != role_name and "color-"in role.name:
