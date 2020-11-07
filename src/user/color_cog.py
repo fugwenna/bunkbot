@@ -153,7 +153,7 @@ class Color(Cog):
         roles: List[Role] = user.member.roles.copy()
 
         if user.has_role(ROLE_SHOW_GAMING):
-            self.roles.rm_role(ROLE_SHOW_GAMING, user)
+            await self.roles.rm_role(ROLE_SHOW_GAMING, user)
 
         for role in roles:
             if role.name != role_name and "color-"in role.name:
