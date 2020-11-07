@@ -5,7 +5,7 @@ from .role_service import RoleService
 from ..bunkbot import BunkBot
 from ..channel.channel_service import ChannelService
 from ..core.bunk_user import BunkUser
-from ..core.constants import ROLE_GAMING, ROLE_STREAMING, ROLE_MODERATOR, ROLE_VIP
+from ..core.constants import ROLE_GAMING, ROLE_SHOW_GAMING, ROLE_STREAMING, ROLE_MODERATOR, ROLE_VIP
 from ..core.event_hook import EventHook
 from ..core.service import Service
 from ..db.database_service import DatabaseService
@@ -141,8 +141,16 @@ class UserService(Service):
         if is_gaming:
             await self.on_user_gaming.emit(user)
             await self.roles.add_role(ROLE_GAMING, user)
+
+            sg_role = self.roles.get_role_by_pattern("color-")
+
+            if sg_role is None:
+               await self.roles.add_role(ROLE_SHOW_GAMING, user) 
         elif was_gaming:
             await self.roles.rm_role(ROLE_GAMING, user)
+
+            if user.has_role(ROLE_SHOW_GAMING):
+                await self.roles.rm_role(ROLE_SHOW_GAMING, user)
 
 
     # check if the user is/was streaming and update their 

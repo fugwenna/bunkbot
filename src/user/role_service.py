@@ -22,6 +22,13 @@ class RoleService(Service):
     def get_role(self, role_name: str) -> Role:
         return next((role for role in self.server.roles if role.name == role_name), None)
 
+        
+    def get_role_by_pattern(self, pattern: str, roles: List[Role] = None) -> Role:
+        if roles is None:
+            roles = self.server.roles
+
+        return next((role for role in roles if pattern in role.name), None)
+
 
     # non-event driven - directly remove a role when anothoer
     # service has deemed appropriate
