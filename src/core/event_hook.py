@@ -1,8 +1,8 @@
-"""
-Basic "event system" from:
-http://www.voidspace.org.uk/python/weblog/arch_d7_2007_02_03.shtml#e616
-"""
 class EventHook(object):
+    """
+    Basic "event system" from:
+    http://www.voidspace.org.uk/python/weblog/arch_d7_2007_02_03.shtml#e616
+    """
     def __init__(self):
         self.__handlers = []
 

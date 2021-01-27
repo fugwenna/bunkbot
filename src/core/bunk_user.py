@@ -5,13 +5,21 @@ from .constants import ROLE_ADMIN, ROLE_MODERATOR_PERMS, ROLE_VIP_PERMS
 from .functions import simple_string
 from ..db.database_user import DatabaseUser, HangmanInfo
 
-"""
-Simple wrapper class which will take 
-an instance of a discord member as 
-the primary DI variable and maps an existing
-database user
-"""
 class BunkUser:
+    """
+    Simple wrapper class which will take 
+    an instance of a discord member as 
+    the primary DI variable and maps an existing
+    database user
+
+    Parameters
+    -----------
+    member: Member
+        Reference to the actual discord member
+
+    db_user: DatabaseUser
+        Reference to the database user that is linked to the member id
+    """
     def __init__(self, member: Member, db_user: DatabaseUser) -> None:
         self.member: Member = member
         self.db_user: DatabaseUser = db_user
