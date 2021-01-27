@@ -5,11 +5,19 @@ from re import findall, sub, IGNORECASE
 from ..core.bunk_user import BunkUser
 from ..core.functions import will_execute_on_chance
 
-"""
-This class represents a chat between
-bunkbot and a bunk user
-"""
 class Chat:
+    """
+    This class represents a chat between
+    bunkbot and a bunk user
+
+    Parameters
+    -----------
+    user: BunkUser
+        The user currently having a conversation with the bot
+
+    message: Message
+        The last message the user has sent to the server
+    """
     def __init__(self, user: BunkUser, message: Message):
         self.timer: int = 13
         self.last_message_at: int = time()

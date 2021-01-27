@@ -20,12 +20,28 @@ from ..user.user_service import UserService
 
 INTERVAL_FOR_RANDOM_CHAT: int = 3
 
-
-"""
-Service responsible for dealing with
-CleverBot and responding to
-"""
 class ChatService(Service):
+    """
+    Service responsible for dealing with
+    'CleverBot' and responding to users
+
+    Parameters
+    -----------
+    bot: Bunkbot
+        Super class instance of the bot
+
+    database: DatabaseService
+        Super class instance of the database service
+
+    users: UserService
+        Instance of the user service for retrieving user information
+
+    channels: ChannelService
+        Instance of the channel service to send responses back to the server
+
+    time: TimeService
+        /time
+    """
     def __init__(self, bot: BunkBot, database: DatabaseService, users: UserService, channels: ChannelService, time: TimeService):
         super().__init__(bot, database)
         self.chat_bot: CleverWrap = None
@@ -39,6 +55,10 @@ class ChatService(Service):
 
 
     async def setup_chat_helper(self) -> None:
+        """
+        Upon initialization of the bot, connect to the cleverbot through
+        the CleverWrap package if the configuration has been setup with a valid key
+        """
         chat_token = self.config.cleverbot_api_key
         
         if chat_token is not None:
@@ -48,9 +68,17 @@ class ChatService(Service):
             await self.channels.log_warning("Cleverbot token not supplied, BunkBot will be mute :(")
 
 
-    # check for if the message sent by a user
-    # is meant for bunkbot
     async def respond_to_message(self, message: Message) -> None:
+        """
+        If configured, each user message into the service will be analyzed
+        if the user is either attempting to send a command, start a conversation
+        with the bot, or continue an existing conversation
+
+        Parameters
+        -----------
+        message: Message
+            Discord Message object sent from the bot event when a user sends a chat message
+        """
         if not message.author.bot:
             if message.content.startswith("!"):
                 await self.bot.process_commands(message)
@@ -102,6 +130,21 @@ class ChatService(Service):
 
 
     async def respond(self, chat: Chat, message: Message, user: BunkUser) -> None:
+        """
+        After careful analysis of conversation with the bot, respond to
+        a user with the CleverBot API. If the bot is idle, wake his ass up
+
+        Parameters
+        -----------
+        chat: Chat
+            Stateful chat object between a user and the bot
+
+        message: Message
+            Instance of the last sent message by the user
+
+        user: BunkUser
+            User currently holding a conversation with the bot
+        """
         try:
             if self.bot.member_ref.status == Status.idle:
                 will_wakeup: bool = will_execute_on_chance(40)
@@ -135,9 +178,13 @@ class ChatService(Service):
         return response
 
 
-    # every 3 hours, random decide to ping someone (with an exclude list)
-    # who is online and not gaming
     async def randomly_create_conversation(self) -> None:
+        """
+        Every N configured hours, random decide to ping someone (with an exclude list)
+        who is online and not gaming
+
+        TODO - Not currently implemented or in use
+        """
         users: List[BunkUser] = []
 
         for member in self.bot.server.members:
@@ -156,9 +203,18 @@ class ChatService(Service):
                 self.chats.remove(chat)
         
 
-    # "override" commands for bunkbot
     @staticmethod
     def override(msg: Message) -> bool:
+        """
+        Override possible commands so that the
+        bot can respond instead of attempting to
+        parse the command
+
+        Paramters
+        ----------
+        msg: Message
+            Message/command to override
+        """
         content: str = msg.content.split()[0]
         if content == "!duel":
             return "Duel me you coward!"

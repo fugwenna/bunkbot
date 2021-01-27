@@ -11,6 +11,18 @@ DEFAULT_LIST: str = "https://gist.githubusercontent.com/Vexs/629488c4bb4126ad2a9
 
 
 class ReactionService():
+    """
+    When chats are occurring in the server, give the bot a 1% chance to 
+    add an emote to a random message
+
+    Parameters
+    -----------
+    bot: BunkBot
+        Instance of the bot itself
+
+    channels: ChannelService
+        Instance of the channel service to log errors
+    """
     def __init__(self, bot: BunkBot, channels: ChannelService):
         self.bot: BunkBot = bot
         self.channels: ChannelService = channels
@@ -34,7 +46,7 @@ class ReactionService():
                 if react:
                     try:
                         emoji = None
-                        use_custom = randint(0, 100) >= 40 or len(self.default_list) == 0 
+                        use_custom = randint(0, 100) >= 60 or len(self.default_list) == 0 
 
                         if use_custom:
                             emoji = await self._get_custom_emoji()
