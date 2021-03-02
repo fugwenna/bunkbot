@@ -26,7 +26,7 @@ class XKCDCog(Cog):
         """
         try:
             result: dict = await self.xkcd_svc.get_xkcd_comic(ctx)
-            embed = XKCD_SERVICE.create_embed_comic(result)
+            embed = self.xkcd_svc.create_embed_comic(result)
 
             await ctx.send(embed=embed)
         except Exception as ex:
