@@ -58,7 +58,7 @@ class ReactionService():
                     if emoji is not None:
                         await message.add_reaction(emoji)
         except Exception as ex:
-            await self.channels.log_error(e, "ReactionService")
+            await self.channels.log_error(ex, "ReactionService")
 
     
     async def _get_custom_emoji(self) -> Emoji:

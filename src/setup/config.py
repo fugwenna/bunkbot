@@ -7,7 +7,7 @@ from ..core.constants import OKWHITE
 from ..etc.config_constants import \
     DEFAULT_CONFIG_PATH, CHANNEL_PRIMARY, CHANNEL_LOGS, \
     TOKEN_DISCORD, KEY_CLEVERBOT, KEY_WEATHER, KEY_TENOR, \
-    CHANNEL_CUSTOM_GAMES
+    CHANNEL_CUSTOM_GAMES, CHANNEL_XKCD
 
 
 """
@@ -110,6 +110,19 @@ def _setup_game_channel(config: dict, use_defaults: bool) -> None:
     )
 
 
+def _setup_xkcd_channel(config: dict, use_defaults: bool) -> None:
+    _get_prompt_for_setup(
+        use_defaults,
+        config,
+        CHANNEL_XKCD,
+        "",
+        "Channel where new XKCD comics will be posted.",
+        "Enter the XKCD channel: {0}".format(OKWHITE),
+        "XKCD channel channel saved",
+        False
+    )
+
+
 def _get_prompt_for_setup(use_defaults: bool,
     config: dict, config_prop: str, val: str, info: str, prompt_str: str, success: str, create_default: bool = True) -> None:
 
@@ -126,7 +139,7 @@ def _get_prompt_for_setup(use_defaults: bool,
         print_warning("No configuration set for {0}".format(OKWHITE + config_prop))
 
 
-def create_config(defaults: str) -> bool:
+jef create_config(defaults: str) -> bool:
     print("\n")
 
     l_defs: str = defaults.lower()
