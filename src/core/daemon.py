@@ -20,7 +20,7 @@ class DaemonHelper:
             Keyword arguments to align with the async schedular
         """
         scheduler = AsyncIOScheduler()
-        scheduler.add_job(job_fn, misfire_grace_time=120, timezone=EASTERN_STANDARD_TIME, **kwargs)
+        scheduler.add_job(job_fn, misfire_grace_time=None, timezone=EASTERN_STANDARD_TIME, **kwargs)
         scheduler.start()
 
         if not scheduler.running:
@@ -42,7 +42,7 @@ class DaemonHelper:
             Amount of minutes to wait until executing the job_fn again
         """
         scheduler = AsyncIOScheduler()
-        scheduler.add_job(job_fn, misfire_grace_time=120, timezone=EASTERN_STANDARD_TIME, trigger="interval", minutes=minutes)
+        scheduler.add_job(job_fn, misfire_grace_time=None, timezone=EASTERN_STANDARD_TIME, trigger="interval", minutes=minutes)
         scheduler.start()
 
         if not scheduler.running:

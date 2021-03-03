@@ -95,7 +95,7 @@ class DatabaseService:
         return self.comics.get(Query().name == name)
 
 
-    def update_comic(self, name: str) -> None:
+    def update_comic(self, name: str) -> bool:
         added: bool = False
         db_comic = None
 
@@ -110,11 +110,10 @@ class DatabaseService:
             })
             added = True
         elif db_comic["name"] != name:
-            self.comics.purge() # totally incorrect, but we're going for it "for now" until django
-            self.comics: Table = self.db.table(DB_COMICS)
-            self.comics.insert({
+            self.comics.update({
                 "name": name
-            })
+            }, Query().name == db_comic["name"])
             added = True
         
         return added
+

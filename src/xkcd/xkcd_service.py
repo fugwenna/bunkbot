@@ -87,8 +87,10 @@ class XKCDService(Service):
                 comic = await XKCDService.get_xkcd_comic(None)
                 comic_id = "xkcd_{0}".format(comic["num"])
                 db_comic_id = self.database.get_comic_by_name(comic_id)
+                ids_match = db_comic_id is None or comic_id != db_comic_id["name"]
 
-                if (comic_id != db_comic_id) and self.database.update_comic(comic_id):
+                if ids_match:
+                    self.database.update_comic(comic_id)
                     await channel.send(embed=XKCDService.create_embed_comic(comic))
             else:
                 await self.channels.log_warning("Cannot locate channel {0} for XKCD. Aborting.".format(self.config.xkcd_channel))
@@ -116,5 +118,5 @@ class XKCDService(Service):
 
     async def _configure_comic_check(self) -> any:
         if self.config.xkcd_channel is not None:
-            DaemonHelper.add(self.check_new_comic, trigger="cron", hour=11)
-            return await self.check_new_comic()
+            DaemonHelper.add(self.check_new_comic, trigger="cron", hour=10)
+
