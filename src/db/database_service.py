@@ -1,8 +1,9 @@
 from discord import Member, Game, Guild
 from tinydb import TinyDB, Query
+from tinydb.operations import delete
 from tinydb.database import Table
 
-from .database_contants import DB_PATH, DB_USERS, DB_GAMES
+from .database_contants import DB_PATH, DB_USERS, DB_GAMES, DB_COMICS
 from .database_user import DatabaseUser
 from ..core.bunk_user import BunkUser
 from ..core.bunk_exception import BunkException
@@ -20,6 +21,7 @@ class DatabaseService:
         self.db: TinyDB = TinyDB(DB_PATH)
         self.users: Table = self.db.table(DB_USERS)
         self.game_names: Table = self.db.table(DB_GAMES)
+        self.comics: Table = self.db.table(DB_COMICS)
 
 
     # get a user by the passed discord member reference - this should
@@ -87,3 +89,31 @@ class DatabaseService:
             added = True
 
         return added
+
+
+    def get_comic_by_name(self, name: str) -> any:
+        return self.comics.get(Query().name == name)
+
+
+    def update_comic(self, name: str) -> bool:
+        added: bool = False
+        db_comic = None
+
+        try:
+            db_comic = self.comics.all()[0]
+        except: 
+            pass
+
+        if db_comic is None:
+            self.comics.insert({
+                "name": name
+            })
+            added = True
+        elif db_comic["name"] != name:
+            self.comics.update({
+                "name": name
+            }, Query().name == db_comic["name"])
+            added = True
+        
+        return added
+

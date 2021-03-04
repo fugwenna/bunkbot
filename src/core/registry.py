@@ -12,6 +12,7 @@ from ..user.role_service import RoleService
 from ..user.sudo_service import SudoService
 from ..user.user_service import UserService
 from ..weather.weather_service import WeatherService
+from ..xkcd.xkcd_service import XKCDService
 
 
 """
@@ -28,6 +29,7 @@ SUDO_SERVICE: SudoService = None
 TIME_SERVICE: TimeService = None
 USER_SERVICE: UserService = None
 WEATHER_SERVICE: WeatherService = None
+XKCD_SERVICE: XKCDService = None
 
 
 def initialize(bot: BunkBot) -> None:
@@ -52,6 +54,7 @@ def initialize(bot: BunkBot) -> None:
     global TIME_SERVICE
     global USER_SERVICE
     global WEATHER_SERVICE
+    global XKCD_SERVICE
 
     DATABASE_SERVICE = DatabaseService(bot)
     CHANNEL_SERVICE = ChannelService(bot, DATABASE_SERVICE)
@@ -64,6 +67,7 @@ def initialize(bot: BunkBot) -> None:
     RPG_SERVICE = RpgService(bot, DATABASE_SERVICE, USER_SERVICE)
     WEATHER_SERVICE = WeatherService(bot, DATABASE_SERVICE, CHANNEL_SERVICE)
     REACTION_SERVICE = ReactionService(bot, CHANNEL_SERVICE)
+    XKCD_SERVICE = XKCDService(bot, DATABASE_SERVICE, ConfigService(), CHANNEL_SERVICE)
 
     try:
         bot.run(ConfigService().discord_token)
