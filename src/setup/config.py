@@ -139,7 +139,7 @@ def _get_prompt_for_setup(use_defaults: bool,
         print_warning("No configuration set for {0}".format(OKWHITE + config_prop))
 
 
-jef create_config(defaults: str) -> bool:
+def create_config(defaults: str) -> bool:
     print("\n")
 
     l_defs: str = defaults.lower()
