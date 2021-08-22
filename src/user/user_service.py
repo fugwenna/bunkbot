@@ -152,7 +152,7 @@ class UserService(Service):
 
             await self.roles.add_roles_to_user(roles_to_add, user)
         elif was_gaming:
-            await self.roles.rm_roles_from_user([ROLE_SHOW_GAMING, ROLE_SHOW_GAMING], user)
+            await self.roles.rm_roles_from_user([ROLE_GAMING, ROLE_SHOW_GAMING], user)
 
 
     # check if the user is/was streaming and update their 
