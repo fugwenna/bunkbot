@@ -168,7 +168,7 @@ class UserService(Service):
             is_streaming = not old_usr.is_streaming and user.is_streaming
 
         if is_streaming:
-            await self.roles.add_role(ROLE_STREAMING, user)
+            await self.roles.add_role_to_user(ROLE_STREAMING, user)
             await self.update_elevated_user_roles(user, True)
             await self.channels.log_info(":tv: {0} is now streaming".format(user.name))
         elif was_streaming:
@@ -183,10 +183,10 @@ class UserService(Service):
             if rm:
                 await self.roles.rm_role(ROLE_MODERATOR, user)
             else:
-                await self.roles.add_role(ROLE_MODERATOR, user)
+                await self.roles.add_role_to_user(ROLE_MODERATOR, user)
 
         if user.is_vip:
             if rm:
                 await self.roles.rm_role(ROLE_VIP, user)
             else:
-                await self.roles.add_role(ROLE_VIP, user)
+                await self.roles.add_role_to_user(ROLE_VIP, user)

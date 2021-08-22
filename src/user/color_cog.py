@@ -144,7 +144,7 @@ class Color(Cog):
 
         if exists is None:
             pos: int = await self.roles.get_lowest_index_for("color-")
-            new_role: Role = await self.roles.add_role(role_name, user, self.get_color_for_role(color))
+            new_role: Role = await self.roles.add_role_to_user(role_name, user, self.get_color_for_role(color))
             await self.channels.log_info("Elevating role position `{0}` -> `{1}`".format(role_name, pos))
             await new_role.edit(position=pos)
         else:

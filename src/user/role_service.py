@@ -106,7 +106,7 @@ class RoleService(Service):
         await user.set_roles(new_roles)
 
         
-    async def add_role(self, role_name: str, user: BunkUser, color: Color = None) -> Role:
+    async def add_role_to_user(self, role_name: str, user: BunkUser, color: Color = None) -> Role:
         """
         Non-event driven - directly add a role when another service has deemed appropriate
 
