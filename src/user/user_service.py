@@ -141,17 +141,18 @@ class UserService(Service):
 
         if is_gaming:
             await self.on_user_gaming.emit(user)
-            await self.roles.add_role(ROLE_GAMING, user)
 
+            roles_to_add = [ROLE_GAMING]
             sg_role = self.roles.get_role_by_pattern("color-", user.member.roles)
 
             if sg_role is None:
-               await self.roles.add_role(ROLE_SHOW_GAMING, user) 
-        elif was_gaming:
-            await self.roles.rm_role(ROLE_GAMING, user)
+                # only add the "show gaming" role (green) if the
+                # user does not already contain a custom color role
+                roles_to_add.append(ROLE_SHOW_GAMING)
 
-            if user.has_role(ROLE_SHOW_GAMING):
-                await self.roles.rm_role(ROLE_SHOW_GAMING, user)
+            await self.roles.add_roles_to_user(roles_to_add, user)
+        elif was_gaming:
+            await self.roles.rm_roles_from_user([ROLE_SHOW_GAMING, ROLE_SHOW_GAMING], user)
 
 
     # check if the user is/was streaming and update their 

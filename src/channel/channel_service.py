@@ -143,6 +143,10 @@ class ChannelService(Service):
         -----------
         name: str
             Name of the channel which to find
+
+        Returns
+        --------
+        Text channel found by name
         """
         if not self.server or not self.server.channels:
             return None
