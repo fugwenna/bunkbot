@@ -3,7 +3,7 @@ from os import path
 
 from ..core.bunk_exception import BunkException
 from .config_constants import \
-    DEFAULT_CONFIG_PATH, TOKEN_DISCORD, \
+    DEFAULT_CONFIG_PATH, KEY_YOUTUBE, TOKEN_DISCORD, \
     CHANNEL_PRIMARY, CHANNEL_LOGS, CHANNEL_CUSTOM_GAMES, CHANNEL_XKCD, \
     KEY_WEATHER, KEY_CLEVERBOT, KEY_TENOR
 
@@ -56,6 +56,11 @@ class ConfigService:
     @property
     def tenor_api_key(self) -> str:
         return self._get(KEY_TENOR)
+
+
+    @property
+    def youtube_api_key(self) -> str:
+        return self._get(KEY_YOUTUBE)
 
 
     def _get(self, name: str) -> str:

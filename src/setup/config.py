@@ -1,13 +1,12 @@
 import json
 from os import path
-from typing import IO
 
 from .ezio import prompt, print_success, print_warning, print_info
 from ..core.constants import OKWHITE
 from ..etc.config_constants import \
     DEFAULT_CONFIG_PATH, CHANNEL_PRIMARY, CHANNEL_LOGS, \
     TOKEN_DISCORD, KEY_CLEVERBOT, KEY_WEATHER, KEY_TENOR, \
-    CHANNEL_CUSTOM_GAMES, CHANNEL_XKCD
+    CHANNEL_CUSTOM_GAMES, CHANNEL_XKCD, KEY_YOUTUBE
 
 
 """
@@ -95,9 +94,24 @@ def _setup_api_keys(config: dict, use_defaults: bool) -> None:
             "Tenor API key saved",
             False
         )
+
+    if not config or not config.get(KEY_YOUTUBE):
+        _get_prompt_for_setup(
+            use_defaults,
+            config,
+            KEY_YOUTUBE,
+            "",
+            "Youtube API key for searching youtube",
+            "Enter your youtube API key {0}".format(OKWHITE + "(leave blank to not configure): "),
+            "Youtube API key saved",
+            False
+        )
         
 
 def _setup_game_channel(config: dict, use_defaults: bool) -> None:
+    if config and config.get(CHANNEL_CUSTOM_GAMES):
+        return
+
     _get_prompt_for_setup(
         use_defaults,
         config,
@@ -111,6 +125,9 @@ def _setup_game_channel(config: dict, use_defaults: bool) -> None:
 
 
 def _setup_xkcd_channel(config: dict, use_defaults: bool) -> None:
+    if config and config.get(CHANNEL_XKCD):
+        return
+
     _get_prompt_for_setup(
         use_defaults,
         config,
@@ -161,6 +178,7 @@ def create_config(defaults: str) -> bool:
             _setup_discord_token(f_config, use_defaults)
             _setup_primary_channel(f_config, use_defaults)
             _setup_game_channel(f_config, use_defaults)
+            _setup_xkcd_channel(f_config, use_defaults)
             _setup_log_channels(f_config, use_defaults)
             _setup_api_keys(f_config, use_defaults)
 
@@ -169,6 +187,7 @@ def create_config(defaults: str) -> bool:
             f.write(json.dumps(f_config, indent=4))
 
         return True
-    except:
+    except Exception as e:
+        print(e)
         print_warning("\nConfig file could not be created. Exiting.")
         return False

@@ -1,56 +1,48 @@
-"""
-Wrapper for parsing youtube web scraping results
-"""
-import re
-from bs4 import BeautifulSoup
+from googleapiclient.discovery import build
 from typing import List
-from urllib import request, parse
-import json
 
 from ..core.bunk_exception import BunkException
+from ..etc.config_service import ConfigService
 
-YT_SEARCH_URL = "https://www.youtube.com/results?search_query="
+YT_SEARCH_URL = "https://googleapis.com/youtube/v3/search"
 YT_WATCH_URL = "https://www.youtube.com/watch?v="
 
 class YoutubeResult:
+    """
+    A stateful object that will wrap google (youtube) api requests into 
+    a clean format for a youtube cog to render links
+    """
     def __init__(self):
         self.ids = []
         self.titles = []
-        self.qualified_query: str
+        self.qualified_query: str = None
+        self.config: ConfigService = ConfigService()
+        self.yt_service = build("youtube", "v3", developerKey=self.config.youtube_api_key)
 
 
-    # use beautiful soup to
-    # parse a youtube result page into
-    # readable html, and regex out titles and urls
     def query(self, params: List[str]):
+        """
+        Description
+        ------------
+            Use the v3 youtube API to perform a basic youtube data search
+
+        Parameters
+        -----------
+        params: List[str]
+            Parameters passed from the youtube cog ctx object 
+        """
         self.ids: List[str] = []
         self.titles: List[str] = []
+        self.qualified_query = "{0}{1}".format(YT_WATCH_URL, " ".join(params))
 
-        html = self.parse_query(" ".join(params))
-        soup = BeautifulSoup(html, "html.parser")
-        scripttag = soup.findAll('script')
-        for i in scripttag:
-            if i.string is not None:
-                if i.string.lstrip().startswith('window["ytInitialData"]'):
-                    data = json.loads(i.string.lstrip().lstrip('window["ytInitialData"] = ').split('};', 1)[0] + '}')
-                    break
+        req = self.yt_service.search().list(q=" ".join(params), part="snippet", type="video")
+        result = req.execute()
 
-        item_section = data['contents']['twoColumnSearchResultsRenderer']['primaryContents']['sectionListRenderer']['contents'][0]['itemSectionRenderer']['contents']
-
-        title_index = 0
-        ahref_index = 0
-        for item in item_section:
-            if ahref_index < 5:
-                    try:
-                        video_info=item["videoRenderer"]
-                        self.ids.append(video_info["videoId"])
-                        title_index += 1
-                        self.titles.append("{0}. {1}".format(title_index,video_info['title']['runs'][0]['text']))
-                        ahref_index += 1
-                    except KeyError:
-                        pass
-            else:
-                break
+        index = 0
+        for r in result["items"]:
+            self.ids.append(r["id"]["videoId"])
+            self.titles.append("{0}. {1}".format(index + 1, r["snippet"]["title"]))
+            index+=1
 
         if len(self.ids) == 0:
             raise BunkException("No ids found for query")
@@ -58,38 +50,18 @@ class YoutubeResult:
         return "{0} (type !more for related videos)".format(YT_WATCH_URL + self.ids[0])
 
 
-    # retrieve a specific youtube link
-    # from the previous result set
     def get_link(self, index: int) -> str:
+        """
+        Description
+        ------------
+        Retrieve a specific youtube link from the previous result set
+
+        Parameters
+        -----------
+        index: int
+            Index (+1) of the item in the more list
+        """
         if len(self.ids) == 0:
             raise Exception("No youtube links available to retrieve")
 
         return "{0} (showing result #{1})".format(YT_WATCH_URL + self.ids[index-1], index)
-
-
-    # parse the query
-    def parse_query(self, query: str) -> str:
-        query: str = parse.quote_plus(query)
-        self.qualified_query = YT_SEARCH_URL + query
-        response = request.urlopen(self.qualified_query, timeout=1)
-        html = response.read().decode()
-        response.close()
-        return html
-
-
-
-""" LEGACY """
-#items: BeautifulSoup = BeautifulSoup(html, "html.parser").find("ol", class_="item-section")
-#ahref: BeautifulSoup = BeautifulSoup(str(items), "html.parser").find_all("a")
-
-#while title_index < 5 and ahref_index < len(ahref) - 1:
-#    result = ahref[ahref_index]
-#    href = result["href"]
-#    title = result.get("title")
-
-#    if re.match(r'/watch\?v=(.{11})', href) and title is not None:
-#        title_index += 1
-#        self.ids.append(href.split("=")[1])
-#        self.titles.append("{0}. {1}".format(title_index, title))
-
-#    ahref_index += 1

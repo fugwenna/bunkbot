@@ -21,6 +21,22 @@ YOUTUBE_DESCRIPTION = """
 """
 class Youtube(Cog):
     def __init__(self, bot: BunkBot, channels: ChannelService):
+        """
+        Description
+        ------------
+        A cog that enables the ability to search and embed youtube videos
+
+        Parameters
+        -----------
+        bot: Bunkbot
+            Super class instance of the bot
+
+        database: DatabaseService
+            Super class instance of the database service
+
+        channels: ChannelService
+            Access to the server channels and other channel functions
+        """
         self.bot: BunkBot = bot
         self.message: Message = None
         self.channels: ChannelService = channels
@@ -28,10 +44,18 @@ class Youtube(Cog):
         self.yt_link: str = ""
 
 
-    # perform a basic youtube search with a given
-    # keyword - use beautiful soup to scrape HTML and return the result
     @command(help=YOUTUBE_DESCRIPTION, aliases=["youtube"])
     async def yt(self, ctx: Context) -> None:
+        """
+        Description
+        ------------
+        Perform a basic youtube search with a given keyword
+
+        Parameters
+        -----------
+        ctx: Context
+            Discord request context
+        """
         try:
             params: List[str] = get_cmd_params(ctx)
 
@@ -52,10 +76,18 @@ class Youtube(Cog):
             await self.channels.log_error(e, "yt")
 
 
-    # replace the video from the previous search based
-    # on the value entered (1-5)
     @command(help="Link another youtube result from the last search", aliases=["ytl"])
     async def link(self, ctx: Context) -> None:
+        """
+        Description
+        ------------
+        Replace the video from the previous search based on the value entered (1-5)
+
+        Parameters
+        -----------
+        ctx: Context
+            Discord request context
+        """
         try:
             params: List[str] = get_cmd_params(ctx)
 
@@ -69,10 +101,18 @@ class Youtube(Cog):
             await self.channels.log_error(e, "ytl")
 
 
-    # get a list of related videos from the last
-    #youtube search
     @command(help="Get a list of related videos from the last youtube search")
     async def more(self, ctx: Context) -> None:
+        """
+        Description
+        ------------
+        Get a list of related videos from the last youtube search
+
+        Parameters
+        -----------
+        ctx: Context
+        Discord request context
+        """
         e_title: str = MORE_TITLE
         e_message: str = "\n".join(self.yt_result.titles)
         embed: Embed = Embed(title=e_title, description=e_message, color=int("CC181E", 16))
