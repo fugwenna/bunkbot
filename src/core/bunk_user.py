@@ -78,10 +78,6 @@ class BunkUser:
         if not self.member:
             return False
 
-        if self.name == "skeesey":
-            for x in self.member.activities:
-                print("{0}, {1} ({2})".format(x.name, x.type, ActivityType.playing))
-
         if len(self.member.activities) == 0:
             return False
 
