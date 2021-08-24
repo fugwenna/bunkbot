@@ -80,12 +80,12 @@ class UserService(Service):
             welcome_msg = "Welcome back, {0}"
 
         await self.channels.send_to_primary_channel(welcome_msg.format(bunk_user.mention))
-        await self.channels.log_info("{0} has joined the server {1}".format(bunk_user.name, self.bot.ADMIN_USER.mention))
+        await self.channels.log_info("{0} has joined the server".format(bunk_user.name))
 
 
     # inform moderators when users are removed from the server
     async def handle_user_removal(self, member: Member) -> None:
-        await self.channels.log_info(":x: {0} has left the server {1}".format(member.name, self.bot.ADMIN_USER.mention))
+        await self.channels.log_info(":x: {0} has left the server".format(member.name))
         await self.roles.prune_orphaned_roles("color-")
 
 
