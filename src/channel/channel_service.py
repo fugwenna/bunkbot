@@ -43,7 +43,6 @@ class ChannelService(Service):
             log_channel: TextChannel = await self.get_by_name(self.config.log_channel)
 
             if log_channel is not None:
-                await log_channel.purge()
                 await log_channel.send("{0} Bot loaded {1}".format(ROBOT, ROBOT))
             else:
                 self.logger.log_warning("Cannot locate bot logs channel for logging", "ChannelService")
