@@ -95,12 +95,6 @@ class RoleService(Service):
             User from which the roles will be removed from a user 
         """
         roles: List[Role] = user.member.roles.copy()
-        roles_to_rm: List[Role] = []
-        
-        for role_name in role_names:
-            roles_to_rm.extend(self._get_user_roles_to_rm(role_name, user))
-
-        role_names: List[str] = [r.name for r in roles_to_rm]
         new_roles: List[Role] = [r for r in roles if not r.name not in roles_to_rm]
 
         await user.set_roles(new_roles)
