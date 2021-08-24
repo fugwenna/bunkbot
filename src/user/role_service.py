@@ -95,7 +95,7 @@ class RoleService(Service):
             User from which the roles will be removed from a user 
         """
         roles: List[Role] = user.member.roles.copy()
-        new_roles: List[Role] = [r for r in roles if not r.name not in role_names]
+        new_roles: List[Role] = [r for r in roles if r.name not in role_names]
 
         await user.set_roles(new_roles)
 
@@ -164,15 +164,6 @@ class RoleService(Service):
 
             current_roles.append(role)
         return current_roles
-
-
-    def _get_user_roles_to_rm(self, role_name: str, user: BunkUser) -> List[Role]:
-        roles_to_rm: List[Role] = []
-        if user.has_role(role_name):
-            role = self.get_role(role_name)
-            roles_to_rm.append(role)
-
-        return roles_to_rm
 
 
     async def prune_orphaned_roles(self, pattern: str = None) -> None:
