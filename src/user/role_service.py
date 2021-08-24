@@ -174,7 +174,7 @@ class RoleService(Service):
 
     def _get_user_roles_to_rm(self, role_name: str, user: BunkUser) -> List[Role]:
         roles_to_rm: List[Role] = []
-        if not user.has_role(role_name):
+        if user.has_role(role_name):
             role = self.get_role(role_name)
             roles_to_rm.append(role)
 
